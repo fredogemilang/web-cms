@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Role & Permission - AAtheme Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB",
+                        "dark-bg": "#0B0B0B",
+                        "dark-surface": "#1A1A1A",
+                        "dark-surface-lighter": "#272B30",
+                        "dark-border": "#272B30",
+                        "text-primary-dark": "#FCFCFC",
+                        "text-secondary-dark": "#6F767E",
+                        "status-active-bg": "#3F8C5826",
+                        "status-active-text": "#83BF6E",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    },
+                },
+            },
+        };
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .submenu-container {
+            position: relative;
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .submenu-list {
+            position: relative;
+            margin-left: 28px;
+            padding-left: 0;
+        }
+        .submenu-list li::before {
+            content: "";
+            position: absolute;
+            left: -1px;
+            top: 0;
+            bottom: -4px;
+            border-left: 1px solid #b4b4b4;
+        }
+        .loading-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dark .submenu-list li::before {
+            border-left: 1px solid #272B30;
+        }
+        .submenu-list li:last-child::before {
+            display: none;
+        }
+        .submenu-item-connector {
+            position: absolute;
+            left: -1px;
+            top: 0;
+            height: 24px;
+            width: 16px;
+            border-left: 1px solid #b4b4b4;
+            border-bottom: 1px solid #b4b4b4;
+            border-bottom-left-radius: 8px;
+            pointer-events: none;
+        }
+        .dark .submenu-item-connector {
+            border-left: 1px solid #272B30;
+            border-bottom: 1px solid #272B30;
+        }
+        aside {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-text {
+            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out, margin 0.2s ease-in-out;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        aside.collapsed {
+            width: 96px !important;
+        }
+        aside.collapsed .sidebar-text {
+            opacity: 0;
+            width: 0;
+            margin: 0;
+            pointer-events: none;
+            display: none;
+        }
+        aside.collapsed .submenu-container {
+            display: none !important;
+        }
+        aside.collapsed .expand-icon {
+            display: none;
+        }
+        aside.collapsed .nav-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        aside.collapsed .logo-container span:not(:first-child) {
+            display: none;
+        }
+        
+        /* Role Permission Specific Styles */
+        
+        .role-item.active {
+            background-color: #EFF6FF;
+            border-color: #2563EB
+        }
+        .dark .role-item.active {
+            background-color: rgba(39, 43, 48, 0.5);
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px)
+        }
+        #toast-notification {
+            transition: transform 0.3s ease, opacity 0.3s ease
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading-state .matrix-checkbox {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+        }
+        .loading-state .loading-indicator {
+            display: block;
+        }
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: #0B0B0B;
+            border: 1px solid #272B30;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#F4F5F6] dark:bg-[#0B0B0B] text-[#111827] dark:text-[#FCFCFC] transition-colors duration-200 antialiased h-screen overflow-hidden">
+    <div class="flex h-full">
+        <aside
+            class="hidden w-[256px] flex-col bg-[#F4F5F6] dark:bg-[#0B0B0B] md:flex shrink-0 border-r border-gray-200 dark:border-[#272B30]/50 relative transition-all duration-300"
+            id="sidebar">
+            <div class="flex items-center gap-3 px-8 py-8 logo-container transition-all duration-300"
+                style="min-height: 104px;">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1A1D1F] dark:bg-[#272B30] text-white">
+                    <span class="material-symbols-outlined text-2xl">grid_view</span>
+                </div>
+                <span class="sidebar-text font-bold text-lg">CMS Panel</span>
+            </div>
+            <nav class="flex-1 overflow-y-auto px-4 no-scrollbar">
+                <ul class="space-y-1">
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Main</span>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors nav-item overflow-hidden"
+                            id="nav-dashboard" href="dashboard.html">
+                            <span class="material-symbols-outlined shrink-0">dashboard</span>
+                            <span class="font-semibold text-[15px] sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Content</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-pages" onclick="toggleMenu('pages-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">article</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Pages</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="pages-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-pages" href="all-pages.html">
+                                        <span class="text-[14px] font-medium">All Pages</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-add-page" href="add-new-page.html">
+                                        <span class="text-[14px] font-medium">Add Page</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-posts" onclick="toggleMenu('blog-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">rss_feed</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Posts</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="blog-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-posts" href="all-posts.html">
+                                        <span class="text-[14px] font-medium">All Posts</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Add Post</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Categories</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('media-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">perm_media</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Media</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="media-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Library</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Add Media</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Management</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('cpt-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">layers</span>
+                                <span class="font-semibold text-[15px] sidebar-text">CPT</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="cpt-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Post</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Taxonomy</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-user" onclick="toggleMenu('user-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">group</span>
+                                <span class="font-semibold text-[15px] sidebar-text">User</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="user-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-users" href="all-users.html">
+                                        <span class="text-[14px] font-medium">All Users</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="add-user.html">
+                                        <span class="text-[14px] font-medium">Add User</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-profile" href="profile.html">
+                                        <span class="text-[14px] font-medium">Profile</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-primary bg-primary/10 transition-colors relative z-10"
+                                        href="role-permission.html">
+                                        <span class="text-[14px] font-medium">Role & Permission</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">System</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('settings-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">settings</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Settings</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="settings-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">General</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Brevo API</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Languages</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">SEO</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Redirect</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('litespeed-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">bolt</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Litespeed Cache</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="litespeed-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Cache</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">CDN</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Image Optimization</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Page Optimization</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="flex-1 flex flex-col min-w-0 bg-[#F4F5F6] dark:bg-[#0B0B0B]">
+            <header
+                class="sticky top-0 z-30 flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-6 py-6 md:px-10 md:pt-8 md:pb-6 bg-[#F4F5F6]/95 dark:bg-[#0B0B0B]/95 backdrop-blur-sm">
+                <div class="flex items-center gap-4">
+                    <button
+                        class="p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#111827] dark:text-[#FCFCFC] transition-colors focus:outline-none"
+                        id="sidebar-toggle">
+                        <span class="material-symbols-outlined text-2xl" id="toggle-icon">menu_open</span>
+                    </button>
+                    <h1 class="text-4xl font-bold tracking-tight text-[#111827] dark:text-[#FCFCFC]">Roles &amp;
+                        Permissions</h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="relative hidden md:block">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#6F767E]">
+                            <span class="material-symbols-outlined text-[24px]">search</span>
+                        </span>
+                        <input
+                            class="w-80 rounded-xl border border-gray-300 bg-white py-3 pl-12 pr-4 text-sm font-medium text-[#111827] placeholder-[#6F767E] shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-primary dark:bg-[#1A1D1F] dark:text-[#FCFCFC] dark:border-[#272B30] dark:ring-0 dark:focus:ring-white/20 transition-all"
+                            placeholder="Search anything..." type="text" />
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button
+                            class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#6F767E] shadow-sm hover:bg-gray-50 hover:text-[#111827] dark:bg-[#272B30] dark:text-[#FCFCFC] transition-colors focus:outline-none"
+                            id="theme-toggle">
+                            <span class="material-symbols-outlined text-[24px] dark:hidden">dark_mode</span>
+                            <span class="material-symbols-outlined text-[24px] hidden dark:block">light_mode</span>
+                        </button>
+                        <button
+                            class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#6F767E] shadow-sm hover:bg-gray-50 hover:text-[#111827] dark:bg-[#272B30] dark:text-[#6F767E] dark:hover:text-[#FCFCFC] transition-colors relative">
+                            <span class="material-symbols-outlined text-[24px]">notifications</span>
+                            <span
+                                class="absolute top-3 right-3 h-2 w-2 rounded-full bg-[#FF6A55] ring-2 ring-white dark:ring-[#0B0B0B]"></span>
+                        </button>
+                        <img alt="User Avatar"
+                            class="h-12 w-12 rounded-full object-cover border-2 border-transparent hover:border-primary transition-all cursor-pointer"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7INyKmpWd3hSSfwK6-b0SnjLjsglAWSSab9isy38Po_wYTQDueYhNomhx2fSpFvmaGrcU2xwfZuWFUMcUzDYGwfbTkmfwTAcrDjFgC_wYT6qs-5kkwbhhNZRbGZX74jpiOxsD173alK0_1zLG9B43plk3wgBItXKLRzIq2abJUX3bJk5lDzPyQ2Q-raVuAMNbLeQZvD1ODlUIA6BwhdWwVJLIolHlhE_NJnu5u59bxo8uIiGMjU9eIvqnU4guAUWO_A9D3_yXb7ka" />
+                    </div>
+                </div>
+            </header>
+            <div class="flex flex-1 overflow-hidden border-t border-gray-200 dark:border-[#272B30]">
+                <div class="w-1/4 border-r border-gray-200 dark:border-[#272B30] flex flex-col">
+                    <div class="p-6 space-y-4">
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#6F767E] text-xl">search</span>
+                            <input
+                                class="w-full bg-white dark:bg-[#1A1A1A] border-gray-200 dark:border-[#272B30] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-primary focus:border-primary"
+                                placeholder="Search roles..." type="text" />
+                        </div>
+                        <button
+                            class="w-full flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-[#272B30] px-5 py-2.5 text-sm font-semibold text-[#111827] dark:text-[#FCFCFC] hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-all"
+                            onclick="document.getElementById('add-role-modal').classList.remove('hidden')">
+                            <span class="material-symbols-outlined text-lg">add</span>
+                            Add New Role
+                        </button>
+                        <div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-2">
+                            <!-- Administrator Role -->
+                            <div
+                                class="w-full group p-4 rounded-2xl bg-white dark:bg-transparent border border-gray-200 dark:border-[#272B30] hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-all relative">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-[#111827] dark:text-[#FCFCFC]">Administrator</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded uppercase font-bold tracking-wider">Default</span>
+                                        <div
+                                            class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button class="p-1 hover:bg-[#272B30] rounded-lg transition-colors"
+                                                title="Clone Role">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-[#6F767E] hover:text-[#FCFCFC]">content_copy</span>
+                                            </button>
+                                            <button
+                                                class="p-1 hover:bg-[#272B30] rounded-lg transition-colors edit-role-trigger"
+                                                title="Edit Role">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-[#6F767E] hover:text-[#FCFCFC]">edit</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-[#6F767E]">Full access to all system features and settings.</p>
+                            </div>
+
+                            <!-- Editor Role -->
+                            <div
+                                class="role-item active w-full p-4 rounded-2xl border border-primary bg-blue-50 dark:bg-[#1A1A1A] transition-all group relative">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-[#111827] dark:text-[#FCFCFC]">Editor</span>
+                                        <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button class="p-1 hover:bg-[#272B30] rounded-lg transition-colors"
+                                                title="Clone Role">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-[#6F767E] hover:text-[#FCFCFC]">content_copy</span>
+                                            </button>
+                                            <button
+                                                class="p-1 hover:bg-[#272B30] rounded-lg transition-colors edit-role-trigger"
+                                                title="Edit Role">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-[#6F767E] hover:text-[#FCFCFC]">edit</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-[#6F767E]">Can manage and publish content, but cannot edit system
+                                    settings.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-3/4 flex flex-col bg-white dark:bg-[#0B0B0B] overflow-hidden">
+                    <div
+                        class="px-8 py-6 border-b border-gray-200 dark:border-[#272B30] flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary text-xl">edit_note</span>
+                            </div>
+                            <h2 class="font-bold text-lg">Editing Permissions: <span class="text-primary">Editor</span>
+                            </h2>
+                        </div>
+                        <span
+                            class="text-xs text-[#6F767E] bg-[#F9FAFB] dark:text-[#6F767E] dark:bg-[#1A1A1A] px-3 py-1 rounded-full">Last
+                            updated: 2h
+                            ago</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-8 no-scrollbar">
+                        <div
+                            class="bg-white dark:bg-[#1A1A1A] rounded-2xl border border-gray-200 dark:border-[#272B30] overflow-hidden">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-gray-200 dark:border-[#272B30]">
+                                        <th
+                                            class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">
+                                            Capability Module</th>
+                                        <th
+                                            class="px-4 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">
+                                            View</th>
+                                        <th
+                                            class="px-4 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">
+                                            Create</th>
+                                        <th
+                                            class="px-4 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">
+                                            Edit</th>
+                                        <th
+                                            class="px-4 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">
+                                            Delete</th>
+                                        <th
+                                            class="px-4 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">
+                                            Publish</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="bg-blue-50 dark:bg-[#272B30]/20">
+                                        <td class="px-6 py-2.5" colspan="6">
+                                            <span
+                                                class="text-[10px] font-black text-primary tracking-widest uppercase">CONTENT</span>
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-gray-200 dark:border-[#272B30]/50 hover:bg-gray-50 dark:hover:bg-[#272B30]/10 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <span
+                                                    class="material-symbols-outlined text-[#6F767E] text-lg">article</span>
+                                                <span class="text-sm font-medium">Pages</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-gray-200 dark:border-[#272B30]/50 hover:bg-gray-50 dark:hover:bg-[#272B30]/10 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <span
+                                                    class="material-symbols-outlined text-[#6F767E] text-lg">rss_feed</span>
+                                                <span class="text-sm font-medium">Posts</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input checked=""
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-blue-50 dark:bg-[#272B30]/20">
+                                        <td class="px-6 py-2.5" colspan="6">
+                                            <span
+                                                class="text-[10px] font-black text-primary tracking-widest uppercase">MANAGEMENT</span>
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-gray-200 dark:border-[#272B30]/50 hover:bg-gray-50 dark:hover:bg-[#272B30]/10 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <span
+                                                    class="material-symbols-outlined text-[#6F767E] text-lg">group</span>
+                                                <span class="text-sm font-medium">Users</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="loading-container">
+                                                <input
+                                                    class="h-5 w-5 rounded bg-blue-50 dark:bg-[#0B0B0B] border-blue-300 dark:border-[#272B30] text-primary checked:bg-primary checked:border-primary dark:checked:bg-primary dark:checked:border-primary focus:ring-primary matrix-checkbox"
+                                                    onchange="togglePermissionState(this)" type="checkbox" />
+                                                <div class="loading-indicator">
+                                                    <div class="loading-overlay"></div>
+                                                    <svg class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-primary"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            fill="currentColor"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="fixed bottom-8 right-8 z-[60] flex items-center gap-3 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#272B30] rounded-xl px-4 py-3 shadow-2xl translate-y-20 opacity-0 pointer-events-none transition-all duration-300"
+        id="toast-notification">
+        <div class="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-emerald-500 text-xl">check_circle</span>
+        </div>
+        <span class="text-sm font-medium text-[#111827] dark:text-[#FCFCFC]">Permission updated successfully</span>
+        <button class="ml-4 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC]" onclick="hideToast()">
+            <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+    </div>
+
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden" id="add-role-modal">
+        <div
+            class="bg-white dark:bg-[#1A1A1A] w-full max-w-md rounded-2xl border border-gray-200 dark:border-[#272B30] shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-[#272B30] flex items-center justify-between">
+                <h3 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC]">Add New Role</h3>
+                <button class="text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors"
+                    onclick="document.getElementById('add-role-modal').classList.add('hidden')">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-[#6F767E] uppercase tracking-widest">Role Name</label>
+                    <input
+                        class="w-full bg-gray-50 dark:bg-[#0B0B0B] border-gray-200 dark:border-[#272B30] rounded-xl px-4 py-3 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-primary focus:border-primary placeholder-[#6F767E]"
+                        placeholder="e.g. Content Curator" type="text" />
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-[#6F767E] uppercase tracking-widest">Role Description</label>
+                    <textarea
+                        class="w-full bg-gray-50 dark:bg-[#0B0B0B] border-gray-200 dark:border-[#272B30] rounded-xl px-4 py-3 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-primary focus:border-primary placeholder-[#6F767E] resize-none h-24"
+                        placeholder="Briefly describe this role's responsibilities..."></textarea>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 dark:bg-[#272B30]/20 flex items-center justify-end gap-3">
+                <button
+                    class="px-5 py-2 text-sm font-semibold text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors"
+                    onclick="document.getElementById('add-role-modal').classList.add('hidden')">Cancel</button>
+                <button
+                    class="px-6 py-2 bg-primary rounded-xl text-sm font-bold text-white hover:bg-blue-600 transition-all shadow-lg shadow-primary/20">Create
+                    Role</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        function toggleMenu(menuId, button) {
+            if (sidebar.classList.contains('collapsed')) return;
+            const submenu = document.getElementById(menuId);
+            const arrow = button.querySelector('.expand-icon');
+            if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.style.maxHeight = submenu.scrollHeight + "px";
+                submenu.style.opacity = '1';
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check localStorage for sidebar state
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+                if (toggleIcon) toggleIcon.textContent = 'menu';
+            }
+
+            // Check localStorage for theme
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Theme toggle listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    if (document.documentElement.classList.contains('dark')) {
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+
+            // Sidebar toggle listener
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    if (toggleIcon) toggleIcon.textContent = isCollapsed ? 'menu' : 'menu_open';
+                    localStorage.setItem('sidebar-collapsed', isCollapsed);
+
+                    // Close all submenus when collapsing sidebar
+                    if (isCollapsed) {
+                        document.querySelectorAll('.submenu-container').forEach(menu => {
+                            menu.style.maxHeight = '0px';
+                            menu.style.opacity = '0';
+                            // Reset arrows
+                            const button = document.querySelector(`button[onclick*="${menu.id}"]`);
+                            if (button) {
+                                const arrow = button.querySelector('.expand-icon');
+                                if (arrow) arrow.style.transform = 'rotate(0deg)';
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Initialize submenus
+            const submenus = document.querySelectorAll('.submenu-container');
+            submenus.forEach(submenu => {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+            });
+
+            // Auto-expand User menu (Role Permission specific)
+            const userMenu = document.getElementById('user-menu');
+            const userBtn = document.getElementById('btn-user');
+            if (userMenu && userBtn) {
+                // Ensure it expands after initialization
+                setTimeout(() => {
+                    if (!sidebar.classList.contains('collapsed')) {
+                        userMenu.style.maxHeight = userMenu.scrollHeight + 'px';
+                        userMenu.style.opacity = '1';
+                        const icon = userBtn.querySelector('.expand-icon');
+                        if (icon) icon.style.transform = 'rotate(180deg)';
+                    }
+                }, 100);
+            }
+        });
+
+        // Permission Toggle Logic
+        let toastTimeout;
+        function togglePermissionState(checkbox) {
+            const container = checkbox.closest('.loading-container');
+            container.classList.add('loading-state');
+            setTimeout(() => {
+                container.classList.remove('loading-state');
+                showToast();
+            }, 1200);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast-notification');
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                hideToast();
+            }, 3000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast-notification');
+            toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        }
+    </script>
+</body>
+
+</html>

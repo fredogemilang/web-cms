@@ -1,0 +1,1339 @@
+:root {
+    --primary-blue: #29abe2;
+    --dark-blue: #0fa3de; /* Slightly darker for gradients/hovers */
+    --cta-orange: #ff9800;
+    --cta-orange-hover: #f57c00;
+    --text-dark: #333333;
+    --light-bg: #e6f7ff;
+}
+.bg-primary {
+    background-color: var(--primary-blue) !important;
+}
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-dark);
+}
+
+/* Navigation */
+.navbar {
+    transition: all 0.3s ease;
+}
+
+.navbar-brand img {
+    height: 80px;
+    width: auto;
+    transition: height 0.3s ease;
+}
+
+.navbar.scrolled .navbar-brand img {
+    height: 50px;
+}
+
+.navbar.navbar-hidden {
+    transform: translateY(-100%);
+}
+
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.nav-pill-container {
+    background-color: white; /* Inner white background */
+    border: 2px solid #4a90e2; /* Custom Blue Border */
+    border-radius: 50px;
+    padding: 3px; /* Space between border and pills */
+    display: inline-flex;
+}
+
+.nav-link {
+    color: #212529; /* Dark text */
+    font-weight: 500;
+    padding: 8px 30px !important; /* Force padding */
+    border-radius: 50px; /* Pill shape for items */
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #4a90e2;
+}
+
+.nav-link.active {
+    background-color: #4a90e2 !important; /* Active Blue Fill */
+    color: white !important;
+}
+
+.btn-cta {
+    background-color: var(--cta-orange);
+    border: none;
+    font-weight: 600;
+    color: white;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-cta:hover {
+    background-color: var(--cta-orange-hover);
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* Hero Section */
+.hero-section {
+    min-height: 100vh;
+    padding-top: 100px; /* Space for fixed navbar */
+    background: url('assets/banner-background-hero.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+.hero-img {
+    max-width: 100%;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Social Sidebar (Right) */
+.social-sidebar {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    background: white;
+    padding: 15px 10px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.social-icon {
+    color: var(--cta-orange);
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+    text-align: center;
+}
+
+.social-icon:hover {
+    transform: scale(1.2);
+    color: var(--primary-blue);
+}
+
+/* Who Are We Section */
+.who-we-are {
+    background-color: var(--primary-blue);
+    padding-top: 50px;
+    margin-top: -5px; /* Fix gap */
+}
+
+/* Wave Dividers */
+.custom-shape-divider-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.custom-shape-divider-top svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 60px;
+    fill: #ffffff; /* Matches hero bg */
+}
+
+.custom-shape-divider-top .shape-fill {
+    fill: #ffffff;
+}
+
+/* Core Values Section */
+.core-values {
+    background-color: var(--light-bg);
+    min-height: 80vh;
+    margin-top: 0;
+    padding-top: 150px;
+}
+
+/* Slanted Divider Logic for arrow */
+.custom-shape-divider-bottom {
+    position: absolute;
+    bottom: 1px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: translateY(100%);
+    z-index: 10;
+}
+
+.custom-shape-divider-bottom svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 80px; 
+}
+
+.custom-shape-divider-bottom .shape-fill {
+    fill: var(--primary-blue);
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+/* Stats Section */
+.stats-section {
+    background-color: var(--primary-blue);
+    margin-top: -5px;
+}
+
+/* Grow Together Section */
+.grow-section {
+    background-color: var(--primary-blue);
+}
+
+/* Testimonials Section */
+.testimonials-section {
+    background: url('assets/their-thoughts-about-iccom-background.jpg') no-repeat;
+    background-size: cover;
+    background-position: right bottom;
+}
+
+/* Testimonial Cards & Carousel */
+.testimonial-card {
+    transition: transform 0.3s;
+    border: none; /* Removed border */
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    height: 100%;
+    margin-top: 60px; /* Space for the floating image */
+    padding-top: 70px !important; /* Push content down */
+    position: relative;
+    overflow: visible; /* Allow image to stick out */
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.testimonial-card .user-img-circle {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #d9d9d9; /* Gray placeholder */
+    /* Optional: Add white border if needed */
+    /* border: 5px solid white; */
+}
+
+.testimonial-card .quote-icon {
+    position: absolute;
+    top: -20px;
+    left: 30px;
+    color: var(--cta-orange);
+    z-index: 2;
+    background: white; /* Optional: to hide line behind it if borders were used on top */
+    line-height: 1;
+}
+
+.testimonial-card .quote-icon span {
+    font-size: 75px;
+    line-height: 75px;
+    display: inline-block;
+    transform: scale(1.5);
+    transform-origin: center;
+    font-weight: 800;
+}
+
+/* Carousel controls Customization */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+    opacity: 1; /* Always visible */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background: white;
+    border: 3px solid var(--cta-orange);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: none !important; /* Remove default SVG */
+    opacity: 1;
+}
+
+/* Add custom arrows using :after or inner elements is harder with default classes. 
+   Better to assume we swap HTML content to font-awesome icons or use pseudo-elements. 
+   Let's use pseudo-elements to inject the arrow color. */
+
+.carousel-control-prev-icon::before {
+    content: '\f053'; /* FA Chevron Left */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: var(--cta-orange);
+    font-size: 1.5rem;
+}
+
+.carousel-control-next-icon::before {
+    content: '\f054'; /* FA Chevron Right */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: var(--cta-orange);
+    font-size: 1.5rem;
+}
+
+
+/* Partners Section */
+.partners-section {
+    background: white;
+    /* Optional: background pattern if needed later */
+}
+
+/* Filter Tabs */
+.partner-filter-tabs {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.partner-filter-tab {
+    cursor: pointer;
+    font-weight: 500;
+    color: #999;
+    padding-right: 20px;
+    border-right: 1px solid #ddd;
+    line-height: 1.2;
+    transition: color 0.3s;
+    text-align: center; /* Center text if multi-line */
+}
+
+.partner-filter-tab:last-child {
+    border-right: none;
+}
+
+.partner-filter-tab.active {
+    color: var(--primary-blue);
+    font-weight: 700;
+}
+
+.partner-filter-tab:hover {
+    color: var(--primary-blue);
+}
+
+/* Slider Customization for 5 items */
+.partner-carousel .carousel-item {
+    transition: transform 0.5s ease-in-out; /* Smooth slide */
+}
+
+/* Partners Section */
+.partners-section {
+    background-image: url('assets/Our-Partners-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Partner Items */
+.partner-circle {
+    width: 150px;
+    height: 150px;
+    object-fit: contain; /* Ensure logos fit */
+    border-radius: 50%;
+    margin: 0 auto;
+    /* Optional: verify background color doesn't hide image - img tag obscures bg color anyway */
+    /* Flex alignment if image goes inside later */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Custom Navigation Arrows (Top Right) */
+.partner-nav-container {
+    display: flex;
+    gap: 15px;
+}
+
+.partner-nav-btn {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--cta-orange);
+    border-radius: 50%;
+    background: white;
+    color: var(--cta-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.partner-nav-btn:hover {
+    background: var(--cta-orange);
+    color: white;
+}
+
+/* Multi-Item Logic Override for Partners (5 items) */
+@media (min-width: 992px) {
+    /* Show 5 items on large screens */
+    .partner-carousel .carousel-inner .carousel-item-end.active,
+    .partner-carousel .carousel-inner .carousel-item-next,
+    .partner-carousel .carousel-inner .carousel-item-start,
+    .partner-carousel .carousel-inner .carousel-item-prev,
+    .partner-carousel .carousel-inner .carousel-item.active {
+        display: flex; 
+    }
+    
+    /* Force the content columns to be 1/5th width */
+    .partner-carousel .carousel-inner .carousel-item > div {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+}
+
+
+/* Form Styling */
+.form-control:focus, .form-select:focus {
+    box-shadow: none;
+    border-color: var(--cta-orange);
+}
+
+.membership-section {
+    background-image: url('assets/Join-iCCom-Membership-Background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Custom Select Arrow for Membership Form */
+.membership-section .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f68d2e' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Swiper Customization */
+.swiper-pagination-bullet-active {
+    background-color: #f68d2e !important;
+}
+
+.swiper-pagination-bullet {
+    background-color: #ccc;
+    opacity: 1;
+}
+
+/* Custom Partner Filter Tabs (Override Nav Pills) */
+.custom-partner-tabs {
+    border: none;
+    align-items: center;
+}
+
+.custom-partner-tabs .nav-link {
+    background: none !important;
+    border: none !important;
+    color: #1b1a1a; /* Inactive Color */
+    text-align: left;
+    padding: 0 20px 0 0;
+    margin-right: 20px;
+    border-radius: 0;
+    position: relative;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+    .custom-partner-tabs .nav-link {
+        padding: 10px !important;
+    }
+    .custom-partner-tabs .nav-link::after {
+        right: -5px !important;
+    }
+    .wi-100 {
+        width: 100% !important;
+    }
+}
+
+.custom-partner-tabs .nav-link.active {
+    background: transparent !important;
+    color: var(--primary-blue) !important; /* Active Blue Color (Bootstrap Primary) */
+    font-weight: 700;
+}
+
+/* Vertical Separator Line */
+.custom-partner-tabs .nav-link::after {
+    content: '';
+    position: absolute;
+    right: -10px; /* Position in the gap */
+    top: 50%;
+    transform: translateY(-50%);
+    height: 40px;
+    width: 2px;
+    background-color: #f68d2e; /* Orange Separator */
+}
+
+.custom-partner-tabs .nav-item:last-child .nav-link::after,
+.custom-partner-tabs .nav-item:last-child .nav-link {
+    margin-right: 0;
+    padding-right: 0;
+}
+
+.custom-partner-tabs .nav-item:last-child .nav-link::after {
+    display: none;
+}
+
+
+/* Partner Navigation Arrows */
+.custom-nav-arrow {
+    width: 45px;
+    height: 45px;
+    background-color: #ffffff;
+    border: 2px solid #f68d2e;
+    border-radius: 50%;
+    color: #f68d2e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.custom-nav-arrow:hover {
+    background-color: #f68d2e; /* Darker orange */
+    transform: scale(1.1);
+    color: #ffffff;
+}
+
+.partner-prev::after {
+    content: '\f053'; /* FA Chevron Left */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.partner-next::after {
+    content: '\f054'; /* FA Chevron Right */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.testimonial-swiper {
+    padding-top: 50px !important;
+}
+
+.testimonial-swiper, .partner-swiper {
+    padding-bottom: 40px; /* Space for pagination */
+}
+
+/* Testimonial Navigation */
+.testimonial-prev, .testimonial-next {
+    width: 45px;
+    height: 45px;
+    background-color: white; /* Filled Orange based on feedback/design */
+    border: 3px solid #f68d2e;
+    border-radius: 50%;
+    color: #f68d2e;
+    top: 50%;
+    transform: translateY(-50%);
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Override Swiper Icon Size */
+.testimonial-prev::after, .testimonial-next::after {
+    font-size: 1.2rem !important;
+    font-weight: bold;
+}
+
+.testimonial-prev {
+    left: 10px;
+}
+
+.testimonial-next {
+    right: 10px;
+}
+
+.testimonial-prev:hover, .testimonial-next:hover {
+    background-color: #f68d2e; /* Darker orange on hover */
+    transform: translateY(-50%) scale(1.1);
+    color: white;
+}
+
+/* Move arrows further out on large screens */
+@media (min-width: 992px) {
+    .testimonial-prev {
+        left: 55px;
+    }
+    .testimonial-next {
+        right: 55px;
+    }
+}
+
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0;
+    z-index: 9999;
+    border-top: 1px solid #f0f0f0;
+    transition: transform 0.3s ease-in-out;
+}
+
+.mobile-bottom-nav.nav-hidden {
+    transform: translateY(100%);
+}
+
+.mobile-bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    font-size: 0.75rem;
+    color: #8c8c8c;
+    transition: color 0.2s;
+}
+
+.mobile-bottom-nav .nav-item i {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+}
+
+.mobile-bottom-nav .nav-item.active,
+.mobile-bottom-nav .nav-item:hover {
+    color: #4a90e2;
+}
+
+/* Ensure content isn't hidden behind bottom nav on mobile */
+@media (max-width: 991.98px) {
+    body {
+        padding-bottom: 80px;
+    }
+}    
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    /* Disable sticky top on mobile */
+    .navbar.fixed-top {
+        position: absolute !important;
+    }
+
+    .navbar-collapse {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-top: 10px;
+    }
+    
+    .nav-pill-container {
+        border: none;
+        flex-direction: column;
+        width: 100%;
+        background: none !important;
+        box-shadow: none !important;
+    }
+    
+    .nav-link {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .hero-section {
+        padding-top: 120px;
+        text-align: center;
+    }
+
+    .hero-img {
+        margin-top: 40px;
+    }
+    
+    .social-sidebar {
+        display: none !important;
+    }
+}
+
+/* Multi-Item Carousel Logic (Desktop) */
+@media (min-width: 768px) {
+    .carousel-inner {
+        padding-top: 70px; /* Space for floating image */
+        padding-bottom: 20px; /* Space for shadow */
+        padding-left: 23px;
+        padding-right: 23px;
+    }
+
+    .carousel-inner .carousel-item-end.active,
+    .carousel-inner .carousel-item-next,
+    .carousel-inner .carousel-item-start,
+    .carousel-inner .carousel-item-prev,
+    .carousel-inner .carousel-item.active {
+        display: flex; 
+    }
+    
+    .testimonial-card {
+        margin: 0 10px; /* Spacing between cards */
+        margin-top: 0; /* Reset margin since we have padding on container */
+    }
+}
+
+@media (max-width: 767px) {
+    .carousel-inner {
+        padding-top: 70px; /* Space for floating image on mobile too */
+        padding-bottom: 20px;
+    }
+    .testimonial-card {
+        margin-top: 0;
+    }
+}
+
+/* ==========================================================================
+   Events Page Specific Styles
+   ========================================================================== */
+
+/* Page Hero */
+.page-hero {
+    background: url('assets/banner-background-hero.jpg') no-repeat center center;
+    background-size: cover;
+    padding: 80px 0;
+    overflow: hidden;
+}
+
+/* Upcoming Event Card */
+.upcoming-event-section {
+    background: url('assets/upcoming-events-bg.jpg') no-repeat center center;
+    background-size: cover;
+    padding: 80px 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.upcoming-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.upcoming-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.upcoming-card-body {
+    padding: 30px;
+    color: #333;
+}
+
+/* Gallery Slider */
+.gallery-section {
+    padding: 80px 0;
+}
+
+.gallery-slide img {
+    border-radius: 12px;
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.gallery-prev, .gallery-next {
+    width: 45px;
+    height: 45px;
+    background-color: white;
+    border: 3px solid #f68d2e;
+    border-radius: 50%;
+    color: #f68d2e;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gallery-prev:hover, .gallery-next:hover {
+    background-color: #f68d2e;
+    transform: scale(1.1);
+    color: white;
+}
+
+.gallery-prev:after {
+    content: '\f053';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.gallery-next:after {
+    content: '\f054';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+/* Event Listing */
+.event-listing-section {
+    padding-bottom: 80px;
+}
+
+.event-filter-nav {
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 40px;
+}
+
+.event-filter-link {
+    color: #6c757d;
+    font-weight: 600;
+    padding: 15px 25px;
+    border: none;
+    background: transparent;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.event-filter-link:hover {
+    color: #0d6efd;
+}
+
+.event-filter-link.active {
+    color: #0d6efd;
+}
+
+.event-filter-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #0d6efd;
+}
+
+.event-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    background: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.event-card-img-top {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.event-card .p-4 {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-badge {
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.badge-event-category {
+    position: absolute;
+    top: 10px;
+    right: 0;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    width: fit-content;
+    border-radius: 20px 0 0 20px;
+    background-color: #ffffff;
+    min-width: 80px;
+    text-align: center;
+}
+.upcoming-badge-event-category {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    background: white;
+    padding: 5px 12px;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+    z-index: 10;
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.1);
+}
+
+.upcoming-badge-event-category img {
+    height: 30px;
+    width: auto;
+    display: block;
+}
+
+.badge-offline { background-color: var(--cta-orange); color: white; }
+.badge-online { background-color: var(--primary-blue); color: white; }
+
+/* ==========================================================================
+   Event Detail Page Styles
+   ========================================================================== */
+
+.event-detail-section {
+    background: linear-gradient(to top right, #ffffff, transparent), url('assets/banner-background-hero.jpg');
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+    background-position: top center;
+}
+
+.speaker-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.booking-section {
+    background: url('assets/Join-iCCom-Membership-Background.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+.booking-section .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f68d2e' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* ==========================================================================
+   Blog Page Specific Styles
+   ========================================================================== */
+
+.most-popular-section {
+    background: url('assets/bg-most-popular-article.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+}
+
+.most-popular-section::before {
+    /* Subtle noise or texture could go here if needed */
+    content: none;
+}
+
+.background-geometry {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    /* Create geometric angular shapes using gradients */
+    background: 
+        linear-gradient(115deg, rgba(255,255,255,0.1) 40%, transparent 40%),
+        linear-gradient(245deg, rgba(255,255,255,0.05) 40%, transparent 40%);
+}
+
+.most-popular-section h2 {
+    color: #1a1a1a;
+    font-size: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Custom Popular Card Layout */
+.popular-card {
+    border: none;
+    border-radius: 1.25rem; /* ~20px */
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.popular-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* Aspect ratios */
+/* Aspect ratios */
+.popular-card-large {
+    display: flex;
+    flex-direction: column;
+    height: 400px; /* Fixed height for consistency */
+}
+
+@media (min-width: 992px) {
+    .popular-card-large {
+        height: 100%; /* Fill column on desktop */
+        min-height: 450px;
+    }
+}
+
+.popular-banner-container {
+    width: 100%;
+    height: 65%; /* Image takes roughly 65% of the card height */
+    position: relative;
+    background-color: #eee;
+}
+
+.popular-card-large .popular-body {
+    height: 35%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Small Cards */
+.popular-card-small {
+    height: 140px !important; /* Fixed height for small cards */
+}
+
+.popular-card-small .popular-item {
+    height: 100%;
+}
+
+.popular-banner-small {
+    height: 100%;
+    width: 45%; /* Slightly less than half */
+}
+
+.popular-body-small {
+    width: 55%;
+    padding: 1rem !important;
+}
+
+.x-small {
+    font-size: 0.75rem;
+}
+
+.box-shadow-sm {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.text-muted {
+    color: #888 !important;
+}
+
+/* ==========================================================================
+   Article Listing Styles
+   ========================================================================== */
+
+.article-filter-nav {
+    display: flex;
+    gap: 2rem;
+    border-bottom: 2px solid #efefef;
+    padding-bottom: 10px;
+    align-items: center;
+    overflow-x: auto; /* Allow scrolling on small screens */
+    white-space: nowrap;
+}
+
+.article-filter-link {
+    text-decoration: none;
+    color: #999;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 12px; /* Needs to match wrapper padding-bottom + extra for overlaying border */
+    margin-bottom: -12px;
+    transition: color 0.3s;
+}
+
+.article-filter-link:hover {
+    color: #333;
+}
+
+.article-filter-link.active {
+    color: #333;
+}
+
+.article-filter-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #29abe2; /* Primary Blue from root */
+    border-radius: 2px 2px 0 0;
+}
+
+/* Article Grid Card */
+.article-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid transparent;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    border-color: #f0f0f0;
+}
+
+.article-banner {
+    height: 240px;
+    width: 100%;
+    background: #f0f0f0;
+}
+
+/* ==========================================================================
+   Publish Article Page Styles
+   ========================================================================== */
+
+.publish-hero-section {
+    min-height: 60vh;
+    padding-top: 100px; /* Account for fixed navbar */
+    background: #fff; /* or matching hero bg */
+}
+
+/* Similar to most-popular-section but for the form wrapper */
+.publish-form-section {
+    background: url('assets/bg-most-popular-article.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+}
+
+.publish-form-card {
+    border: none;
+    background-color: #ffffff;
+    border-radius: 1.5rem; /* rounded-4 */
+}
+
+/* Flushed Inputs (Border Bottom Only) */
+.form-control-flushed {
+    border: none;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+    background-color: transparent;
+}
+
+.form-control-flushed:focus {
+    box-shadow: none;
+    border-bottom-color: #29abe2; /* Primary color */
+    background-color: transparent;
+}
+
+.form-select.form-control-flushed {
+    background-position: right center;
+    padding-left: 0;
+}
+
+/* Upload Button Area */
+.upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+}
+
+.upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.guidelines-section {
+    background-color: #ffffff;
+}
+
+.guideline-list {
+    padding-left: 1.2rem;
+}
+
+.guideline-list li {
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   Membership Page Styles
+   ========================================================================== */
+
+.spacer {
+    height: 122px;
+}
+
+/* Unified Membership Section */
+.membership-form-section {
+    background: url('assets/Join-iCCom-Membership-Background.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    /* margin-top: -122px; Removed to show spacer/white header bg */
+    padding-top: 80px; /* Reduced since we are not under the nav anymore */
+    padding-bottom: 100px;
+}
+
+/* ==========================================================================
+   Blog Detail Page Styles
+   ========================================================================== */
+
+.blog-detail-header {
+    background: url('assets/banner-background-hero.jpg') no-repeat center center;
+    background-size: cover;
+    padding-top: 180px; /* Increased to clear navbar */
+    padding-bottom: 80px;
+    color: #333; /* Dark text for light background */
+    /* margin-top: -100px; Removed to prevent pulling off-screen */
+}
+
+/* Ensure text is readable on the background */
+.blog-detail-header .text-muted {
+    color: #6c757d !important; /* Bootstrap muted color */
+}
+
+.blog-detail-header .fw-semibold.text-dark {
+    color: #212529 !important; /* Bootstrap dark color */
+}
+
+.blog-article-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #444;
+}
+
+.blog-article-content h2 {
+    color: #222;
+}
+
+.blog-article-content h3 {
+    color: #444;
+}
+
+.toc-nav a {
+    color: #6c757d;
+    transition: color 0.2s;
+    font-size: 0.95rem;
+}
+
+.toc-nav a:hover,
+.toc-nav a.active {
+    color: #29abe2; /* Primary Blue */
+    font-weight: 600;
+}
+
+.cta-write-article-section {
+    position: relative;
+    overflow: hidden;
+}
+
+
+
+
+.cta-write-article-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+
+.cta-card {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8) !important; /* White glowing effect */
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle white border */
+}
+
+/* ==========================================================================
+   Success Page Styles
+   ========================================================================== */
+
+.success-section {
+    min-height: 80vh; /* Covers most of the screen */
+    background: url('assets/Join-iCCom-Membership-Background.jpg') no-repeat center center;
+    background-size: cover;
+    padding-top: 60px; /* Reduced padding */
+}
+
+.success-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5); /* Dark overlay */
+    z-index: 1;
+}
+
+
+.membership-form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5); /* Dark overlay */
+    z-index: -1; /* Behind content */
+}
+
+/* Ensure container is above overlay */
+.membership-form-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* On mobile, reset overlap/margin if needed */
+@media (max-width: 991px) {
+    .membership-form-section {
+        margin-top: 0; /* Reset */
+        padding-top: 50px; /* Standard padding */
+    }
+    
+    /* Spacer handles the nav height functionality on mobile if needed, 
+       otherwise we might need to hide spacer or keep it. 
+       Usually nav is relative or fixed on mobile. 
+       If fixed, spacer is good. If relative, spacer is extra space. 
+       Let's assume fixed as per common BS patterns. */
+}
+
+
+
+

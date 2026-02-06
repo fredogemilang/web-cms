@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - iCCom Indonesia Cloud Community</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <!-- Font Awesome Removed -->
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Social Sidebar -->
+    <div class="social-sidebar d-none d-lg-flex">
+        <a href="#" class="social-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.232-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z" />
+            </svg></a>
+        <a href="#" class="social-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
+            </svg></a>
+        <a href="#" class="social-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z" />
+            </svg></a>
+        <a href="#" class="social-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3V0Z" />
+            </svg></a>
+        <a href="#" class="social-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5V1.077zM4.09 4a9.267 9.267 0 0 1 .64-1.539 6.7 6.7 0 0 1 .597-.933A7.025 7.025 0 0 0 2.255 4H4.09zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a6.958 6.958 0 0 0-.656 2.5h2.49zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5H4.847zM8.5 5v2.5h2.99a12.495 12.495 0 0 0-.337-2.5H8.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5H4.51zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5H8.5zM5.145 12c.138.592.325 1.13.553 1.587C6.165 14.61 6.83 15.226 7.5 15.432V12H5.145zm5.71-3H14.32a6.96 6.96 0 0 0-.656-2.5h-2.148c.174.782.282 1.623.312 2.5zm.914 3h1.791a7.025 7.025 0 0 0-1.835-3.028c.408.498.816 1.104 1.044 1.828zM8.5 15.432c.67-.204 1.335-.82 1.887-1.855.228-.457.415-.995.553-1.587H8.5V15.432zm3.33-4.632c-.174.782-.282 1.623-.312 2.5h2.148a6.96 6.96 0 0 0 .656-2.5h-2.492zM2.255 12H4.09c-.228.724-.636 1.33-1.044 1.828A7.025 7.025 0 0 0 2.255 12zM1.674 7.5H3.82a12.65 12.65 0 0 0-.312 2.5H1.015A6.96 6.96 0 0 1 1.674 7.5zm1.835-3.028A7.025 7.025 0 0 1 2.255 4h1.835c-.228.724-.636 1.33-1.044 1.828z" />
+            </svg></a>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top py-3">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="assets/logo.png" alt="iCCom Logo" height="80">
+            </a>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <div
+                    class="nav-pill-container d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm mt-3 mt-lg-0">
+                    <a class="nav-link px-4 py-2 text-dark" href="index.html">Home</a>
+                    <a class="nav-link active rounded-pill px-4 py-2 text-white" href="events.html">Events</a>
+                    <a class="nav-link px-4 py-2 text-dark" href="blog.html">Blog</a>
+                </div>
+                <div class="d-lg-none mt-3">
+                    <a href="#" class="btn btn-primary btn-cta rounded-pill px-4 w-100">Become a Member</a>
+                </div>
+            </div>
+            <div class="d-none d-lg-block">
+                <a href="#" class="btn btn-primary btn-cta rounded-pill px-4">Become a Member</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Event Detail Section -->
+    <section class="event-detail-section pt-5 mt-5">
+        <div class="container pt-4">
+            <!-- Banner -->
+            <div class="event-banner mb-5 position-relative">
+                <!-- Add badge logo if needed, similar to events page -->
+                <div class="upcoming-badge-event-category" style="top: 30px; right: 0;">
+                    <img src="assets/ictalk.png" alt="iCTalk">
+                </div>
+                <img src="assets/gen-ai-today.png" alt="Event Banner" class="img-fluid w-100 rounded-4 shadow-sm">
+            </div>
+
+            <!-- Title & Info -->
+            <div class="mb-5">
+                <span class="badge badge-online mb-3 px-3 py-2 rounded-pill">Online</span>
+                <h1 class="fw-bold mb-3">Lorem Lorem Lorem Lorem Lorem Lorem Lorem Lorem Lorem Lorem</h1>
+
+                <div class="d-flex align-items-center gap-4 text-muted mb-4 flex-wrap">
+                    <div class="d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2" class="me-2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg> XX XXXX XXXX
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2" class="me-2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg> XX:XX - XX:XX
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speakers -->
+            <div class="mb-5">
+                <h4 class="fw-bold mb-4">Speakers</h4>
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center mb-4">
+                        <img src="https://i.pravatar.cc/150?img=32" alt="Speaker" class="speaker-avatar mx-auto mb-3">
+                        <h6 class="fw-bold mb-0">Jhon Dhoe</h6>
+                        <small class="text-muted">Lorem ipsum dolor sit amet</small>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="Speaker" class="speaker-avatar mx-auto mb-3">
+                        <h6 class="fw-bold mb-0">Jhon Dhoe</h6>
+                        <small class="text-muted">Lorem ipsum dolor sit amet</small>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <img src="https://i.pravatar.cc/150?img=59" alt="Speaker" class="speaker-avatar mx-auto mb-3">
+                        <h6 class="fw-bold mb-0">Jhon Dhoe</h6>
+                        <small class="text-muted">Lorem ipsum dolor sit amet</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Details Text -->
+            <div class="mb-5">
+                <h4 class="fw-bold mb-3">Event Detail</h4>
+                <p class="text-muted">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac dui turpis. Quisque eu enim quam.
+                    Etiam ornare ut neque sed fringilla. Ut sed massa fringilla, iaculis metus id, dictum arcu. Sed
+                    eleifend, dolor quis mollis vulputate, magna mauris pretium erat, ac pretium diam risus at ex. Morbi
+                    quis dui turpis. Nulla justo lacus, scelerisque vel quam et, accumsan posuere nisl. Integer placerat
+                    ante arcu, sit amet sollicitudin metus pretium quis. Fusce ultricies odio et eros blandit, id
+                    imperdiet ante hendrerit. Fusce mollis dolor nec ipsum eleifend finibus. Quisque pulvinar nibh
+                    facilisis libero convallis faucibus. In ut tempus nunc. Donec orci dui, commodo quis aliquet quis,
+                    posuere vitae orci. Aenean hendrerit erat velit, sed lacinia libero placerat sollicitudin.
+                </p>
+                <p class="text-muted">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac dui turpis. Quisque eu enim quam.
+                    Etiam ornare ut neque sed fringilla. Ut sed massa fringilla, iaculis metus id, dictum arcu. Sed
+                    eleifend, dolor quis mollis vulputate, magna mauris pretium erat, ac pretium diam risus at ex. Morbi
+                    quis dui turpis. Nulla justo lacus, scelerisque vel quam et, accumsan posuere nisl. Integer placerat
+                    ante arcu, sit amet sollicitudin metus pretium quis. Fusce ultricies odio et eros blandit, id
+                    imperdiet ante hendrerit. Fusce mollis dolor nec ipsum eleifend finibus. Quisque pulvinar nibh
+                    facilisis libero convallis faucibus. In ut tempus nunc. Donec orci dui, commodo quis aliquet quis,
+                    posuere vitae orci. Aenean hendrerit erat velit, sed lacinia libero placerat sollicitudin.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <!-- Event Documentation Section -->
+    <section class="event-documentation-section py-5">
+        <div class="container">
+            <h4 class="fw-bold mb-4">Event Documentation</h4>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <img src="https://dummyimage.com/600x400/333/fff&text=Doc+1" alt="Documentation 1"
+                        class="img-fluid rounded-4 shadow-sm w-100 object-fit-cover" style="height: 250px;">
+                </div>
+                <div class="col-md-4">
+                    <img src="https://dummyimage.com/600x400/333/fff&text=Doc+2" alt="Documentation 2"
+                        class="img-fluid rounded-4 shadow-sm w-100 object-fit-cover" style="height: 250px;">
+                </div>
+                <div class="col-md-4">
+                    <img src="https://dummyimage.com/600x400/333/fff&text=Doc+3" alt="Documentation 3"
+                        class="img-fluid rounded-4 shadow-sm w-100 object-fit-cover" style="height: 250px;">
+                </div>
+            </div>
+
+            <div class="text-center">
+                <a href="#" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">See More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-light py-5 mt-0 text-muted">
+        <div class="container">
+            <div class="row align-items-center justify-content-center gap-md-5 mb-4">
+                <div class="col-md-auto d-flex align-items-center justify-content-center mb-4 mb-md-0">
+                    <img src="assets/logo_horizontal_footer.png" alt="iCCom Logo" height="50" class="me-3">
+                </div>
+                <div class="col-md-auto text-center text-md-start small">
+                    <div class="fw-bold text-dark mb-1">Centennial Tower 12<sup>th</sup> Floor</div>
+                    <div>Jl. Jend. Gatot Subroto Kav. 24-25, Karet Semanggi,</div>
+                    <div>Setiabudi, Jakarta Selatan 12950.</div>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center small fst-italic">
+                &copy; 2025 All Rights Reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav d-lg-none">
+        <a href="index.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="events.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Events</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <span>Blog</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <span>Member</span>
+        </a>
+    </nav>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Sticky Header & Bottom Nav (Copied from index.html)
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.navbar');
+        const bottomNav = document.querySelector('.mobile-bottom-nav');
+
+        window.addEventListener('scroll', function () {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const isMobile = window.innerWidth < 992;
+            if (!isMobile) {
+                if (scrollTop > 10) navbar.classList.add('scrolled');
+                else navbar.classList.remove('scrolled');
+
+                if (scrollTop > lastScrollTop && scrollTop > 100) navbar.classList.add('navbar-hidden');
+                else navbar.classList.remove('navbar-hidden');
+            } else {
+                navbar.classList.remove('scrolled', 'navbar-hidden');
+                if (bottomNav) {
+                    if (scrollTop > lastScrollTop && scrollTop > 50) bottomNav.classList.add('nav-hidden');
+                    else bottomNav.classList.remove('nav-hidden');
+                }
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+    </script>
+</body>
+
+</html>

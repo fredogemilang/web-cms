@@ -1,0 +1,40 @@
+{
+    "name": "Events",
+    "slug": "events",
+    "version": "1.0.0",
+    "description": "Event management plugin for iCCom with calendar, categories, and registration support.",
+    "author": "iCCom Team",
+    "namespace": "Plugins\\Events",
+    "provider": "Plugins\\Events\\Providers\\EventsServiceProvider",
+    "permissions": {
+        "resources": [
+            {
+                "module": "events",
+                "actions": [
+                    "view",
+                    "create",
+                    "edit",
+                    "delete",
+                    "publish"
+                ],
+                "icon": "event",
+                "description": "Manage events"
+            },
+            {
+                "module": "event_categories",
+                "actions": [
+                    "view",
+                    "create",
+                    "edit",
+                    "delete"
+                ],
+                "icon": "category",
+                "description": "Manage event categories"
+            }
+        ]
+    },
+    "requires": {
+        "php": ">=8.2",
+        "cms": ">=1.0"
+    }
+}

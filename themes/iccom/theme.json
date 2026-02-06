@@ -1,0 +1,22 @@
+{
+    "name": "iCCom",
+    "slug": "iccom",
+    "version": "1.0.0",
+    "description": "Modern theme for Indonesia Cloud Community",
+    "author": "Alfredo Gemilang",
+    "screenshot": "screenshot.png",
+    "supports": [
+        "pages",
+        "posts",
+        "events",
+        "membership",
+        "menus",
+        "widgets"
+    ],
+    "template_types": {
+        "single": "Single Post",
+        "archive": "Archive/List",
+        "page": "Page",
+        "home": "Homepage"
+    }
+}

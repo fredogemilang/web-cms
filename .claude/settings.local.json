@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs basename:*)",
+      "Bash(php artisan:*)",
+      "Bash(php test-theme.php:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(php:*)",
+      "Bash(del assign-theme-permissions.php)",
+      "Bash(curl:*)",
+      "Bash(find:*)"
+    ]
+  }
+}

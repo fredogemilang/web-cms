@@ -1,0 +1,70 @@
+{
+    "title": "Home",
+    "blocks": [
+        {
+            "name": "hero_title",
+            "type": "text",
+            "value": "iCCom"
+        },
+        {
+            "name": "hero_subtitle",
+            "type": "text",
+            "value": "Indonesia Cloud Community"
+        },
+        {
+            "name": "hero_description",
+            "type": "textarea",
+            "value": "Join a community of cloud enthusiasts across Indonesia and shape the nation's cloud future!"
+        },
+        {
+            "name": "who_are_we_title",
+            "type": "text",
+            "value": "Who Are We?"
+        },
+        {
+            "name": "who_are_we_description",
+            "type": "wysiwyg",
+            "value": "<p><strong>iCCom (Indonesia Cloud Community)<\/strong>&nbsp;is a welcoming space for anyone who's passionate about cloud technology and its development.<\/p><p>We're a nonprofit community dedicated to growing cloud talent and expertise across Indonesia through shared learning and support.<\/p><p>Whether you're just getting started or already experienced, if cloud tech excites you, you'll fit right in.<\/p>"
+        },
+        {
+            "name": "iccom_core_value_title",
+            "type": "text",
+            "value": "iCCom Core Value"
+        },
+        {
+            "name": "iccom_core_value_loop",
+            "type": "repeater",
+            "value": "[{\"core_title\":\"Embrace Learning\",\"core_description\":\"People learn together, trade ideas, back each other up, and grow side by side.\",\"core_icon\":\"media\\\/embrace-learning-icon-with-white-bg-1770307229-xKUGYXoH.webp\"},{\"core_title\":\"Nurture Growth\",\"core_description\":\"Everyone keeps improving at their own pace while helping the community rise with them.\",\"core_icon\":\"media\\\/nurture-growth-icon-with-white-bg-1770307208-f6jSXfv9.webp\"},{\"core_title\":\"Strategic Alliance\",\"core_description\":\"Friendships and collaborations form naturally here, creating opportunities everyone can be part of.\",\"core_icon\":\"media\\\/strategic-alliance-icon-with-white-bg-1770307049-egWQAgEg.webp\"}]"
+        },
+        {
+            "name": "counter_member",
+            "type": "number",
+            "value": "50000"
+        },
+        {
+            "name": "counter_title",
+            "type": "text",
+            "value": "Have Joined to Be a Part of iCCom"
+        },
+        {
+            "name": "testimonal_title",
+            "type": "text",
+            "value": "Their Thoughts about iCCom"
+        },
+        {
+            "name": "talent_referral_title",
+            "type": "text",
+            "value": "Grow Together, Rise Together"
+        },
+        {
+            "name": "talent_referral_description",
+            "type": "wysiwyg",
+            "value": "<p class=\"ql-align-center\">At iCCom, we grow by learning together, trying out new tech, building portfolios, and sharing experiences that help us get closer to our goals.<\/p><p class=\"ql-align-center\">Now you can take your growth to the next level by joining the iCCom Talent Referral Pool and connecting with partner companies that value your skills, passion, and story.<\/p>"
+        },
+        {
+            "name": "our_partners_title",
+            "type": "text",
+            "value": "Our Partners"
+        }
+    ]
+}

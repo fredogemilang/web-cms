@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Add New User - CMS Panel</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB",
+                        "dark-bg": "#0B0B0B",
+                        "dark-surface": "#1A1A1A",
+                        "dark-surface-lighter": "#272B30",
+                        "dark-border": "#272B30",
+                        "text-primary-dark": "#FCFCFC",
+                        "text-secondary-dark": "#6F767E",
+                        "status-active-bg": "#3F8C5826",
+                        "status-active-text": "#83BF6E",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    },
+                },
+            },
+        };
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .submenu-container {
+            position: relative;
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .submenu-list {
+            position: relative;
+            margin-left: 28px;
+            padding-left: 0;
+        }
+        .submenu-list li::before {
+            content: "";
+            position: absolute;
+            left: -1px;
+            top: 0;
+            bottom: -4px;
+            border-left: 1px solid #b4b4b4;
+        }
+        .dark .submenu-list li::before {
+            border-left: 1px solid #272B30;
+        }
+        .submenu-list li:last-child::before {
+            display: none;
+        }
+        .submenu-item-connector {
+            position: absolute;
+            left: -1px;
+            top: 0;
+            height: 24px;
+            width: 16px;
+            border-left: 1px solid #b4b4b4;
+            border-bottom: 1px solid #b4b4b4;
+            border-bottom-left-radius: 8px;
+            pointer-events: none;
+        }
+        .dark .submenu-item-connector {
+            border-left: 1px solid #272B30;
+            border-bottom: 1px solid #272B30;
+        }
+        aside {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-text {
+            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out, margin 0.2s ease-in-out;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        aside.collapsed {
+            width: 96px !important;
+        }
+        aside.collapsed .sidebar-text {
+            opacity: 0;
+            width: 0;
+            margin: 0;
+            pointer-events: none;
+            display: none;
+        }
+        aside.collapsed .submenu-container {
+            display: none !important;
+        }
+        aside.collapsed .expand-icon {
+            display: none;
+        }
+        aside.collapsed .nav-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        aside.collapsed .logo-container span:not(:first-child) {
+            display: none;
+        }
+        .form-input-field {
+            @apply w-full rounded-xl border-none bg-white dark:bg-[#0B0B0B] py-3 px-4 text-sm font-medium text-[#111827] dark:text-[#FCFCFC] ring-1 ring-gray-200 dark:ring-[#272B30] focus:ring-2 focus:ring-primary transition-all placeholder:text-[#6F767E];
+        }
+        .form-label {
+            @apply text-[13px] font-bold text-[#6F767E] mb-2 block uppercase tracking-wider;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#F4F5F6] dark:bg-[#0B0B0B] text-[#111827] dark:text-[#FCFCFC] transition-colors duration-200 antialiased h-screen overflow-hidden">
+    <div class="flex h-full">
+        <aside
+            class="hidden w-[256px] flex-col bg-[#F4F5F6] dark:bg-[#0B0B0B] md:flex shrink-0 border-r border-gray-200 dark:border-[#272B30]/50 relative transition-all duration-300"
+            id="sidebar">
+            <div class="flex items-center gap-3 px-8 py-8 logo-container transition-all duration-300"
+                style="min-height: 104px;">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1A1D1F] dark:bg-[#272B30] text-white">
+                    <span class="material-symbols-outlined text-2xl">grid_view</span>
+                </div>
+                <span class="sidebar-text font-bold text-lg">CMS Panel</span>
+            </div>
+            <nav class="flex-1 overflow-y-auto px-4 no-scrollbar">
+                <ul class="space-y-1">
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Main</span>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors nav-item overflow-hidden"
+                            id="nav-dashboard" href="dashboard.html">
+                            <span class="material-symbols-outlined shrink-0">dashboard</span>
+                            <span class="font-semibold text-[15px] sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Content</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-pages" onclick="toggleMenu('pages-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">article</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Pages</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="pages-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-pages" href="all-pages.html">
+                                        <span class="text-[14px] font-medium">All Pages</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-add-page" href="add-new-page.html">
+                                        <span class="text-[14px] font-medium">Add Page</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-posts" onclick="toggleMenu('blog-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">rss_feed</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Posts</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="blog-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-posts" href="all-posts.html">
+                                        <span class="text-[14px] font-medium">All Posts</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Add Post</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Categories</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('media-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">perm_media</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Media</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="media-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Library</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Add Media</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Management</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('cpt-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">layers</span>
+                                <span class="font-semibold text-[15px] sidebar-text">CPT</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="cpt-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Post</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Taxonomy</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#111827] bg-gray-200 dark:text-[#FCFCFC] dark:bg-[#272B30]/20 transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-user" onclick="toggleMenu('user-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">group</span>
+                                <span class="font-semibold text-[15px] sidebar-text">User</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="user-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-users" href="all-users.html">
+                                        <span class="text-[14px] font-medium">All Users</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#111827] dark:text-[#FCFCFC] font-bold transition-colors relative z-10"
+                                        id="nav-add-user" href="add-user.html">
+                                        <span class="text-[14px]">Add User</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="profile.html">
+                                        <span class="text-[14px] font-medium">Profile</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="role-permission.html">
+                                        <span class="text-[14px] font-medium">Role & Permission</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">System</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('settings-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">settings</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Settings</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="settings-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">General</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Brevo API</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Languages</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">SEO</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Redirect</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('litespeed-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">bolt</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Litespeed Cache</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="litespeed-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Cache</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">CDN</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Image Optimization</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Page Optimization</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="flex-1 overflow-y-auto bg-[#F4F5F6] dark:bg-[#0B0B0B] scroll-smooth relative no-scrollbar">
+            <header
+                class="sticky top-0 z-30 flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-6 py-6 md:px-10 md:pt-8 md:pb-6 bg-[#F4F5F6]/95 dark:bg-[#0B0B0B]/95 backdrop-blur-sm">
+                <div class="flex items-center gap-4">
+                    <button
+                        class="p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#111827] dark:text-[#FCFCFC] transition-colors focus:outline-none"
+                        id="sidebar-toggle">
+                        <span class="material-symbols-outlined text-2xl" id="toggle-icon">menu_open</span>
+                    </button>
+                    <h1 class="text-4xl font-bold tracking-tight text-[#111827] dark:text-[#FCFCFC]">Add New User</h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-4">
+                        <button
+                            class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#6F767E] shadow-sm hover:bg-gray-50 hover:text-[#111827] dark:bg-[#272B30] dark:text-[#FCFCFC] transition-colors focus:outline-none theme-toggle-btn"
+                            title="Toggle Theme">
+                            <span class="material-symbols-outlined text-[24px] dark:hidden">dark_mode</span>
+                            <span class="material-symbols-outlined text-[24px] hidden dark:block">light_mode</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="window.location.href='all-users.html'"
+                            class="flex items-center justify-center rounded-xl bg-white dark:bg-[#1A1A1A] px-6 py-3 text-sm font-bold text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-all border border-gray-200 dark:border-[#272B30] hover:border-gray-300 dark:hover:border-[#333]">
+                            Cancel
+                        </button>
+                        <button
+                            class="flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white hover:bg-blue-600 transition-all shadow-lg shadow-primary/20">
+                            Create User
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <div class="px-6 pb-6 md:px-10 md:pb-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-8 space-y-8">
+                        <section
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-10 shadow-sm border border-gray-200 dark:border-[#272B30]">
+                            <div class="mb-10">
+                                <h2 class="text-xl font-bold text-[#111827] dark:text-[#FCFCFC]">Account Details</h2>
+                                <p class="text-sm text-[#6F767E] mt-1">Provide the essential information for the new
+                                    user account.</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                <div class="space-y-1">
+                                    <label class="form-label">Full Name</label>
+                                    <input class="form-input-field" placeholder="e.g. John Doe" type="text" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="form-label">Email Address</label>
+                                    <input class="form-input-field" placeholder="john.doe@company.com" type="email" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="form-label">Username</label>
+                                    <input class="form-input-field" placeholder="jdoe" type="text" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="form-label">Password</label>
+                                    <div class="relative">
+                                        <input class="form-input-field pr-12" placeholder="••••••••" type="password" />
+                                        <button
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-[#6F767E] hover:text-[#FCFCFC]">
+                                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-8 space-y-1">
+                                <label class="form-label">Biography</label>
+                                <textarea class="form-input-field resize-none"
+                                    placeholder="Write a short bio about the user..." rows="5"></textarea>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="lg:col-span-4 space-y-8">
+                        <section
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-10 shadow-sm border border-gray-200 dark:border-[#272B30]">
+                            <h2 class="text-xl font-bold text-[#111827] dark:text-[#FCFCFC] mb-8">User Settings</h2>
+                            <div class="mb-10">
+                                <label class="form-label">Profile Picture</label>
+                                <div class="relative group mt-3">
+                                    <div
+                                        class="h-44 w-full rounded-2xl bg-gray-50 dark:bg-[#0B0B0B] flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-[#272B30] hover:border-primary/50 transition-colors cursor-pointer">
+                                        <div
+                                            class="h-16 w-16 rounded-2xl bg-gray-100 dark:bg-[#1A1A1A] flex items-center justify-center mb-3">
+                                            <span
+                                                class="material-symbols-outlined text-3xl text-[#6F767E]">add_photo_alternate</span>
+                                        </div>
+                                        <span
+                                            class="text-xs font-semibold text-[#6F767E] uppercase tracking-wider">Upload
+                                            Photo</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="space-y-1">
+                                    <label class="form-label">Role</label>
+                                    <div class="relative">
+                                        <select class="form-input-field appearance-none pr-10 cursor-pointer">
+                                            <option>Administrator</option>
+                                            <option selected="">Editor</option>
+                                            <option>Author</option>
+                                            <option>Contributor</option>
+                                        </select>
+                                        <span
+                                            class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#6F767E]">expand_more</span>
+                                    </div>
+                                </div>
+                                <div class="pt-6 mt-2 border-t border-gray-100 dark:border-[#272B30]">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-[14px] font-bold text-[#111827] dark:text-[#FCFCFC]">Account
+                                                Status</p>
+                                            <p class="text-xs text-[#6F767E] mt-0.5">Allow login access</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input checked="" class="sr-only peer" type="checkbox" />
+                                            <div
+                                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-[#0B0B0B] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        function toggleMenu(menuId, button) {
+            if (sidebar.classList.contains('collapsed')) return;
+            const submenu = document.getElementById(menuId);
+            const arrow = button.querySelector('.expand-icon');
+            if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.style.maxHeight = submenu.scrollHeight + "px";
+                submenu.style.opacity = '1';
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check localStorage for sidebar state
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+                if (toggleIcon) toggleIcon.textContent = 'menu';
+            }
+
+            // Check localStorage for theme
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Theme toggle listener
+            const themeToggles = document.querySelectorAll('#theme-toggle, .theme-toggle-btn');
+            themeToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    if (document.documentElement.classList.contains('dark')) {
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            });
+
+            // Sidebar toggle listener
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    if (toggleIcon) toggleIcon.textContent = isCollapsed ? 'menu' : 'menu_open';
+                    localStorage.setItem('sidebar-collapsed', isCollapsed);
+
+                    // Close all submenus when collapsing sidebar
+                    if (isCollapsed) {
+                        document.querySelectorAll('.submenu-container').forEach(menu => {
+                            menu.style.maxHeight = '0px';
+                            menu.style.opacity = '0';
+                            // Reset arrows
+                            const button = document.querySelector(`button[onclick*="${menu.id}"]`);
+                            if (button) {
+                                const arrow = button.querySelector('.expand-icon');
+                                if (arrow) arrow.style.transform = 'rotate(0deg)';
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Initialize submenus
+            const submenus = document.querySelectorAll('.submenu-container');
+            submenus.forEach(submenu => {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+            });
+
+            // Open User menu by default for this page
+            const userMenu = document.getElementById('user-menu');
+            if (userMenu) {
+                userMenu.style.maxHeight = userMenu.scrollHeight + "px";
+                userMenu.style.opacity = '1';
+                // Also rotate the arrow
+                const userButton = document.querySelector('button[onclick*="user-menu"]');
+                if (userButton) {
+                    const arrow = userButton.querySelector('.expand-icon');
+                    if (arrow) arrow.style.transform = 'rotate(180deg)';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

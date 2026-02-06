@@ -1,0 +1,29 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/vite": "^4.0.0",
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "glob": "^13.0.0",
+        "laravel-vite-plugin": "^2.0.0",
+        "tailwindcss": "^4.0.0",
+        "vite": "^7.0.7"
+    },
+    "dependencies": {
+        "@intevation/tiptap-extension-office-paste": "^0.1.2",
+        "@tiptap/core": "^3.17.1",
+        "@tiptap/extension-image": "^3.17.1",
+        "@tiptap/extension-link": "^3.17.1",
+        "@tiptap/extension-placeholder": "^3.17.1",
+        "@tiptap/extension-text-align": "^3.17.1",
+        "@tiptap/starter-kit": "^3.17.1",
+        "sortablejs": "^1.15.6"
+    }
+}

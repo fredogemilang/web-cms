@@ -1,0 +1,29 @@
+{
+    "name": "Membership",
+    "slug": "membership",
+    "version": "2.0.0",
+    "description": "Simple community membership management with registration and approval workflow.",
+    "author": "iCCom Team",
+    "namespace": "Plugins\\Membership",
+    "provider": "Plugins\\Membership\\Providers\\MembershipServiceProvider",
+    "permissions": {
+        "resources": [
+            {
+                "module": "memberships",
+                "actions": [
+                    "view",
+                    "create",
+                    "edit",
+                    "delete",
+                    "approve"
+                ],
+                "icon": "card_membership",
+                "description": "Manage community memberships"
+            }
+        ]
+    },
+    "requires": {
+        "php": ">=8.2",
+        "cms": ">=1.0"
+    }
+}

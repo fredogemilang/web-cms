@@ -1,0 +1,51 @@
+{
+    "name": "Posts",
+    "slug": "posts",
+    "version": "1.0.0",
+    "description": "A blog posts management plugin with categories and tags support.",
+    "author": "CMS Team",
+    "namespace": "Plugins\\Posts",
+    "provider": "Plugins\\Posts\\Providers\\PostsServiceProvider",
+    "permissions": {
+        "resources": [
+            {
+                "module": "posts",
+                "actions": [
+                    "view",
+                    "create",
+                    "edit",
+                    "delete",
+                    "publish"
+                ],
+                "icon": "article",
+                "description": "Manage blog posts"
+            },
+            {
+                "module": "categories",
+                "actions": [
+                    "view",
+                    "create",
+                    "edit",
+                    "delete"
+                ],
+                "icon": "category",
+                "description": "Manage post categories"
+            },
+            {
+                "module": "tags",
+                "actions": [
+                    "view",
+                    "create",
+                    "edit",
+                    "delete"
+                ],
+                "icon": "label",
+                "description": "Manage post tags"
+            }
+        ]
+    },
+    "requires": {
+        "php": ">=8.2",
+        "cms": ">=1.0"
+    }
+}

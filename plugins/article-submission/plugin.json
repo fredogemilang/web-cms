@@ -1,0 +1,27 @@
+{
+    "name": "Article Submission",
+    "slug": "article-submission",
+    "version": "1.0.0",
+    "description": "Receive and manage article submissions from contributors.",
+    "author": "CMS Team",
+    "namespace": "Plugins\\ArticleSubmission",
+    "provider": "Plugins\\ArticleSubmission\\Providers\\ArticleSubmissionServiceProvider",
+    "permissions": {
+        "resources": [
+            {
+                "module": "submissions",
+                "actions": [
+                    "view",
+                    "delete",
+                    "export"
+                ],
+                "icon": "article",
+                "description": "Manage article submissions"
+            }
+        ]
+    },
+    "requires": {
+        "php": ">=8.2",
+        "cms": ">=1.0"
+    }
+}

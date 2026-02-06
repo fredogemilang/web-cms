@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CMS - Add New Custom Post Type</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB",
+                        "dark-bg": "#0B0B0B",
+                        "dark-surface": "#1A1A1A",
+                        "dark-surface-lighter": "#272B30",
+                        "dark-border": "#272B30",
+                        "text-primary-dark": "#FCFCFC",
+                        "text-secondary-dark": "#6F767E",
+                        "status-active-bg": "#3F8C5826",
+                        "status-active-text": "#83BF6E",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    },
+                },
+            },
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .submenu-container {
+            position: relative;
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .submenu-list {
+            position: relative;
+            margin-left: 28px;
+            padding-left: 0;
+            border-left: 1px solid #272B30;
+        }
+        .submenu-item-connector {
+            position: absolute;
+            left: -1px;
+            top: 0;
+            height: 24px;
+            width: 16px;
+            border-left: 1px solid #272B30;
+            border-bottom: 1px solid #272B30;
+            border-bottom-left-radius: 8px;
+            pointer-events: none;
+        }
+        aside {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-text {
+            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out, margin 0.2s ease-in-out;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        aside.collapsed {
+            width: 96px !important;
+        }
+        aside.collapsed .sidebar-text {
+            opacity: 0;
+            width: 0;
+            margin: 0;
+            pointer-events: none;
+        }
+        aside.collapsed .submenu-container {
+            display: none !important;
+        }
+        aside.collapsed .expand-icon {
+            display: none;
+        }
+        aside.collapsed .nav-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        aside.collapsed .logo-container span:not(:first-child) {
+            display: none;
+        }
+        .custom-toggle:checked + .toggle-dot {
+            transform: translateX(100%);
+            background-color: #2563EB;
+        }
+        .custom-toggle:checked + .toggle-dot + .toggle-bg {
+            background-color: #2563EB33;
+            border-color: #2563EB66;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#F4F5F6] dark:bg-[#0B0B0B] text-[#111827] dark:text-[#FCFCFC] transition-colors duration-200 antialiased h-screen overflow-hidden font-sans relative">
+    <div class="flex h-full">
+        <aside
+            class="hidden w-[256px] flex-col bg-white dark:bg-[#0B0B0B] md:flex shrink-0 border-r border-transparent dark:border-[#272B30]/50 relative transition-all duration-300"
+            id="sidebar">
+            <div class="flex items-center gap-3 px-8 py-8 logo-container transition-all duration-300"
+                style="min-height: 104px;">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1A1D1F] dark:bg-[#272B30] text-white">
+                    <span class="material-symbols-outlined text-2xl">grid_view</span>
+                </div>
+                <span class="sidebar-text font-bold text-lg">CMS Panel</span>
+            </div>
+            <nav class="flex-1 overflow-y-auto px-4 no-scrollbar">
+                <ul class="space-y-1">
+                    <li>
+                        <a class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#FCFCFC] transition-colors nav-item overflow-hidden"
+                            href="#">
+                            <span class="material-symbols-outlined shrink-0">dashboard</span>
+                            <span class="font-semibold text-[15px] sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('pages-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">article</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Pages</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="pages-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">All Pages</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#FCFCFC] bg-[#272B30]/20 transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('cpt-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">edit_note</span>
+                                <span class="font-semibold text-[15px] sidebar-text">CPT</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 transform rotate-180 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-[500px] opacity-100 overflow-hidden" id="cpt-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#FCFCFC] bg-[#272B30]/40 transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Post</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Taxonomy</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('blog-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">rss_feed</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Blog / News</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="blog-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Posts</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#FCFCFC] transition-colors nav-item overflow-hidden"
+                            href="#">
+                            <span class="material-symbols-outlined shrink-0">perm_media</span>
+                            <span class="font-semibold text-[15px] sidebar-text">Media Library</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="p-6 border-t border-transparent dark:border-[#272B30]/50 flex flex-col gap-4">
+                <button
+                    class="flex items-center gap-3 text-[#6F767E] hover:text-[#FCFCFC] transition-colors nav-item overflow-hidden w-full"
+                    id="sidebar-toggle">
+                    <span class="material-symbols-outlined shrink-0 text-2xl rotate-180"
+                        id="toggle-icon">last_page</span>
+                    <span class="font-semibold text-[15px] sidebar-text">Collapse Sidebar</span>
+                </button>
+                <div class="flex items-center justify-start gap-3 rounded-full p-2 text-[#6F767E] nav-item overflow-hidden"
+                    id="theme-toggle">
+                    <span
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#272B30] text-[#FCFCFC] shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[20px]">dark_mode</span>
+                    </span>
+                    <span
+                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:text-[#FCFCFC] theme-text cursor-pointer">
+                        <span class="material-symbols-outlined text-[20px]">light_mode</span>
+                    </span>
+                </div>
+            </div>
+        </aside>
+        <main class="flex-1 overflow-y-auto bg-[#F4F5F6] dark:bg-[#0B0B0B] scroll-smooth relative no-scrollbar">
+            <header
+                class="sticky top-0 z-30 flex items-center justify-between px-6 py-6 md:px-10 md:pt-8 md:pb-6 bg-[#F4F5F6]/95 dark:bg-[#0B0B0B]/95 backdrop-blur-sm border-b border-transparent">
+                <h1 class="text-2xl font-bold tracking-tight text-[#111827] dark:text-[#FCFCFC]">Add New Custom Post
+                    Type</h1>
+                <div class="flex items-center gap-3">
+                    <button
+                        class="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#6F767E] hover:text-[#FCFCFC] bg-[#1A1A1A] border border-[#272B30] transition-all">Save
+                        Draft</button>
+                    <button
+                        class="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#6F767E] hover:text-[#FCFCFC] bg-[#1A1A1A] border border-[#272B30] transition-all">Preview</button>
+                    <button
+                        class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary hover:bg-blue-600 shadow-lg shadow-primary/20 transition-all">Publish</button>
+                </div>
+            </header>
+            <div class="px-6 pb-20 md:px-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-8 space-y-6">
+                        <div
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-8 border border-transparent dark:border-[#272B30]/50 shadow-sm">
+                            <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-white">
+                                <span class="material-symbols-outlined text-primary">label</span>
+                                Post Type Labels
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold uppercase tracking-wider text-[#6F767E]">Plural
+                                        Name</label>
+                                    <input
+                                        class="w-full rounded-xl border-none bg-gray-50 dark:bg-[#272B30]/40 py-3 px-4 text-sm text-[#FCFCFC] placeholder-[#6F767E] focus:ring-2 focus:ring-primary transition-all"
+                                        placeholder="e.g. Portfolio Items" type="text" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold uppercase tracking-wider text-[#6F767E]">Singular
+                                        Name</label>
+                                    <input
+                                        class="w-full rounded-xl border-none bg-gray-50 dark:bg-[#272B30]/40 py-3 px-4 text-sm text-[#FCFCFC] placeholder-[#6F767E] focus:ring-2 focus:ring-primary transition-all"
+                                        placeholder="e.g. Portfolio Item" type="text" />
+                                </div>
+                                <div class="md:col-span-2 space-y-2">
+                                    <label class="text-xs font-bold uppercase tracking-wider text-[#6F767E]">Post Type
+                                        Slug</label>
+                                    <div class="flex">
+                                        <span
+                                            class="inline-flex items-center px-4 rounded-l-xl bg-gray-100 dark:bg-[#272B30] text-[#6F767E] text-sm border-r border-[#0B0B0B]">
+                                            mysite.com/
+                                        </span>
+                                        <input
+                                            class="w-full rounded-r-xl border-none bg-gray-50 dark:bg-[#272B30]/40 py-3 px-4 text-sm text-[#FCFCFC] placeholder-[#6F767E] focus:ring-2 focus:ring-primary transition-all"
+                                            placeholder="portfolio" type="text" />
+                                    </div>
+                                    <p class="text-[11px] text-[#6F767E] mt-1 italic">The slug is used in the URL. Use
+                                        only lowercase letters and dashes.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-8 border border-transparent dark:border-[#272B30]/50 shadow-sm">
+                            <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-white">
+                                <span class="material-symbols-outlined text-primary">category</span>
+                                Menu Icon
+                            </h2>
+                            <div class="space-y-4">
+                                <label class="text-xs font-bold uppercase tracking-wider text-[#6F767E]">Dashboard
+                                    Icon</label>
+                                <div class="grid grid-cols-6 sm:grid-cols-10 gap-3">
+                                    <button
+                                        class="h-12 w-12 flex items-center justify-center rounded-xl bg-primary text-white ring-2 ring-primary ring-offset-4 ring-offset-[#1A1A1A]">
+                                        <span class="material-symbols-outlined">work</span>
+                                    </button>
+                                    <button
+                                        class="h-12 w-12 flex items-center justify-center rounded-xl bg-[#272B30]/40 text-[#6F767E] hover:text-[#FCFCFC] hover:bg-[#272B30] transition-all"
+                                        onclick="document.getElementById('icon-picker-modal').classList.remove('hidden')">
+                                        <span class="material-symbols-outlined">description</span>
+                                    </button>
+                                    <button
+                                        class="h-12 w-12 flex items-center justify-center rounded-xl bg-[#272B30]/40 text-[#6F767E] hover:text-[#FCFCFC] hover:bg-[#272B30] transition-all"
+                                        onclick="document.getElementById('icon-picker-modal').classList.remove('hidden')">
+                                        <span class="material-symbols-outlined">group</span>
+                                    </button>
+                                    <button
+                                        class="h-12 w-12 flex items-center justify-center rounded-xl bg-[#272B30]/40 text-[#6F767E] hover:text-[#FCFCFC] hover:bg-[#272B30] transition-all"
+                                        onclick="document.getElementById('icon-picker-modal').classList.remove('hidden')">
+                                        <span class="material-symbols-outlined">shopping_cart</span>
+                                    </button>
+                                    <button
+                                        class="h-12 w-12 flex items-center justify-center rounded-xl bg-[#272B30]/40 text-[#6F767E] hover:text-[#FCFCFC] hover:bg-[#272B30] transition-all"
+                                        onclick="document.getElementById('icon-picker-modal').classList.remove('hidden')">
+                                        <span class="material-symbols-outlined text-2xl">grid_view</span>
+                                    </button>
+                                    <button
+                                        class="h-12 w-12 flex items-center justify-center rounded-xl bg-[#272B30]/40 text-primary border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all"
+                                        onclick="document.getElementById('icon-picker-modal').classList.remove('hidden')">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-8 border border-transparent dark:border-[#272B30]/50 shadow-sm space-y-8">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-bold flex items-center gap-2 text-white">
+                                    <span class="material-symbols-outlined text-primary">dynamic_form</span>
+                                    Meta Boxes
+                                </h2>
+                                <button
+                                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-all uppercase tracking-wider">
+                                    <span class="material-symbols-outlined text-sm">add_box</span>
+                                    Add New Meta Box
+                                </button>
+                            </div>
+                            <div class="border border-[#272B30] rounded-2xl overflow-hidden bg-[#0B0B0B]/30">
+                                <div
+                                    class="bg-[#272B30]/20 p-5 flex items-center justify-between border-b border-[#272B30]">
+                                    <div class="flex items-center gap-4">
+                                        <span
+                                            class="material-symbols-outlined text-[#6F767E] cursor-grab">drag_indicator</span>
+                                        <div>
+                                            <h3 class="text-sm font-bold text-white">Project Details</h3>
+                                            <p class="text-[10px] text-[#6F767E] font-mono">ID: project_meta_box</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <button class="p-2 text-[#6F767E] hover:text-white transition-colors"
+                                            onclick="const s = this.parentElement.parentElement.nextElementSibling; s.classList.toggle('hidden');">
+                                            <span class="material-symbols-outlined">settings</span>
+                                        </button>
+                                        <button class="p-2 text-[#6F767E] hover:text-red-400 transition-colors">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="hidden p-6 border-b border-[#272B30] bg-[#1A1A1A]/50">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Box
+                                                Title</label>
+                                            <input
+                                                class="w-full rounded-xl border-none bg-[#272B30]/40 py-2.5 px-4 text-xs text-white placeholder-[#6F767E] focus:ring-1 focus:ring-primary transition-all"
+                                                type="text" value="Project Details" />
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Box
+                                                ID</label>
+                                            <input
+                                                class="w-full rounded-xl border-none bg-[#272B30]/40 py-2.5 px-4 text-xs text-white placeholder-[#6F767E] focus:ring-1 focus:ring-primary transition-all"
+                                                type="text" value="project_meta_box" />
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Context</label>
+                                            <select
+                                                class="w-full rounded-xl border-none bg-[#272B30]/40 py-2.5 px-4 text-xs text-white focus:ring-1 focus:ring-primary transition-all">
+                                                <option>Normal</option>
+                                                <option>Side</option>
+                                                <option>Advanced</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-6 space-y-6">
+                                    <div class="space-y-4">
+                                        <div
+                                            class="bg-[#272B30]/20 rounded-xl p-5 border border-[#272B30] relative group">
+                                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Field
+                                                        Label</label>
+                                                    <input
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white placeholder-[#6F767E] focus:ring-1 focus:ring-primary"
+                                                        type="text" value="Client Name" />
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Field
+                                                        ID</label>
+                                                    <input
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white placeholder-[#6F767E] focus:ring-1 focus:ring-primary"
+                                                        type="text" value="client_name" />
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Field
+                                                        Type</label>
+                                                    <select
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white focus:ring-1 focus:ring-primary">
+                                                        <option>Text</option>
+                                                        <option>Media</option>
+                                                        <option>Repeater</option>
+                                                        <option>Number</option>
+                                                        <option>Select</option>
+                                                    </select>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Description</label>
+                                                    <input
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white placeholder-italic placeholder-[#4a4f54]"
+                                                        placeholder="Enter the client's name..." type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="mt-4 pt-4 border-t border-[#272B30]">
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <span
+                                                            class="material-symbols-outlined text-primary text-sm">filter_alt</span>
+                                                        <span
+                                                            class="text-[11px] font-bold uppercase tracking-wider text-[#FCFCFC]">Conditional
+                                                            Logic</span>
+                                                    </div>
+                                                    <label class="relative inline-flex items-center cursor-pointer">
+                                                        <input checked="" class="sr-only custom-toggle"
+                                                            onchange="const c = this.closest('.group').querySelector('.conditional-logic-container'); c.classList.toggle('hidden', !this.checked);"
+                                                            type="checkbox" />
+                                                        <div
+                                                            class="w-9 h-5 bg-[#272B30] rounded-full toggle-bg transition-colors">
+                                                        </div>
+                                                        <div
+                                                            class="absolute left-1 top-1 w-3 h-3 bg-[#6F767E] rounded-full transition-transform toggle-dot">
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                <div class="conditional-logic-container space-y-4">
+                                                    <div class="flex items-center gap-3 mb-4">
+                                                        <span
+                                                            class="text-[11px] text-[#6F767E] font-medium uppercase tracking-tight">Show
+                                                            this field if</span>
+                                                        <select
+                                                            class="bg-[#0B0B0B] border-none rounded-lg py-1 px-3 text-[11px] text-white focus:ring-1 focus:ring-primary">
+                                                            <option>ALL (AND)</option>
+                                                            <option>ANY (OR)</option>
+                                                        </select>
+                                                        <span
+                                                            class="text-[11px] text-[#6F767E] font-medium uppercase tracking-tight">rules
+                                                            match:</span>
+                                                    </div>
+                                                    <div class="space-y-2">
+                                                        <div class="flex items-center gap-2 group/rule">
+                                                            <select
+                                                                class="flex-1 bg-[#1A1A1A] border border-[#272B30] rounded-lg py-2 px-3 text-[11px] text-white focus:ring-1 focus:ring-primary focus:border-transparent">
+                                                                <option>Select Field</option>
+                                                                <option selected="">Project Category</option>
+                                                                <option>Show Client Info</option>
+                                                            </select>
+                                                            <select
+                                                                class="w-32 bg-[#1A1A1A] border border-[#272B30] rounded-lg py-2 px-3 text-[11px] text-white focus:ring-1 focus:ring-primary focus:border-transparent">
+                                                                <option>Equals</option>
+                                                                <option>Not Equals</option>
+                                                                <option>Contains</option>
+                                                                <option>Is Empty</option>
+                                                            </select>
+                                                            <input
+                                                                class="flex-1 bg-[#1A1A1A] border border-[#272B30] rounded-lg py-2 px-3 text-[11px] text-white placeholder-[#6F767E] focus:ring-1 focus:ring-primary"
+                                                                placeholder="Value..." type="text" value="Commercial" />
+                                                            <button
+                                                                class="p-1.5 text-[#6F767E] hover:text-red-400 transition-colors">
+                                                                <span
+                                                                    class="material-symbols-outlined text-[18px]">remove_circle_outline</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold text-primary bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all uppercase tracking-wider mt-2">
+                                                        <span class="material-symbols-outlined text-sm">add</span>
+                                                        Add Rule
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span class="material-symbols-outlined text-xs">close</span>
+                                            </button>
+                                        </div>
+                                        <div
+                                            class="bg-[#272B30]/20 rounded-xl p-5 border border-[#272B30] relative group">
+                                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Field
+                                                        Label</label>
+                                                    <input
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white placeholder-[#6F767E] focus:ring-1 focus:ring-primary"
+                                                        type="text" value="Featured Image" />
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Field
+                                                        ID</label>
+                                                    <input
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white placeholder-[#6F767E] focus:ring-1 focus:ring-primary"
+                                                        type="text" value="featured_media" />
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Field
+                                                        Type</label>
+                                                    <select
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white focus:ring-1 focus:ring-primary">
+                                                        <option>Text</option>
+                                                        <option selected="">Media</option>
+                                                        <option>Repeater</option>
+                                                        <option>Number</option>
+                                                    </select>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label
+                                                        class="text-[10px] font-bold uppercase tracking-wider text-[#6F767E]">Description</label>
+                                                    <input
+                                                        class="w-full rounded-lg border-none bg-[#272B30]/60 py-2 px-3 text-xs text-white placeholder-italic placeholder-[#4a4f54]"
+                                                        placeholder="Add a project thumbnail..." type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="mt-4 pt-4 border-t border-[#272B30]">
+                                                <div class="flex items-center justify-between mb-0">
+                                                    <div class="flex items-center gap-2">
+                                                        <span
+                                                            class="material-symbols-outlined text-primary text-sm">filter_alt</span>
+                                                        <span
+                                                            class="text-[11px] font-bold uppercase tracking-wider text-[#6F767E]">Conditional
+                                                            Logic</span>
+                                                    </div>
+                                                    <label class="relative inline-flex items-center cursor-pointer">
+                                                        <input class="sr-only custom-toggle"
+                                                            onchange="const c = this.closest('.group').querySelector('.conditional-logic-container'); c.classList.toggle('hidden', !this.checked);"
+                                                            type="checkbox" />
+                                                        <div
+                                                            class="w-9 h-5 bg-[#272B30] rounded-full toggle-bg transition-colors">
+                                                        </div>
+                                                        <div
+                                                            class="absolute left-1 top-1 w-3 h-3 bg-[#6F767E] rounded-full transition-transform toggle-dot">
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                <div class="conditional-logic-container hidden space-y-4 mt-4">
+                                                    <div class="flex items-center gap-3 mb-4">
+                                                        <span
+                                                            class="text-[11px] text-[#6F767E] font-medium uppercase tracking-tight">Show
+                                                            this field if</span>
+                                                        <select
+                                                            class="bg-[#0B0B0B] border-none rounded-lg py-1 px-3 text-[11px] text-white focus:ring-1 focus:ring-primary">
+                                                            <option>ALL (AND)</option>
+                                                            <option>ANY (OR)</option>
+                                                        </select>
+                                                        <span
+                                                            class="text-[11px] text-[#6F767E] font-medium uppercase tracking-tight">rules
+                                                            match:</span>
+                                                    </div>
+                                                    <button
+                                                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold text-primary bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all uppercase tracking-wider">
+                                                        <span class="material-symbols-outlined text-sm">add</span>
+                                                        Add Rule
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span class="material-symbols-outlined text-xs">close</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button
+                                        class="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-[#272B30] rounded-xl text-[#6F767E] hover:text-white hover:border-primary/50 transition-all text-xs font-bold uppercase tracking-wider">
+                                        <span class="material-symbols-outlined text-sm">add</span>
+                                        Add Meta Field
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex justify-center pt-4">
+                                <button
+                                    class="flex items-center gap-2 px-8 py-4 rounded-2xl text-sm font-bold text-white bg-[#272B30]/40 border border-[#272B30] hover:border-primary/50 hover:bg-primary/5 transition-all">
+                                    <span class="material-symbols-outlined">add_circle</span>
+                                    Create Another Meta Box
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-4 space-y-6">
+                        <div
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-8 border border-transparent dark:border-[#272B30]/50 shadow-sm">
+                            <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-white">
+                                <span class="material-symbols-outlined text-primary">settings</span>
+                                Settings
+                            </h2>
+                            <div class="space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-[#FCFCFC]">Public</span>
+                                        <span class="text-[11px] text-[#6F767E]">Visible on frontend</span>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input checked="" class="sr-only custom-toggle" type="checkbox" />
+                                        <div class="w-11 h-6 bg-[#272B30] rounded-full toggle-bg transition-colors">
+                                        </div>
+                                        <div
+                                            class="absolute left-1 top-1 w-4 h-4 bg-[#6F767E] rounded-full transition-transform toggle-dot">
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-[#FCFCFC]">Has Archive</span>
+                                        <span class="text-[11px] text-[#6F767E]">Post type root listing</span>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input checked="" class="sr-only custom-toggle" type="checkbox" />
+                                        <div class="w-11 h-6 bg-[#272B30] rounded-full toggle-bg transition-colors">
+                                        </div>
+                                        <div
+                                            class="absolute left-1 top-1 w-4 h-4 bg-[#6F767E] rounded-full transition-transform toggle-dot">
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-[#FCFCFC]">Hierarchical</span>
+                                        <span class="text-[11px] text-[#6F767E]">Allow parent/child</span>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input class="sr-only custom-toggle" type="checkbox" />
+                                        <div class="w-11 h-6 bg-[#272B30] rounded-full toggle-bg transition-colors">
+                                        </div>
+                                        <div
+                                            class="absolute left-1 top-1 w-4 h-4 bg-[#6F767E] rounded-full transition-transform toggle-dot">
+                                        </div>
+                                    </label>
+                                </div>
+                                <hr class="border-[#272B30]" />
+                                <div class="space-y-3">
+                                    <label
+                                        class="text-xs font-bold uppercase tracking-wider text-[#6F767E] block mb-2">Supports</label>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input checked=""
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Title</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input checked=""
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span
+                                                class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Editor</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input checked=""
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span
+                                                class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Thumbnail</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span
+                                                class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Excerpt</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span
+                                                class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Author</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span
+                                                class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Comments</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <hr class="border-[#272B30]" />
+                                <div class="space-y-3">
+                                    <label
+                                        class="text-xs font-bold uppercase tracking-wider text-[#6F767E] block mb-2">Taxonomies</label>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span
+                                                class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Categories</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input
+                                                class="h-5 w-5 rounded border-[#272B30] bg-[#1A1A1A] text-primary focus:ring-primary focus:ring-offset-[#1A1A1A] transition-all"
+                                                type="checkbox" />
+                                            <span class="text-sm text-[#6F767E] group-hover:text-[#FCFCFC]">Tags</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none hidden"
+        id="icon-picker-modal">
+        <div class="fixed inset-0 bg-[#0B0B0B]/90 backdrop-blur-xl transition-opacity"
+            onclick="document.getElementById('icon-picker-modal').classList.add('hidden')"></div>
+        <div class="relative w-full max-w-2xl mx-auto my-6 z-10 px-4">
+            <div
+                class="relative flex flex-col w-full bg-[#1A1A1A] border border-[#272B30] rounded-3xl shadow-2xl outline-none focus:outline-none">
+                <div class="flex items-center justify-between p-8 border-b border-[#272B30]">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                        Select Menu Icon
+                    </h3>
+                    <button
+                        class="text-[#6F767E] hover:text-white transition-colors p-2 rounded-lg hover:bg-[#272B30]/50"
+                        onclick="document.getElementById('icon-picker-modal').classList.add('hidden')">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="relative p-8 flex-auto">
+                    <div class="relative mb-8">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
+                            <span class="material-symbols-outlined text-[#6F767E] text-xl">search</span>
+                        </span>
+                        <input
+                            class="w-full pl-14 pr-6 py-4 bg-[#272B30]/40 border-none rounded-2xl text-white placeholder-[#6F767E] focus:ring-2 focus:ring-primary transition-all text-sm"
+                            placeholder="Search from thousands of icons..." type="text" />
+                    </div>
+                    <div class="grid grid-cols-6 sm:grid-cols-8 gap-4 max-h-[380px] overflow-y-auto no-scrollbar pr-2">
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">article</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">work</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">store</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-primary text-white border-2 border-primary transition-all shadow-lg shadow-primary/20 group">
+                            <span class="material-symbols-outlined text-2xl scale-110">dashboard</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">person</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">settings</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">mail</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">calendar_month</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">bolt</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">cloud</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">lock</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">key</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">database</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">school</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">rocket_launch</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">palette</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">headphones</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">camera</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">chat</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">campaign</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">favorite</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">shopping_bag</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">map</span></button>
+                        <button
+                            class="flex flex-col items-center justify-center p-4 aspect-square rounded-2xl bg-[#272B30]/20 border border-transparent hover:border-primary hover:bg-primary/5 text-white transition-all group"><span
+                                class="material-symbols-outlined text-2xl group-hover:scale-125 transition-transform">location_on</span></button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end p-8 border-t border-[#272B30] gap-4">
+                    <button
+                        class="px-8 py-3.5 rounded-2xl text-sm font-semibold text-[#6F767E] hover:text-[#FCFCFC] transition-colors"
+                        onclick="document.getElementById('icon-picker-modal').classList.add('hidden')">
+                        Cancel
+                    </button>
+                    <button
+                        class="px-8 py-3.5 rounded-2xl text-sm font-bold text-white bg-primary hover:bg-blue-600 shadow-lg shadow-primary/20 transition-all">
+                        Select Icon
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            toggleIcon.textContent = sidebar.classList.contains('collapsed') ? 'first_page' : 'last_page';
+        });
+        function toggleMenu(menuId, button) {
+            if (sidebar.classList.contains('collapsed')) return;
+            const submenu = document.getElementById(menuId);
+            const arrow = button.querySelector('.expand-icon');
+            if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.style.maxHeight = submenu.scrollHeight + "px";
+                submenu.style.opacity = '1';
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const cptMenu = document.getElementById('cpt-menu');
+            if (cptMenu) {
+                cptMenu.style.maxHeight = cptMenu.scrollHeight + "px";
+                cptMenu.style.opacity = '1';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,826 @@
+﻿<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CMS Dashboard Overview</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB",
+                        "dark-bg": "#0B0B0B",
+                        "dark-surface": "#1A1A1A",
+                        "dark-surface-lighter": "#272B30",
+                        "dark-border": "#272B30",
+                        "text-primary-dark": "#FCFCFC",
+                        "text-secondary-dark": "#6F767E",
+                        "status-active-bg": "#3F8C5826",
+                        "status-active-text": "#83BF6E",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    },
+                },
+            },
+        };
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .submenu-container {
+            position: relative;
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .submenu-list {
+            position: relative;
+            margin-left: 28px;
+            padding-left: 0;
+        }
+        .submenu-list li::before {
+            content: "";
+            position: absolute;
+            left: -1px;
+            top: 0;
+            bottom: -4px;
+            border-left: 1px solid #b4b4b4;
+        }
+        .dark .submenu-list li::before {
+            border-left: 1px solid #272B30;
+        }
+        .submenu-list li:last-child::before {
+            display: none;
+        }
+        .submenu-item-connector {
+            position: absolute;
+            left: -1px;
+            top: 0;
+            height: 24px;
+            width: 16px;
+            border-left: 1px solid #b4b4b4;
+            border-bottom: 1px solid #b4b4b4;
+            border-bottom-left-radius: 8px;
+            pointer-events: none;
+        }
+        .dark .submenu-item-connector {
+            border-left: 1px solid #272B30;
+            border-bottom: 1px solid #272B30;
+        }
+        aside {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-text {
+            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out, margin 0.2s ease-in-out;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        aside.collapsed {
+            width: 96px !important;
+        }
+        aside.collapsed .sidebar-text {
+            opacity: 0;
+            width: 0;
+            margin: 0;
+            pointer-events: none;
+            display: none;
+        }
+        aside.collapsed .submenu-container {
+            display: none !important;
+        }
+        aside.collapsed .expand-icon {
+            display: none;
+        }
+        aside.collapsed .nav-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        aside.collapsed .logo-container span:not(:first-child) {
+            display: none;
+        }
+        .chart-bar {
+            transition: height 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#F4F5F6] dark:bg-[#0B0B0B] text-[#111827] dark:text-[#FCFCFC] transition-colors duration-200 antialiased h-screen overflow-hidden">
+    <div class="flex h-full">
+        <aside
+            class="hidden w-[256px] flex-col bg-[#F4F5F6] dark:bg-[#0B0B0B] md:flex shrink-0 border-r border-gray-200 dark:border-[#272B30]/50 relative transition-all duration-300"
+            id="sidebar">
+            <div class="flex items-center gap-3 px-8 py-8 logo-container transition-all duration-300"
+                style="min-height: 104px;">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1A1D1F] dark:bg-[#272B30] text-white">
+                    <span class="material-symbols-outlined text-2xl">grid_view</span>
+                </div>
+                <span class="sidebar-text font-bold text-lg">CMS Panel</span>
+            </div>
+            <nav class="flex-1 overflow-y-auto px-4 no-scrollbar">
+                <ul class="space-y-1">
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Main</span>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#111827] bg-gray-200 dark:text-[#FCFCFC] dark:bg-[#272B30]/20 transition-colors nav-item overflow-hidden"
+                            id="nav-dashboard" href="dashboard.html">
+                            <span class="material-symbols-outlined shrink-0">dashboard</span>
+                            <span class="font-semibold text-[15px] sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Content</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-pages" onclick="toggleMenu('pages-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">article</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Pages</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="pages-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-pages" href="all-pages.html">
+                                        <span class="text-[14px] font-medium">All Pages</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-add-page" href="add-new-page.html">
+                                        <span class="text-[14px] font-medium">Add Page</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-posts" onclick="toggleMenu('blog-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">rss_feed</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Posts</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="blog-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-posts" href="all-posts.html">
+                                        <span class="text-[14px] font-medium">All Posts</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Add Post</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Categories</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('media-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">perm_media</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Media</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="media-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Library</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Add Media</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">Management</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('cpt-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">layers</span>
+                                <span class="font-semibold text-[15px] sidebar-text">CPT</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="cpt-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Post</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Custom Taxonomy</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            id="btn-user" onclick="toggleMenu('user-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">group</span>
+                                <span class="font-semibold text-[15px] sidebar-text">User</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="user-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-all-users" href="all-users.html">
+                                        <span class="text-[14px] font-medium">All Users</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="add-user.html">
+                                        <span class="text-[14px] font-medium">Add User</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        id="nav-profile" href="profile.html">
+                                        <span class="text-[14px] font-medium">Profile</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="role-permission.html">
+                                        <span class="text-[14px] font-medium">Role & Permission</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="px-4 pt-4 pb-2">
+                        <span
+                            class="text-[10px] font-bold text-[#6F767E] uppercase tracking-widest sidebar-text">System</span>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('settings-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">settings</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Settings</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="settings-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">General</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Brevo API</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Languages</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">SEO</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Redirect</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors cursor-pointer focus:outline-none nav-item overflow-hidden"
+                            onclick="toggleMenu('litespeed-menu', this)">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">bolt</span>
+                                <span class="font-semibold text-[15px] sidebar-text">Litespeed Cache</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-xl transition-transform duration-300 expand-icon">expand_more</span>
+                        </button>
+                        <div class="submenu-container max-h-0 opacity-0 overflow-hidden" id="litespeed-menu">
+                            <ul class="submenu-list mt-1 space-y-1">
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Cache</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">CDN</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Image Optimization</span>
+                                    </a>
+                                </li>
+                                <li class="relative pl-6 py-1">
+                                    <div class="submenu-item-connector"></div>
+                                    <a class="flex items-center rounded-xl px-4 py-2.5 text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-colors relative z-10"
+                                        href="#">
+                                        <span class="text-[14px] font-medium">Page Optimization</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="flex-1 overflow-y-auto bg-[#F4F5F6] dark:bg-[#0B0B0B] scroll-smooth relative no-scrollbar">
+            <header
+                class="sticky top-0 z-30 flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-6 py-6 md:px-10 md:pt-8 md:pb-6 bg-[#F4F5F6]/95 dark:bg-[#0B0B0B]/95 backdrop-blur-sm">
+                <div class="flex items-center gap-4">
+                    <button
+                        class="p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#111827] dark:text-[#FCFCFC] transition-colors focus:outline-none"
+                        id="sidebar-toggle">
+                        <span class="material-symbols-outlined text-2xl" id="toggle-icon">menu_open</span>
+                    </button>
+                    <h1 class="text-4xl font-bold tracking-tight text-[#111827] dark:text-[#FCFCFC]">Dashboard</h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="relative hidden md:block">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-[#6F767E]">
+                            <span class="material-symbols-outlined text-[24px]">search</span>
+                        </span>
+                        <input
+                            class="w-80 rounded-xl border border-gray-300 bg-white py-3 pl-12 pr-4 text-sm font-medium text-[#111827] placeholder-[#6F767E] shadow-sm ring-1 ring-gray-300 focus:ring-2 focus:ring-primary dark:bg-[#1A1D1F] dark:text-[#FCFCFC] dark:border-[#272B30] dark:ring-0 dark:focus:ring-white/20 transition-all"
+                            placeholder="Search anything..." type="text" />
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button
+                            class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#6F767E] shadow-sm hover:bg-gray-50 hover:text-[#111827] dark:bg-[#272B30] dark:text-[#FCFCFC] transition-colors focus:outline-none"
+                            id="theme-toggle">
+                            <span class="material-symbols-outlined text-[24px] dark:hidden">dark_mode</span>
+                            <span class="material-symbols-outlined text-[24px] hidden dark:block">light_mode</span>
+                        </button>
+                        <button
+                            class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#6F767E] shadow-sm hover:bg-gray-50 hover:text-[#111827] dark:bg-[#272B30] dark:text-[#6F767E] dark:hover:text-[#FCFCFC] transition-colors relative">
+                            <span class="material-symbols-outlined text-[24px]">notifications</span>
+                            <span
+                                class="absolute top-3 right-3 h-2 w-2 rounded-full bg-[#FF6A55] ring-2 ring-white dark:ring-[#0B0B0B]"></span>
+                        </button>
+                        <img alt="User Avatar"
+                            class="h-12 w-12 rounded-full object-cover border-2 border-transparent hover:border-primary transition-all cursor-pointer"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7INyKmpWd3hSSfwK6-b0SnjLjsglAWSSab9isy38Po_wYTQDueYhNomhx2fSpFvmaGrcU2xwfZuWFUMcUzDYGwfbTkmfwTAcrDjFgC_wYT6qs-5kkwbhhNZRbGZX74jpiOxsD173alK0_1zLG9B43plk3wgBItXKLRzIq2abJUX3bJk5lDzPyQ2Q-raVuAMNbLeQZvD1ODlUIA6BwhdWwVJLIolHlhE_NJnu5u59bxo8uIiGMjU9eIvqnU4guAUWO_A9D3_yXb7ka" />
+                    </div>
+                </div>
+            </header>
+            <div class="px-6 pb-6 md:px-10 md:pb-10">
+                <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
+                    <div class="lg:col-span-3 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div
+                                class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-6 shadow-sm flex flex-col justify-between border border-gray-200 dark:border-[#272B30]">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div
+                                        class="h-12 w-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                                        <span class="material-symbols-outlined">group</span>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-[#83BF6E] bg-[#83BF6E]/15 px-2.5 py-1 rounded-lg">+12.5%</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#6F767E] uppercase tracking-wider mb-1">Total
+                                        Visitors</p>
+                                    <p class="text-3xl font-bold text-[#111827] dark:text-[#FCFCFC]">128,430</p>
+                                </div>
+                            </div>
+                            <div
+                                class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-6 shadow-sm flex flex-col justify-between border border-gray-200 dark:border-[#272B30]">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div
+                                        class="h-12 w-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+                                        <span class="material-symbols-outlined">description</span>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-[#83BF6E] bg-[#83BF6E]/15 px-2.5 py-1 rounded-lg">+2</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#6F767E] uppercase tracking-wider mb-1">Active
+                                        Pages</p>
+                                    <p class="text-3xl font-bold text-[#111827] dark:text-[#FCFCFC]">42</p>
+                                </div>
+                            </div>
+                            <div
+                                class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-6 shadow-sm flex flex-col justify-between border border-gray-200 dark:border-[#272B30]">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div
+                                        class="h-12 w-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
+                                        <span class="material-symbols-outlined">bolt</span>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-[#FF6A55] bg-[#FF6A55]/15 px-2.5 py-1 rounded-lg">-3%</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#6F767E] uppercase tracking-wider mb-1">Bounce
+                                        Rate</p>
+                                    <p class="text-3xl font-bold text-[#111827] dark:text-[#FCFCFC]">24.8%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-8 shadow-sm border border-gray-200 dark:border-[#272B30]">
+                            <div class="flex items-center justify-between mb-8">
+                                <div>
+                                    <h2 class="text-xl font-bold text-[#111827] dark:text-[#FCFCFC]">Website Performance
+                                    </h2>
+                                    <p class="text-sm text-[#6F767E] mt-1">Daily traffic trends for the last 7 days</p>
+                                </div>
+                                <select
+                                    class="bg-white border border-gray-300 dark:border-[#272B30] dark:bg-[#1A1D1F] rounded-xl px-4 py-2 text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-0 focus:outline-none">
+                                    <option>Last 7 Days</option>
+                                    <option>Last 30 Days</option>
+                                </select>
+                            </div>
+                            <div class="h-64 w-full flex items-end justify-between gap-4 pt-4">
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 40%;">
+                                        <div
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1A1D1F] text-[#111827] dark:text-white text-[10px] px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            12k</div>
+                                        <div class="w-full h-1 bg-primary absolute top-0 rounded-full"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#6F767E]">Mon</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 65%;">
+                                        <div
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1A1D1F] text-[#111827] dark:text-white text-[10px] px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            18k</div>
+                                        <div class="w-full h-1 bg-primary absolute top-0 rounded-full"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#6F767E]">Tue</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 55%;">
+                                        <div
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1A1D1F] text-[#111827] dark:text-white text-[10px] px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            15k</div>
+                                        <div class="w-full h-1 bg-primary absolute top-0 rounded-full"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#6F767E]">Wed</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 85%;">
+                                        <div
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1A1D1F] text-[#111827] dark:text-white text-[10px] px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            24k</div>
+                                        <div class="w-full h-1 bg-primary absolute top-0 rounded-full"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#6F767E]">Thu</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 70%;">
+                                        <div
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1A1D1F] text-[#111827] dark:text-white text-[10px] px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            20k</div>
+                                        <div class="w-full h-1 bg-primary absolute top-0 rounded-full"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#6F767E]">Fri</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 95%;">
+                                        <div
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1A1D1F] text-[#111827] dark:text-white text-[10px] px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            28k</div>
+                                        <div class="w-full h-1 bg-primary absolute top-0 rounded-full"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#6F767E]">Sat</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="w-full bg-primary/20 rounded-t-lg relative group" style="height: 60%;">
+                                        <div
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1A1D1F] text-[#111827] dark:text-white text-[10px] px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            16k</div>
+                                        <div class="w-full h-1 bg-primary absolute top-0 rounded-full"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#6F767E]">Sun</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-0 shadow-sm overflow-hidden border border-gray-200 dark:border-[#272B30]">
+                            <div
+                                class="p-8 border-b border-gray-200 dark:border-[#272B30] flex items-center justify-between">
+                                <h2 class="text-xl font-bold text-[#111827] dark:text-[#FCFCFC]">Recent Content Activity
+                                </h2>
+                                <button class="text-sm font-bold text-primary hover:underline transition-all">View
+                                    History</button>
+                            </div>
+                            <div class="divide-y divide-gray-200 dark:divide-[#272B30]">
+                                <div
+                                    class="p-6 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-[#272B30]/30 transition-colors">
+                                    <img alt="Editor" class="h-10 w-10 rounded-full object-cover"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAimIPSCZX8KTiLCaenSGAzkkni3loVL8GSKMaaofXpzqGbxWsUtuexVmJaC0BuPz0A6kFSRCEtCVnP-qV05Mw-Vlmp-2sOwTGxUh5_T1S7DGspG_YgKk7Fhf6WIyhi-9P2iwMNaAnKKvXQoyLFKMpbAVYNJIgNGuGG-1wgrMos5jxD6JxuugholhiSMftwXeYdzvawsQgLWr0s1wwVRF89ydw4hNPPc5j839H2hpPTGvK1EMrBp7T3YkSFlkS4IP3fNNGmoW6Uka82" />
+                                    <div class="flex-1">
+                                        <p class="text-sm font-bold text-[#111827] dark:text-[#FCFCFC]">Gladyce <span
+                                                class="font-normal text-[#6F767E]">updated the</span> Home Page</p>
+                                        <p class="text-xs text-[#6F767E] mt-0.5">2 minutes ago</p>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-[#83BF6E] bg-[#83BF6E]/15 px-2 py-1 rounded">Update</span>
+                                </div>
+                                <div
+                                    class="p-6 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-[#272B30]/30 transition-colors">
+                                    <img alt="Editor" class="h-10 w-10 rounded-full object-cover"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjGFTOUSCAYTw4hzwl-LiTB_1ZXh1giz-Jsc8oUe2btdbCnxCIp2igmN3MS-PX9NHDhYw85l8vJqFmp6emnBkZA7VrVb2ob6rlV5FyC01dn1n3NVODotnRfEuwbalQyJcuRPJemizANt-Pg1d2eskf-t2BUtZiULrkZRUp9dHIzcZ4CNHnubpOBa2pZnghGlyTiRTdzRu3sluAprYKkLc-Js2kSdKnqXnIxtjzLDupWyg3tkpNYHbw8KcqaKkD6dIVHGY-GmpgEZ-8" />
+                                    <div class="flex-1">
+                                        <p class="text-sm font-bold text-[#111827] dark:text-[#FCFCFC]">Elbert <span
+                                                class="font-normal text-[#6F767E]">published a new post:</span> Tech
+                                            Trends 2024</p>
+                                        <p class="text-xs text-[#6F767E] mt-0.5">1 hour ago</p>
+                                    </div>
+                                    <span class="text-xs font-bold text-blue-500 bg-blue-500/15 px-2 py-1 rounded">New
+                                        Post</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="space-y-8">
+                        <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-6 shadow-sm">
+                            <h2 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC] mb-6">Site Status</h2>
+                            <div
+                                class="flex items-center justify-between p-4 rounded-2xl bg-[#F4F5F6] dark:bg-[#111315]">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-3 w-3 rounded-full bg-[#83BF6E] animate-pulse"></div>
+                                    <span class="text-sm font-bold text-[#111827] dark:text-[#FCFCFC]">Online</span>
+                                </div>
+                                <div
+                                    class="relative inline-flex h-6 w-11 items-center rounded-full bg-[#83BF6E] cursor-pointer">
+                                    <span
+                                        class="translate-x-6 inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-[#6F767E] mt-4 text-center">Maintenance mode is currently
+                                disabled.</p>
+                        </div>
+                        <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-6 shadow-sm">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC]">Quick Inquiries</h2>
+                                <span
+                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-[#FF6A55] text-[10px] font-bold text-white">3</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div
+                                    class="p-4 rounded-2xl border border-gray-100 dark:border-[#272B30] hover:bg-gray-50 dark:hover:bg-[#272B30]/30 transition-all cursor-pointer">
+                                    <p class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">James Wilson</p>
+                                    <p class="text-xs text-[#6F767E] mt-1 truncate">Interested in partnership...</p>
+                                    <p class="text-[10px] text-[#6F767E] mt-2">12:30 PM</p>
+                                </div>
+                                <div
+                                    class="p-4 rounded-2xl border border-gray-100 dark:border-[#272B30] hover:bg-gray-50 dark:hover:bg-[#272B30]/30 transition-all cursor-pointer">
+                                    <p class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">Sarah Connor</p>
+                                    <p class="text-xs text-[#6F767E] mt-1 truncate">Quote for website redesign...</p>
+                                    <p class="text-[10px] text-[#6F767E] mt-2">Yesterday</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] p-6 shadow-sm">
+                            <h2 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC] mb-6">Content Health</h2>
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-bold text-[#6F767E]">SEO Score</span>
+                                        <span class="text-xs font-bold text-[#83BF6E]">92%</span>
+                                    </div>
+                                    <div class="h-2 w-full bg-[#F4F5F6] dark:bg-[#272B30] rounded-full overflow-hidden">
+                                        <div class="h-full bg-[#83BF6E] rounded-full" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-bold text-[#6F767E]">Media Alt Tags</span>
+                                        <span class="text-xs font-bold text-orange-500">64%</span>
+                                    </div>
+                                    <div class="h-2 w-full bg-[#F4F5F6] dark:bg-[#272B30] rounded-full overflow-hidden">
+                                        <div class="h-full bg-orange-500 rounded-full" style="width: 64%"></div>
+                                    </div>
+                                </div>
+                                <button
+                                    class="w-full mt-4 py-3 rounded-xl border border-[#272B30] text-xs font-bold text-[#6F767E] hover:text-[#FCFCFC] hover:border-white transition-all">
+                                    Run Health Check
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB",
+                        "dark-bg": "#0B0B0B",
+                        "dark-surface": "#1A1A1A",
+                        "dark-surface-lighter": "#272B30",
+                        "dark-border": "#272B30",
+                        "text-primary-dark": "#FCFCFC",
+                        "text-secondary-dark": "#6F767E",
+                        "status-active-bg": "#3F8C5826",
+                        "status-active-text": "#83BF6E",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    },
+                },
+            },
+        };
+
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        function toggleMenu(menuId, button) {
+            if (sidebar.classList.contains('collapsed')) return;
+            const submenu = document.getElementById(menuId);
+            const arrow = button.querySelector('.expand-icon');
+            if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.style.maxHeight = submenu.scrollHeight + "px";
+                submenu.style.opacity = '1';
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check localStorage for sidebar state
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+                if (toggleIcon) toggleIcon.textContent = 'menu';
+            }
+
+            // Check localStorage for theme
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Theme toggle listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    if (document.documentElement.classList.contains('dark')) {
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+
+            // Sidebar toggle listener
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    if (toggleIcon) toggleIcon.textContent = isCollapsed ? 'menu' : 'menu_open';
+                    localStorage.setItem('sidebar-collapsed', isCollapsed);
+
+                    // Close all submenus when collapsing sidebar
+                    if (isCollapsed) {
+                        document.querySelectorAll('.submenu-container').forEach(menu => {
+                            menu.style.maxHeight = '0px';
+                            menu.style.opacity = '0';
+                            // Reset arrows
+                            const button = document.querySelector(`button[onclick*="${menu.id}"]`);
+                            if (button) {
+                                const arrow = button.querySelector('.expand-icon');
+                                if (arrow) arrow.style.transform = 'rotate(0deg)';
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Initialize submenus
+            const submenus = document.querySelectorAll('.submenu-container');
+            submenus.forEach(submenu => {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+            });
+        });
+    </script>
+</body>
+
+</html>
