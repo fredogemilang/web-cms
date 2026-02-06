@@ -22,7 +22,7 @@ This guide assumes you are using cPanel or a similar shared hosting environment.
 #### Option A: With SSH Access (Recommended)
 1.  **Clone/Pull Repository**:
     ```bash
-    git clone https://github.com/your-repo/web-cms.git .
+    git clone https://github.com/fredogemilang/web-cms.git .
     ```
 2.  **Install Dependencies**:
     ```bash
