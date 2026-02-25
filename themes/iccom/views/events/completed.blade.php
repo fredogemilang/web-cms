@@ -7,7 +7,7 @@
     <section class="event-detail-section pt-5 mt-5">
         <div class="container pt-4">
             <!-- Banner -->
-            <div class="event-banner mb-5 position-relative">
+            <div class="event-banner mb-5 position-relative" data-aos="fade-up">
                 <!-- Add badge logo if needed, similar to events page -->
                 @if($event->category && $event->category->image)
                 <div class="upcoming-badge-event-category" style="top: 30px; right: 0;">
@@ -25,7 +25,7 @@
             </div>
 
             <!-- Title & Info -->
-            <div class="mb-5">
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="100">
                 <span class="badge badge-online mb-3 px-3 py-2 rounded-pill text-capitalize">{{ $event->event_type }}</span>
                 <h1 class="fw-bold mb-3">{{ $event->title }}</h1>
 
@@ -61,7 +61,7 @@
 
             <!-- Speakers -->
             @if($event->speakers && $event->speakers->count() > 0)
-            <div class="mb-5">
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="200">
                 <h4 class="fw-bold mb-4">Speakers</h4>
                 <div class="row align-items-center">
                     @foreach($event->speakers as $speaker)
@@ -80,7 +80,7 @@
             @endif
 
             <!-- Event Details Text -->
-            <div class="mb-5">
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="300">
                 <h4 class="fw-bold mb-3">Event Detail</h4>
                 <div class="text-muted event-content">
                     {!! $event->content !!}
@@ -94,9 +94,9 @@
     @if(!empty($event->gallery_images) && count($event->gallery_images) > 0)
     <section class="event-documentation-section py-5" x-data="{ shownCount: 3, total: {{ count($event->gallery_images) }} }">
         <div class="container">
-            <h4 class="fw-bold mb-4">Event Documentation</h4>
+            <h4 class="fw-bold mb-4" data-aos="fade-up">Event Documentation</h4>
 
-            <div class="row g-4 mb-5">
+            <div class="row g-4 mb-5" data-aos="fade-up" data-aos-delay="100">
                 @foreach($event->gallery_images as $index => $image)
                 <div class="col-md-4" x-show="{{ $index }} < shownCount" x-transition.opacity>
                     <img src="/storage/{{ $image }}" alt="{{ $event->title }} Documentation {{ $index + 1 }}"

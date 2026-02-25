@@ -7,7 +7,7 @@
     <header class="blog-detail-header py-5">
         <div class="container mt-5">
             <div class="row justify-content-center">
-                <div class="col-lg-10 text-center mt-5">
+                <div class="col-lg-10 text-center mt-5" data-aos="fade-up">
                     @if($post->categories->count() > 0)
                     <div class="text-muted small fw-bold mb-3 text-uppercase tracking-wide mt-5">
                         {{ $post->categories->first()->name }}
@@ -28,7 +28,7 @@
                         <span>{{ ceil(str_word_count(strip_tags($post->content)) / 200) }} min read</span>
                     </div>
                 </div>
-                <div class="col-12 text-center">
+                <div class="col-12 text-center" data-aos="fade-up" data-aos-delay="100">
                     @if($post->featured_image)
                         @php
                             $featuredImageUrl = $post->featured_image;
@@ -51,7 +51,7 @@
         <div class="container">
             <div class="row g-5">
                 <!-- Main Content -->
-                <div class="col-lg-8">
+                <div class="col-lg-8" data-aos="fade-right">
                     <article class="blog-article-content">
 
                         <div class="post-content">
@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Sticky Sidebar (TOC) -->
-                <div class="col-lg-4">
+                <div class="col-lg-4" data-aos="fade-left" data-aos-delay="100">
                     <div class="toc-sidebar sticky-top" style="top: 120px; z-index: 10;">
                         <div class="p-4 bg-light rounded-4">
                             <h5 class="fw-bold mb-3">Table of Contents</h5>
@@ -151,8 +151,8 @@
     @if($relatedPosts->count() > 0)
     <section class="related-articles-section py-5 bg-light">
         <div class="container">
-            <h3 class="fw-bold mb-4">You Might Also Like</h3>
-            <div class="row g-4">
+            <h3 class="fw-bold mb-4" data-aos="fade-up">You Might Also Like</h3>
+            <div class="row g-4" data-aos="fade-up" data-aos-delay="100">
                 @foreach($relatedPosts as $relatedPost)
                 <div class="col-md-6 col-lg-4">
                     <a href="{{ route('posts.show', $relatedPost->slug) }}" class="text-decoration-none">
@@ -186,7 +186,7 @@
             style="background: url('{{ asset('themes/iccom/assets/bg-most-popular-article.jpg') }}') no-repeat center center; background-size: cover; z-index: -1;">
         </div>
         <div class="container py-5">
-            <div class="cta-card bg-white rounded-4 shadow-lg overflow-hidden mx-auto" style="max-width: 1000px;">
+            <div class="cta-card bg-white rounded-4 shadow-lg overflow-hidden mx-auto" style="max-width: 1000px;" data-aos="zoom-in" data-aos-delay="100">
                 <div class="row g-0">
                     <!-- Image Side -->
                     <div class="col-md-5 d-none d-md-block">

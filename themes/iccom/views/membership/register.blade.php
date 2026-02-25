@@ -8,7 +8,7 @@
     <!-- Form Section (Overlapping) -->
     <section class="membership-form-section pb-5 position-relative">
         <div class="container">
-            <div class="text-white text-center">
+            <div class="text-white text-center" data-aos="fade-down">
                 <h1 class="display-4 fw-bold mb-3">Join iCCom Membership</h1>
                 <p class="lead mb-2 text-white-50">Sign up for free and take part in social and educational activities
                     designed with you in mind.</p>
@@ -18,7 +18,7 @@
                 <h2 class="display-5 fw-bold mt-4">Let's #UnitedatCloud</h2>
             </div>
 
-            <div class="publish-form-card bg-white rounded-4 p-5 shadow-lg mx-auto mt-5">
+            <div class="publish-form-card bg-white rounded-4 p-5 shadow-lg mx-auto mt-5" data-aos="fade-up" data-aos-delay="100">
                 @if ($errors->any())
                     <div class="alert alert-danger mb-4">
                         <ul class="mb-0">

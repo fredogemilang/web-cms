@@ -80,15 +80,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Select common elements within the main container
-            const animatedElements = document.querySelectorAll('main h1, main h2, main h3, main p, main img, main .card, main .btn, main section > div');
-            
-            // Loop and add the data-aos attribute if not already present
-            animatedElements.forEach((el) => {
-                if (!el.hasAttribute('data-aos')) {
-                    el.setAttribute('data-aos', 'fade-up');
-                }
-            });
+
 
             // Initialize AOS
             AOS.init({

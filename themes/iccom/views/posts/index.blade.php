@@ -7,7 +7,7 @@
     <header class="hero-section d-flex align-items-center position-relative">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-4 mb-5 mb-lg-0">
+                <div class="col-lg-4 mb-5 mb-lg-0" data-aos="fade-right">
                     <h1 class="display-4 fw-bold mb-3">Blog</h1>
                     <p class="lead mb-4">Share what you know, inspire others, and become a contributor to the iCCom
                         community!</p>
@@ -15,7 +15,7 @@
                         Your Article</a>
                 </div>
                 <!-- Reuse Hero Image from Events or similar placeholder -->
-                <div class="col-lg-8 text-center">
+                <div class="col-lg-8 text-center" data-aos="fade-left" data-aos-delay="200">
                     <img src="{{ asset('themes/iccom/assets/blog_front_hero.png') }}" alt="Blog Hero" class="img-fluid">
                 </div>
             </div>
@@ -28,9 +28,9 @@
         <div class="background-geometry"></div>
 
         <div class="container position-relative z-1">
-            <h2 class="fw-bold mb-4">Most Popular Article</h2>
+            <h2 class="fw-bold mb-4" data-aos="fade-up">Most Popular Article</h2>
             @if($featuredPosts->count() > 0)
-            <div class="row g-4">
+            <div class="row g-4" data-aos="fade-up" data-aos-delay="100">
                 <!-- Large Featured Article -->
                 @php
                     $mainFeatured = $featuredPosts->first();

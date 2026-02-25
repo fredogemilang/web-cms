@@ -6,11 +6,11 @@
     <section class="hero-section d-flex align-items-center position-relative py-5">
         <div class="container py-5">
             <div class="row align-items-center">
-                <div class="col-lg-6">
+                <div class="col-lg-6" data-aos="fade-right">
                     <h1 class="display-4 fw-bold mb-4">Partner with iCCom</h1>
                     <p class="lead mb-4">Join forces with Indonesia's largest cloud community. Lets collaborate to nurture talent and drive innovation.</p>
                 </div>
-                <div class="col-lg-6 text-center">
+                <div class="col-lg-6 text-center" data-aos="fade-left" data-aos-delay="200">
                     <img src="{{ asset('themes/iccom/assets/strategic-alliance-icon-with-white-bg.png') }}" class="img-fluid" style="max-height: 300px;">
                 </div>
             </div>
@@ -19,7 +19,7 @@
 
     <section class="partner-form-section py-5 bg-light">
         <div class="container">
-            <div class="card shadow-lg border-0 rounded-4 overflow-hidden mx-auto" style="max-width: 800px;">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden mx-auto" style="max-width: 800px;" data-aos="fade-up">
                 <div class="card-header bg-primary text-white p-4 text-center">
                     <h3 class="fw-bold mb-0">Partnership Inquiry</h3>
                 </div>

@@ -8,7 +8,7 @@
     <section class="hero-section d-flex align-items-center position-relative">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-5 mb-5 mb-lg-0">
+                <div class="col-lg-5 mb-5 mb-lg-0" data-aos="fade-right">
                     <h1 class="display-3 fw-bold mb-2">{{ $page->getBlockValue('hero_title', 'iCCom') }}</h1>
                     <h2 class="h3 fw-bold mb-4">{{ $page->getBlockValue('hero_subtitle', 'Indonesia Cloud Community') }}</h2>
                     <p class="lead text-muted mb-4">
@@ -16,7 +16,7 @@
                     </p>
                     <a href="#membership-form" class="btn btn-primary btn-cta rounded-pill px-4 py-2">Become a Member</a>
                 </div>
-                <div class="col-lg-7 position-relative">
+                <div class="col-lg-7 position-relative" data-aos="fade-left" data-aos-delay="200">
                     <img src="{{ asset('themes/iccom/assets/front-right-hero-img.png') }}" alt="Community Illustration" class="img-fluid hero-img">
                 </div>
             </div>
@@ -27,10 +27,10 @@
     <section class="who-we-are position-relative">
         <div class="container py-5">
             <div class="row align-items-center">
-                <div class="col-lg-5 mb-4 mb-lg-0">
+                <div class="col-lg-5 mb-4 mb-lg-0" data-aos="fade-right">
                     <img src="{{ asset('themes/iccom/assets/section-2-front-left-img.png') }}" alt="Who Are We" class="img-fluid">
                 </div>
-                <div class="col-lg-7 text-white">
+                <div class="col-lg-7 text-white" data-aos="fade-left" data-aos-delay="200">
                     <h2 class="fw-bold mb-4">{{ $page->getBlockValue('who_are_we_title', 'Who Are We?') }}</h2>
                     <div class="mb-3">
                         {!! $page->getBlockValue('who_are_we_description') !!}
@@ -51,9 +51,9 @@
     <!-- Core Value Section -->
     <section class="core-values position-relative py-5">
         <div class="container mt-5 pt-5">
-            <h2 class="fw-bold mb-5">{{ $page->getBlockValue('iccom_core_value_title', 'iCCom Core Value') }}</h2>
+            <h2 class="fw-bold mb-5" data-aos="fade-up">{{ $page->getBlockValue('iccom_core_value_title', 'iCCom Core Value') }}</h2>
             <div class="row align-items-center">
-                <div class="col-lg-6">
+                <div class="col-lg-6" data-aos="fade-right" data-aos-delay="100">
                     @php
                         $coreValues = json_decode($page->getBlockValue('iccom_core_value_loop'), true) ?? [];
                     @endphp
@@ -69,7 +69,7 @@
                     </div>
                     @endforeach
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
                     <img src="{{ asset('themes/iccom/assets/iCCom-Core-Value-section-3-front-right-img.png') }}" alt="Core Values"
                         class="img-fluid">
                 </div>
@@ -79,7 +79,7 @@
 
     <!-- Stats Section -->
     <section class="stats-section text-white text-center py-5">
-        <div class="container py-4">
+        <div class="container py-4" data-aos="zoom-in">
             <h2 class="display-4 fw-bold"><span class="counter" data-target="{{ $page->getBlockValue('counter_member', 50000) }}">0</span>+</h2>
             <h3 class="fw-bold">{{ $page->getBlockValue('counter_title', 'Have Joined to Be a Part of iCCom') }}</h3>
         </div>
@@ -88,9 +88,9 @@
     <!-- Testimonials Section -->
     <section class="testimonials-section py-5 position-relative">
         <div class="container py-5">
-            <h2 class="text-center fw-bold mb-5">{{ $page->getBlockValue('testimonal_title') }}</h2>
+            <h2 class="text-center fw-bold mb-5" data-aos="fade-up">{{ $page->getBlockValue('testimonal_title') }}</h2>
             <!-- Testimonial Swiper -->
-            <div class="position-relative px-4 px-md-5">
+            <div class="position-relative px-4 px-md-5" data-aos="fade-up" data-aos-delay="100">
                 <div class="swiper testimonial-swiper pb-5" style="padding: 20px;">
                     <div class="swiper-wrapper">
                         @forelse($testimonials as $testimonial)
@@ -146,7 +146,7 @@
 
     <!-- Grow Together Section -->
     <section class="grow-section text-white text-center py-5">
-        <div class="container py-5">
+        <div class="container py-5" data-aos="fade-up">
             <h2 class="fw-bold mb-4">{{ $page->getBlockValue('talent_referral_title') }}</h2>
             <div class="row justify-content-center">
                 <div class="col-md-8 lead">
@@ -161,9 +161,9 @@
     <!-- Partners Section -->
     <section class="partners-section py-5">
         <div class="container py-5 text-center">
-            <h2 class="fw-bold mb-5">{{ $page->getBlockValue('our_partners_title', 'Our Partners') }}</h2>
+            <h2 class="fw-bold mb-5" data-aos="fade-up">{{ $page->getBlockValue('our_partners_title', 'Our Partners') }}</h2>
 
-            <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3 px-md-4">
+            <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3 px-md-4" data-aos="fade-up" data-aos-delay="100">
                 <ul class="nav nav-pills custom-partner-tabs text-start" id="partnerTabs">
                     <li class="nav-item">
                         <button class="nav-link active partner-filter-tab" onclick="filterPartners('corporate')">Corporate<br>Partner</button>
@@ -187,7 +187,7 @@
             </div>
 
             <!-- Carousels Container -->
-            <div class="position-relative mb-5" style="min-height: 200px;">
+            <div class="position-relative mb-5" style="min-height: 200px;" data-aos="fade-up" data-aos-delay="200">
                 <!-- Main Partner Swiper (Content populated by JS) -->
                 <div id="partnerSwiper" class="swiper partner-swiper">
                     <div class="swiper-wrapper" id="partnerSwiperWrapper">
@@ -205,7 +205,7 @@
     <!-- Membership Form Section -->
     <section class="membership-section py-5 text-white position-relative" id="membership-form">
         <div class="container py-5 position-relative" style="z-index: 2;">
-            <div class="text-center mb-5">
+            <div class="text-center mb-5" data-aos="fade-down">
                 <h2 class="fw-bold">Join iCCom Membership</h2>
                 <p class="mb-2 text-white-50">Sign up for free and take part in social and educational activities
                     designed with you in mind. Discover new insights at
@@ -214,7 +214,7 @@
                 <h4 class="fw-bold">Let's #UnitedatCloud</h4>
             </div>
 
-            <div class="card p-4 p-md-5 rounded-4 border-0 text-dark mx-auto shadow-lg" style="max-width: 1000px;">
+            <div class="card p-4 p-md-5 rounded-4 border-0 text-dark mx-auto shadow-lg" style="max-width: 1000px;" data-aos="fade-up" data-aos-delay="100">
                 @if ($errors->any())
                     <div class="alert alert-danger mb-4">
                         <ul class="mb-0">

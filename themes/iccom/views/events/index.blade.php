@@ -7,7 +7,7 @@
     <section class="hero-section flex align-items-center position-relative">
         <div class="container pt-5 mt-5">
             <div class="row align-items-center">
-                <div class="col-lg-5 mb-5 mb-lg-0">
+                <div class="col-lg-5 mb-5 mb-lg-0" data-aos="fade-right">
                     <h1 class="display-3 fw-bold mb-3">Events</h1>
                     <p class="lead text-muted mb-4">
                         Learn from cloud experts, discover what's new in tech, and pick up career tips you can put to
@@ -15,7 +15,7 @@
                     </p>
                 </div>
                 <!-- Placeholder for Hero Image from design -->
-                <div class="col-lg-7 text-center">
+                <div class="col-lg-7 text-center" data-aos="fade-left" data-aos-delay="200">
                     <img src="{{ asset('themes/iccom/assets/events-front-right-hero-img.png') }}" alt="Events Hero" class="img-fluid">
                 </div>
             </div>
@@ -25,11 +25,11 @@
     <!-- Upcoming Event Section -->
     <section class="upcoming-event-section">
         <div class="container">
-            <h2 class="fw-bold mb-5 text-white">Upcoming Event</h2>
+            <h2 class="fw-bold mb-5 text-white" data-aos="fade-down">Upcoming Event</h2>
             <div class="row">
                 <div class="col-md-8 col-lg-6">
                     @if($upcoming)
-                    <div class="upcoming-card h-100 position-relative">
+                    <div class="upcoming-card h-100 position-relative" data-aos="fade-up" data-aos-delay="100">
                         <div class="upcoming-badge-event-category">
                             @if($upcoming->category && $upcoming->category->image)
                                 <img src="{{ $upcoming->category->image->url }}" alt="{{ $upcoming->category->name }}">
@@ -76,8 +76,8 @@
     <!-- Gallery Section -->
     <section class="gallery-section">
         <div class="container">
-            <h2 class="fw-bold mb-4">See What We've Been Up To</h2>
-            <div class="position-relative">
+            <h2 class="fw-bold mb-4" data-aos="fade-up">See What We've Been Up To</h2>
+            <div class="position-relative" data-aos="fade-up" data-aos-delay="100">
                 <div class="swiper gallery-swiper">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide gallery-slide">
@@ -104,7 +104,7 @@
     <section class="event-listing-section">
         <div class="container">
             <!-- Filter Nav -->
-            <ul class="nav event-filter-nav justify-content-center justify-content-lg-start" id="eventFilters">
+            <ul class="nav event-filter-nav justify-content-center justify-content-lg-start" id="eventFilters" data-aos="fade-up">
                 <li class="nav-item">
                     <button class="event-filter-link active" onclick="filterEvents('all')">All</button>
                 </li>
@@ -131,7 +131,7 @@
             <!-- Event Cards Grid -->
             <div class="row g-4" id="eventsGrid">
                 @forelse($events as $event)
-                <div class="col-md-6 col-lg-4 event-item {{ $event->event_type }} {{ $event->category ? $event->category->slug : '' }}">
+                <div class="col-md-6 col-lg-4 event-item {{ $event->event_type }} {{ $event->category ? $event->category->slug : '' }}" data-aos="fade-up">
                     <div class="event-card h-100">
                         <div class="position-relative">
                             <div style="height: 240px; overflow: hidden;">
