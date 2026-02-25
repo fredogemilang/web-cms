@@ -184,8 +184,13 @@
                 @endforelse
             </div>
             
-            <div class="mt-4 d-flex justify-content-center">
-                {{ $events->links() }}
+            <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap event-pagination-container">
+                <div class="text-muted small mb-3 mb-md-0">
+                    Showing {{ $events->firstItem() ?? 0 }} to {{ $events->lastItem() ?? 0 }} of {{ $events->total() }} results
+                </div>
+                <div>
+                    {{ $events->appends(request()->query())->links('vendor.pagination.custom') }}
+                </div>
             </div>
         </div>
     </section>

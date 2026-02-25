@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('themes/iccom/assets/style.css') }}">
     @livewireStyles
@@ -73,6 +75,31 @@
             }));
         });
     </script>
+
+    <!-- AOS JS and Init -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select common elements within the main container
+            const animatedElements = document.querySelectorAll('main h1, main h2, main h3, main p, main img, main .card, main .btn, main section > div');
+            
+            // Loop and add the data-aos attribute if not already present
+            animatedElements.forEach((el) => {
+                if (!el.hasAttribute('data-aos')) {
+                    el.setAttribute('data-aos', 'fade-up');
+                }
+            });
+
+            // Initialize AOS
+            AOS.init({
+                duration: 800, // values from 0 to 3000, with step 50ms
+                easing: 'ease-out-cubic', // default easing for AOS animations
+                once: true, // whether animation should happen only once - while scrolling down
+                offset: 50, // offset (in px) from the original trigger point
+            });
+        });
+    </script>
+    
     @stack('scripts')
 </body>
 </html>

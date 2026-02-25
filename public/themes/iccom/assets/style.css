@@ -1325,6 +1325,67 @@ h1, h2, h3, h4, h5 {
        Let's assume fixed as per common BS patterns. */
 }
 
+/* ==========================================================================
+   Pagination Custom Styles (Bootstrap Overrides)
+   ========================================================================== */
 
+/* Hide Laravel's default result text under the nav element */
+.event-pagination-container nav div.d-flex.justify-content-between.flex-fill.d-sm-none {
+    display: none !important;
+}
 
+/* Hide the main 'Showing ... of ... results' paragraph added by Laravel pagination on desktop */
+.event-pagination-container nav div.d-none.flex-sm-fill.d-sm-flex p.small.text-muted {
+    display: none !important;
+}
 
+/* Ensure the pagination links container still takes up the necessary space or aligns correctly */
+.event-pagination-container nav div.d-none.flex-sm-fill.d-sm-flex > div:first-child {
+    display: none !important;
+}
+
+.event-pagination-container nav div.d-none.flex-sm-fill.d-sm-flex.align-items-sm-center.justify-content-sm-between {
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    color: var(--primary-blue);
+    border: 1px solid #dee2e6;
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+}
+
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+    border-radius: 4px;
+}
+
+.page-link:hover {
+    color: #fff;
+    background-color: var(--cta-orange);
+    border-color: var(--cta-orange);
+}
+
+.page-link:focus {
+    box-shadow: 0 0 0 0.25rem rgba(246, 141, 46, 0.25);
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
