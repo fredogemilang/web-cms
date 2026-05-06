@@ -30,6 +30,16 @@
                 ],
                 "icon": "category",
                 "description": "Manage event categories"
+            },
+            {
+                "module": "events.guests",
+                "actions": [
+                    "view",
+                    "manage",
+                    "export"
+                ],
+                "icon": "group",
+                "description": "Manage guest list, approve/reject registrations"
             }
         ]
     },

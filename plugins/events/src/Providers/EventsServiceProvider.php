@@ -38,6 +38,7 @@ class EventsServiceProvider extends ServiceProvider
         Livewire::component('plugins.walk-in-registration', \Plugins\Events\Livewire\WalkInRegistration::class);
         Livewire::component('plugins.speakers-table', \Plugins\Events\Livewire\SpeakersTable::class);
         Livewire::component('plugins.events-questions-manager', \Plugins\Events\Livewire\QuestionsManager::class);
+        Livewire::component('plugins.event-guests-table', \Plugins\Events\Livewire\EventGuestsTable::class);
 
         // Register model observer — fires after event create to seed email templates
         EventModel::observe(EventObserver::class);

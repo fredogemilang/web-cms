@@ -11,47 +11,27 @@ class EventRegistration extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'event_id',
-        'user_id',
-        'name',           // legacy
-        'full_name',
-        'salutation',
-        'company_name',
-        'company_type',
-        'job_title',
-        'contact_level_id',
-        'contact_divisi_id',
-        'contact_divisi_name',
-        'country_code',
-        'mobile_phone',
-        'uuid',
-        'qr_image',
-        'referral_code',
-        'referral_source',
-        'email',
-        'phone',          // legacy
-        'organization',   // legacy
-        'notes',
-        'status',
-        'confirmed_at',
-        'cancelled_at',
-        'consent_accepted_at',
-        'walk_in',
-        'check_in',
-        'check_in_date',
-        'registration_type',
-        'custom_fields',
-        'ip_address',
-        'user_agent',
+        'event_id', 'user_id', 'name', 'full_name', 'salutation',
+        'company_name', 'company_type', 'job_title',
+        'contact_level_id', 'contact_divisi_id', 'contact_divisi_name',
+        'country_code', 'mobile_phone', 'uuid', 'qr_image',
+        'referral_code', 'referral_source', 'email',
+        'phone', 'organization', 'notes', 'status',
+        'confirmed_at', 'cancelled_at', 'consent_accepted_at',
+        'walk_in', 'check_in', 'check_in_date', 'registration_type',
+        'custom_fields', 'ip_address', 'user_agent',
+        // PRD 04 — Verified tracking
+        'verified_by', 'verified_at', 'verified_type', 'verified_note',
     ];
 
     protected $casts = [
-        'confirmed_at'       => 'datetime',
-        'cancelled_at'       => 'datetime',
-        'check_in_date'      => 'datetime',
-        'consent_accepted_at'=> 'datetime',
-        'walk_in'            => 'boolean',
-        'check_in'           => 'boolean',
+        'confirmed_at'        => 'datetime',
+        'cancelled_at'        => 'datetime',
+        'check_in_date'       => 'datetime',
+        'consent_accepted_at' => 'datetime',
+        'verified_at'         => 'datetime',
+        'walk_in'             => 'boolean',
+        'check_in'            => 'boolean',
         'custom_fields'       => 'array',
     ];
 
@@ -83,6 +63,12 @@ class EventRegistration extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /** User who verified (approved/rejected) this registration. */
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     /**

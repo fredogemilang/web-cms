@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Plugins\Events\Http\Controllers\EventController;
 use Plugins\Events\Http\Controllers\EventRegistrationController;
+use Plugins\Events\Http\Controllers\EventGuestController;
 
 // Admin Routes
 Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web', 'auth'])->group(function () {
@@ -68,6 +69,26 @@ Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web',
             
             return response()->json($events);
         })->name('calendar.data');
+
+        // ── PRD 04: Guest List & Approval ────────────────────────────────────
+        Route::prefix('{event}/guests')->name('admin.guests.')->group(function () {
+            Route::get('/', [EventGuestController::class, 'index'])
+                ->name('index');
+            Route::post('{registration}/approve', [EventGuestController::class, 'approve'])
+                ->name('approve');
+            Route::post('{registration}/reject', [EventGuestController::class, 'reject'])
+                ->name('reject');
+            Route::post('bulk-approve', [EventGuestController::class, 'bulkApprove'])
+                ->name('bulk-approve');
+            Route::post('bulk-reject', [EventGuestController::class, 'bulkReject'])
+                ->name('bulk-reject');
+            Route::patch('{registration}', [EventGuestController::class, 'inlineUpdate'])
+                ->name('update');
+            Route::post('{registration}/checkin', [EventGuestController::class, 'checkin'])
+                ->name('checkin');
+            Route::get('export', [EventGuestController::class, 'export'])
+                ->name('export');
+        });
     });
 });
 
