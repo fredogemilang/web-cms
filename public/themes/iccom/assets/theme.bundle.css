@@ -876,7 +876,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .event-card-img-top {
-    height: 200px;
+    aspect-ratio: 1920 / 1080;
     width: 100%;
     object-fit: cover;
 }
@@ -1133,7 +1133,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .article-banner {
-    aspect-ratio: 1920 / 640;
+    aspect-ratio: 1246 / 560;
     width: 100%;
     background: #f0f0f0;
 }

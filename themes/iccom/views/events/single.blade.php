@@ -120,96 +120,259 @@
             <h2 class="text-center text-white fw-bold mb-5" data-aos="fade-up">Book Your Ticket Here!</h2>
 
             <div class="card p-4 p-lg-5 rounded-4 border-0 shadow-lg mx-auto" style="max-width: 900px;" data-aos="fade-up" data-aos-delay="100">
-                <form>
+
+                {{-- Global error / success alert --}}
+                <div id="formAlert" class="alert d-none mb-4" role="alert"></div>
+
+                <form id="eventRegistrationForm"
+                      action="{{ route('events.register', $event->slug) }}"
+                      method="POST"
+                      novalidate>
+                    @csrf
                     <div class="row g-4">
                         <!-- Name -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">Name</label>
-                            <input type="text" class="form-control border-0 border-bottom rounded-0 px-0"
+                            <label class="form-label small fw-bold">Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="reg_name"
+                                class="form-control border-0 border-bottom rounded-0 px-0"
                                 placeholder="Name">
+                            <div class="invalid-feedback" id="err_name"></div>
                         </div>
                         <!-- Job Level -->
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Job Level</label>
-                            <select class="form-select border-0 border-bottom rounded-0 px-0">
-                                <option selected disabled>Job Level</option>
+                            <select name="job_level" id="reg_job_level"
+                                class="form-select border-0 border-bottom rounded-0 px-0">
+                                <option value="" selected disabled>Job Level</option>
                                 <option>Entry Level</option>
                                 <option>Mid Level</option>
                                 <option>Senior Level</option>
+                                <option>Manager</option>
+                                <option>Director / VP</option>
+                                <option>C-Level</option>
+                                <option>Student</option>
+                                <option>Other</option>
                             </select>
+                            <div class="invalid-feedback" id="err_job_level"></div>
                         </div>
                         <!-- Domicile -->
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Domicile</label>
-                            <select class="form-select border-0 border-bottom rounded-0 px-0">
-                                <option selected disabled>Domicile</option>
+                            <select name="domicile" id="reg_domicile"
+                                class="form-select border-0 border-bottom rounded-0 px-0">
+                                <option value="" selected disabled>Domicile</option>
                                 <option>Jakarta</option>
                                 <option>Bandung</option>
+                                <option>Surabaya</option>
+                                <option>Yogyakarta</option>
+                                <option>Bali</option>
+                                <option>Medan</option>
                                 <option>Other</option>
                             </select>
+                            <div class="invalid-feedback" id="err_domicile"></div>
                         </div>
 
                         <!-- Email -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">Email</label>
-                            <input type="email" class="form-control border-0 border-bottom rounded-0 px-0"
+                            <label class="form-label small fw-bold">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" id="reg_email"
+                                class="form-control border-0 border-bottom rounded-0 px-0"
                                 placeholder="Email">
+                            <div class="invalid-feedback" id="err_email"></div>
                         </div>
                         <!-- Job Title -->
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Job Title</label>
-                            <select class="form-select border-0 border-bottom rounded-0 px-0">
-                                <option selected disabled>Job Title</option>
-                                <option>Developer</option>
-                                <option>Manager</option>
+                            <select name="job_title" id="reg_job_title"
+                                class="form-select border-0 border-bottom rounded-0 px-0">
+                                <option value="" selected disabled>Job Title</option>
+                                <option>Software Engineer</option>
+                                <option>Cloud Engineer</option>
+                                <option>DevOps Engineer</option>
+                                <option>Data Engineer</option>
+                                <option>Product Manager</option>
+                                <option>IT Manager</option>
+                                <option>Consultant</option>
+                                <option>Architect</option>
+                                <option>Student</option>
+                                <option>Other</option>
                             </select>
+                            <div class="invalid-feedback" id="err_job_title"></div>
                         </div>
                         <!-- LinkedIn -->
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">LinkedIn Account</label>
-                            <input type="text" class="form-control border-0 border-bottom rounded-0 px-0"
+                            <input type="text" name="linkedin" id="reg_linkedin"
+                                class="form-control border-0 border-bottom rounded-0 px-0"
                                 placeholder="LinkedIn Account">
+                            <div class="invalid-feedback" id="err_linkedin"></div>
                         </div>
 
                         <!-- Phone Number -->
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Phone Number</label>
-                            <input type="text" class="form-control border-0 border-bottom rounded-0 px-0"
+                            <input type="text" name="phone" id="reg_phone"
+                                class="form-control border-0 border-bottom rounded-0 px-0"
                                 placeholder="Phone Number">
+                            <div class="invalid-feedback" id="err_phone"></div>
                         </div>
                         <!-- Institution -->
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">Institution/company</label>
-                            <input type="text" class="form-control border-0 border-bottom rounded-0 px-0"
+                            <label class="form-label small fw-bold">Institution/Company</label>
+                            <input type="text" name="institution" id="reg_institution"
+                                class="form-control border-0 border-bottom rounded-0 px-0"
                                 placeholder="Institution/Company">
+                            <div class="invalid-feedback" id="err_institution"></div>
                         </div>
                         <div class="col-md-4 d-none d-md-block"></div>
 
                         <!-- Highest Education -->
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Highest Education Level</label>
-                            <select class="form-select border-0 border-bottom rounded-0 px-0">
-                                <option selected disabled>Highest education level</option>
-                                <option>Bachelor</option>
+                            <select name="highest_education" id="reg_highest_education"
+                                class="form-select border-0 border-bottom rounded-0 px-0">
+                                <option value="" selected disabled>Highest education level</option>
+                                <option>High School</option>
+                                <option>Diploma (D3)</option>
+                                <option>Bachelor (S1)</option>
+                                <option>Master (S2)</option>
+                                <option>Doctorate (S3)</option>
+                                <option>Other</option>
                             </select>
+                            <div class="invalid-feedback" id="err_highest_education"></div>
                         </div>
                         <!-- Industry -->
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Industry</label>
-                            <select class="form-select border-0 border-bottom rounded-0 px-0">
-                                <option selected disabled>Industry</option>
-                                <option>Tech</option>
+                            <select name="industry" id="reg_industry"
+                                class="form-select border-0 border-bottom rounded-0 px-0">
+                                <option value="" selected disabled>Industry</option>
+                                <option>Technology</option>
+                                <option>Finance / Banking</option>
+                                <option>E-Commerce / Retail</option>
+                                <option>Healthcare</option>
+                                <option>Manufacturing</option>
+                                <option>Government</option>
+                                <option>Education</option>
+                                <option>Telecommunications</option>
+                                <option>Logistics</option>
+                                <option>Other</option>
                             </select>
+                            <div class="invalid-feedback" id="err_industry"></div>
                         </div>
                         <div class="col-md-4 d-none d-md-block"></div>
 
                         <div class="col-12 text-center mt-5">
-                            <button type="submit"
-                                class="btn btn-cta btn-warning text-white rounded-pill px-5 py-2 fw-bold shadow">Submit</button>
+                            <button type="submit" id="submitRegistrationBtn"
+                                class="btn btn-cta btn-warning text-white rounded-pill px-5 py-2 fw-bold shadow">
+                                <span id="submitBtnText">Submit</span>
+                                <span id="submitBtnSpinner" class="d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Submitting...
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </section>
+
+    <script>
+    (function () {
+        const form = document.getElementById('eventRegistrationForm');
+        if (!form) return;
+
+        const btn        = document.getElementById('submitRegistrationBtn');
+        const btnText    = document.getElementById('submitBtnText');
+        const btnSpinner = document.getElementById('submitBtnSpinner');
+        const alert      = document.getElementById('formAlert');
+
+        // Field → error div mapping
+        const fields = ['name', 'email', 'phone', 'institution', 'job_level',
+                        'domicile', 'job_title', 'linkedin', 'highest_education', 'industry'];
+
+        function clearErrors() {
+            fields.forEach(function (field) {
+                const input = form.querySelector('[name="' + field + '"]');
+                const errDiv = document.getElementById('err_' + field);
+                if (input)  input.classList.remove('is-invalid');
+                if (errDiv) errDiv.textContent = '';
+            });
+            alert.classList.add('d-none');
+            alert.className = 'alert d-none mb-4';
+            alert.textContent = '';
+        }
+
+        function showFieldErrors(errors) {
+            Object.keys(errors).forEach(function (field) {
+                const input  = form.querySelector('[name="' + field + '"]');
+                const errDiv = document.getElementById('err_' + field);
+                if (input)  input.classList.add('is-invalid');
+                if (errDiv) errDiv.textContent = errors[field][0];
+            });
+            // Scroll to first error
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function showGlobalAlert(message, type) {
+            alert.className = 'alert alert-' + type + ' mb-4';
+            alert.textContent = message;
+        }
+
+        function setLoading(loading) {
+            btn.disabled = loading;
+            btnText.classList.toggle('d-none', loading);
+            btnSpinner.classList.toggle('d-none', !loading);
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearErrors();
+            setLoading(true);
+
+            const formData = new FormData(form);
+
+            fetch(form.getAttribute('action'), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ?
+                        document.querySelector('meta[name="csrf-token"]').getAttribute('content') :
+                        formData.get('_token'),
+                },
+                body: formData,
+            })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    return { status: response.status, data: data };
+                });
+            })
+            .then(function (result) {
+                const { status, data } = result;
+
+                if (data.success && data.redirect) {
+                    // Redirect to success page
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                setLoading(false);
+
+                if (status === 422 && data.errors) {
+                    showFieldErrors(data.errors);
+                } else {
+                    showGlobalAlert(data.message || 'An error occurred. Please try again.', 'danger');
+                    window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+                }
+            })
+            .catch(function () {
+                setLoading(false);
+                showGlobalAlert('Network error. Please check your connection and try again.', 'danger');
+            });
+        });
+    })();
+    </script>
 @endsection

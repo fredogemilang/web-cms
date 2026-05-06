@@ -115,6 +115,11 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
         return view('iccom::events.index', compact('events', 'upcoming'));
     })->name('index');
     
+    // Event registration success page
+    Route::get('/success', function () {
+        return view('iccom::events.success');
+    })->name('register.success');
+
     // Single event
     Route::get('/{slug}', function ($slug) {
         $event = \Plugins\Events\Models\Event::where('slug', $slug)->published()->firstOrFail();
