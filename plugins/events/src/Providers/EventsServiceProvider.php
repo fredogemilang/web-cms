@@ -3,10 +3,12 @@
 namespace Plugins\Events\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use App\Events\RenderAdminMenu;
+use Plugins\Events\Models\Event as EventModel;
+use Plugins\Events\Observers\EventObserver;
 
 class EventsServiceProvider extends ServiceProvider
 {
@@ -19,10 +21,10 @@ class EventsServiceProvider extends ServiceProvider
     {
         // Load Routes
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        
+
         // Load Views
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'events');
-        
+
         // Load Migrations
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
@@ -31,7 +33,11 @@ class EventsServiceProvider extends ServiceProvider
         Livewire::component('plugins.event-categories', \Plugins\Events\Livewire\CategoriesManager::class);
         Livewire::component('plugins.event-registrations', \Plugins\Events\Livewire\RegistrationsTable::class);
         Livewire::component('plugins.event-form', \Plugins\Events\Livewire\EventForm::class);
+        Livewire::component('plugins.event-wizard', \Plugins\Events\Livewire\EventWizard::class);
         Livewire::component('plugins.speakers-table', \Plugins\Events\Livewire\SpeakersTable::class);
+
+        // Register model observer — fires after event create to seed email templates
+        EventModel::observe(EventObserver::class);
 
         // Register menu items
         Event::listen(RenderAdminMenu::class, function (RenderAdminMenu $event) {

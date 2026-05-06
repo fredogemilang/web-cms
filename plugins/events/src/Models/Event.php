@@ -32,14 +32,30 @@ class Event extends Model
         'category_id',
         'requires_registration',
         'registration_requires_approval',
+        'requires_corporate_email',
         'max_participants',
         'registered_count',
         'registration_deadline',
+        'registration_start_date',
+        'registration_end_date',
         'featured_image_id',
+        'banner_image',
         'gallery_images',
         'status',
+        'success_title',
+        'success_desc',
+        'success_button',
+        'success_link_type',
+        'success_link',
+        'show_registered_count',
+        'enable_track_session',
+        'wizard_step',
         'published_at',
         'author_id',
+        'sending_email',
+        'sender_email',
+        'sender_name',
+        'cc_to_email',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -50,10 +66,16 @@ class Event extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'registration_deadline' => 'datetime',
+        'registration_start_date' => 'datetime',
+        'registration_end_date' => 'datetime',
         'published_at' => 'datetime',
         'is_all_day' => 'boolean',
         'requires_registration' => 'boolean',
         'registration_requires_approval' => 'boolean',
+        'requires_corporate_email' => 'boolean',
+        'sending_email' => 'boolean',
+        'show_registered_count' => 'boolean',
+        'enable_track_session' => 'boolean',
         'max_participants' => 'integer',
         'registered_count' => 'integer',
         'latitude' => 'decimal:8',
@@ -72,9 +94,44 @@ class Event extends Model
 
         static::creating(function ($event) {
             if (empty($event->slug)) {
-                $event->slug = Str::slug($event->title);
+                $event->slug = static::generateUniqueSlug($event->title, $event->id);
             }
         });
+
+        static::updating(function ($event) {
+            // Re-generate slug if title changed and slug was auto-generated
+            if ($event->isDirty('title') && !$event->getOriginal('slug')) {
+                $event->slug = static::generateUniqueSlug($event->title, $event->id);
+            }
+        });
+    }
+
+    /**
+     * Generate a unique slug from title.
+     * Appends numeric suffix if slug already exists.
+     * Compatible with random alphanumeric slug from ERS reference (8-char).
+     */
+    public static function generateUniqueSlug(string $title, ?int $excludeId = null): string
+    {
+        $slug = Str::slug($title);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        $query = static::where('slug', $slug);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        while ($query->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+            $query = static::where('slug', $slug);
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+        }
+
+        return $slug;
     }
 
     /**
@@ -192,17 +249,26 @@ class Event extends Model
 
     /**
      * Check if registration is open.
+     * Respects registration_start_date and registration_end_date per PRD 01.
      */
-    public function getIsRegistrationOpenAttribute()
+    public function getIsRegistrationOpenAttribute(): bool
     {
         if (!$this->requires_registration) {
             return false;
         }
 
-        if ($this->registration_deadline && $this->registration_deadline->isPast()) {
+        // Check registration start date (when registration opens)
+        if ($this->registration_start_date && $this->registration_start_date->isFuture()) {
             return false;
         }
 
+        // Check registration end date (deadline)
+        $effectiveEnd = $this->registration_end_date ?? $this->registration_deadline;
+        if ($effectiveEnd && $effectiveEnd->isPast()) {
+            return false;
+        }
+
+        // Check participant capacity
         if ($this->max_participants && $this->registered_count >= $this->max_participants) {
             return false;
         }

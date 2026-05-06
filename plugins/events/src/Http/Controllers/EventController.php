@@ -64,12 +64,21 @@ class EventController extends Controller
     }
 
     /**
+     * Show event wizard (multi-step create/edit).
+     */
+    public function wizard(?Event $event = null)
+    {
+        return view('events::admin.events.wizard', [
+            'eventId' => $event?->id ?? 0,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new event.
      */
     public function create()
     {
-        $categories = EventCategory::orderBy('order')->get();
-        return view('events::admin.events.create', compact('categories'));
+        return redirect()->route('admin.events.wizard');
     }
 
     /**

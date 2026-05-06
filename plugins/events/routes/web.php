@@ -24,9 +24,10 @@ Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web',
             return view('events::admin.speakers.index');
         })->name('speakers.index')->middleware('permission:events.view');
 
-        Route::get('/create', [EventController::class, 'create'])->name('create')->middleware('permission:events.create');
-        Route::post('/', [EventController::class, 'store'])->name('store')->middleware('permission:events.create');
+        Route::get('/create', [EventController::class, 'wizard'])->name('create')->middleware('permission:events.create');
+        Route::get('/create/wizard', [EventController::class, 'wizard'])->name('wizard')->middleware('permission:events.create');
         Route::get('/{event}/edit', [EventController::class, 'edit'])->name('edit')->middleware('permission:events.edit');
+        Route::get('/{event}/wizard', [EventController::class, 'wizard'])->name('wizard.edit')->middleware('permission:events.edit');
         Route::put('/{event}', [EventController::class, 'update'])->name('update')->middleware('permission:events.edit');
         Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy')->middleware('permission:events.delete');
         

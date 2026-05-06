@@ -2,7 +2,7 @@
     "name": "Events",
     "slug": "events",
     "version": "1.0.0",
-    "description": "Event management plugin for iCCom with calendar, categories, and registration support.",
+    "description": "Event management plugin for iCCom with wizard multi-step, banner upload, email templates, and success page support.",
     "author": "iCCom Team",
     "namespace": "Plugins\\Events",
     "provider": "Plugins\\Events\\Providers\\EventsServiceProvider",
