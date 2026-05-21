@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('event_categories', function (Blueprint $table) {
-            $table->unsignedBigInteger('image_id')->nullable()->after('icon');
-            $table->foreign('image_id')->references('id')->on('media')->onDelete('set null');
+            if (!Schema::hasColumn('event_categories', 'image_id')) {
+                $table->unsignedBigInteger('image_id')->nullable()->after('icon');
+                $table->foreign('image_id')->references('id')->on('media')->onDelete('set null');
+            }
         });
     }
 
@@ -23,8 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('event_categories', function (Blueprint $table) {
-            $table->dropForeign(['image_id']);
-            $table->dropColumn('image_id');
+            if (Schema::hasColumn('event_categories', 'image_id')) {
+                try { $table->dropForeign(['image_id']); } catch (\Throwable $e) { /* FK may not exist */ }
+                $table->dropColumn('image_id');
+            }
         });
     }
 };

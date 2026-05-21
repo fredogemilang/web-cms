@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->boolean('registration_requires_approval')->default(false)->after('requires_registration');
+            if (!Schema::hasColumn('events', 'registration_requires_approval')) {
+                $table->boolean('registration_requires_approval')->default(false)->after('requires_registration');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn('registration_requires_approval');
+            if (Schema::hasColumn('events', 'registration_requires_approval')) {
+                $table->dropColumn('registration_requires_approval');
+            }
         });
     }
 };

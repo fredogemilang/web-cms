@@ -113,13 +113,17 @@ class MenuItemSeeder extends Seeder
             $children = $menuData['children'] ?? [];
             unset($menuData['children']);
 
-            $menu = MenuItem::create($menuData);
+            // Identity = (title, parent_id) so re-running the seeder updates instead of duplicating.
+            $menu = MenuItem::updateOrCreate(
+                ['title' => $menuData['title'], 'parent_id' => null],
+                $menuData,
+            );
 
-            if (!empty($children)) {
-                foreach ($children as $childData) {
-                    $childData['parent_id'] = $menu->id;
-                    MenuItem::create($childData);
-                }
+            foreach ($children as $childData) {
+                MenuItem::updateOrCreate(
+                    ['title' => $childData['title'], 'parent_id' => $menu->id],
+                    $childData + ['parent_id' => $menu->id],
+                );
             }
         }
     }
