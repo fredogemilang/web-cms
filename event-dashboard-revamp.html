@@ -402,11 +402,7 @@
                         <span class="material-symbols-outlined text-[18px]">calendar_month</span>
                         <span>Date & Location</span>
                     </button>
-                    <button @click="currentTab = 'registration'" :class="currentTab === 'registration' ? 'border-primary text-white font-bold bg-dark-surface/40' : 'border-transparent text-text-secondary hover:text-white'"
-                            class="px-5 py-3 border-b-2 text-sm font-semibold transition-all flex items-center gap-2 rounded-t-xl shrink-0">
-                        <span class="material-symbols-outlined text-[18px]">rule</span>
-                        <span>Registration & Access</span>
-                    </button>
+
                     <button @click="currentTab = 'success-page'" :class="currentTab === 'success-page' ? 'border-primary text-white font-bold bg-dark-surface/40' : 'border-transparent text-text-secondary hover:text-white'"
                             class="px-5 py-3 border-b-2 text-sm font-semibold transition-all flex items-center gap-2 rounded-t-xl shrink-0">
                         <span class="material-symbols-outlined text-[18px]">check_box</span>
@@ -627,6 +623,55 @@
                                     </div>
                                 </div>
 
+                                <!-- Registration & Access -->
+                                <div class="glass-panel rounded-2xl p-6 space-y-4">
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary text-base">rule</span>
+                                        Registration & Access
+                                    </h3>
+                                    <div class="space-y-3">
+                                        <div class="space-y-1">
+                                            <label class="text-xs text-text-secondary font-semibold">Max Capacity Quota</label>
+                                            <input type="number" x-model="event.max_participants" class="w-full bg-dark-surface border border-dark-border text-white text-sm rounded-lg p-2.5 focus:ring-1 focus:ring-primary focus:border-primary block"/>
+                                        </div>
+                                        
+                                        <div class="divide-y divide-dark-border pt-2">
+                                            <div class="flex items-center justify-between py-2.5">
+                                                <div>
+                                                    <span class="text-xs font-bold text-white block">Requires Registration</span>
+                                                    <span class="text-[10px] text-text-secondary">Open to public if disabled</span>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" x-model="event.requires_registration" class="sr-only peer">
+                                                    <div class="w-8 h-4.5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
+                                                </label>
+                                            </div>
+
+                                            <div class="flex items-center justify-between py-2.5">
+                                                <div>
+                                                    <span class="text-xs font-bold text-white block">Manual Admin Approval</span>
+                                                    <span class="text-[10px] text-text-secondary">Review queue before confirm</span>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" x-model="event.registration_requires_approval" class="sr-only peer">
+                                                    <div class="w-8 h-4.5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
+                                                </label>
+                                            </div>
+
+                                            <div class="flex items-center justify-between py-2.5">
+                                                <div>
+                                                    <span class="text-xs font-bold text-white block">Corporate Email Only</span>
+                                                    <span class="text-[10px] text-text-secondary">Reject personal domains</span>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" x-model="event.requires_corporate_email" class="sr-only peer">
+                                                    <div class="w-8 h-4.5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Speakers Checklist -->
                                 <div class="glass-panel rounded-2xl p-6 space-y-4">
                                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
@@ -726,7 +771,23 @@
                                             <option value="UTC">UTC (GMT+00:00)</option>
                                         </select>
                                     </div>
+
+                                    <!-- Registration Timeline -->
+                                    <div class="border-t border-dark-border pt-4 mt-2 space-y-4">
+                                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Registration Period</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="space-y-1">
+                                                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">Registration Open Date</label>
+                                                <input type="date" x-model="event.registration_start_date" class="w-full bg-dark-surface border border-dark-border text-white text-sm rounded-xl focus:ring-1 focus:ring-primary block p-3 [color-scheme:dark]"/>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">Registration End Date (Deadline)</label>
+                                                <input type="date" x-model="event.registration_end_date" class="w-full bg-dark-surface border border-dark-border text-white text-sm rounded-xl focus:ring-1 focus:ring-primary block p-3 [color-scheme:dark]"/>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+
 
                                 <!-- Location setup -->
                                 <div class="glass-panel rounded-2xl p-6 space-y-5">
@@ -791,72 +852,7 @@
                         </div>
                     </div>
 
-                    <!-- TAB 4: REGISTRATION & ACCESS -->
-                    <div x-show="currentTab === 'registration'" class="space-y-6" x-transition>
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="lg:col-span-2 space-y-6">
-                                <!-- Capacity & Time window -->
-                                <div class="glass-panel rounded-2xl p-6 space-y-5">
-                                    <h3 class="text-base font-bold text-white">Registration Thresholds</h3>
-                                    
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div class="space-y-1">
-                                            <label class="text-xs font-bold text-text-secondary uppercase tracking-wider font-mono">Max Capacity Quota</label>
-                                            <input type="number" x-model="event.max_participants" class="w-full bg-dark-surface border border-dark-border text-white text-sm rounded-xl focus:ring-1 focus:ring-primary block p-3"/>
-                                        </div>
-                                        <div class="space-y-1">
-                                            <label class="text-xs font-bold text-text-secondary uppercase tracking-wider font-mono">Registration Open Date</label>
-                                            <input type="date" x-model="event.registration_start_date" class="w-full bg-dark-surface border border-dark-border text-white text-sm rounded-xl focus:ring-1 focus:ring-primary block p-3 [color-scheme:dark]"/>
-                                        </div>
-                                        <div class="space-y-1 col-span-1 md:col-span-2">
-                                            <label class="text-xs font-bold text-text-secondary uppercase tracking-wider font-mono">Registration End Date (Deadline)</label>
-                                            <input type="date" x-model="event.registration_end_date" class="w-full bg-dark-surface border border-dark-border text-white text-sm rounded-xl focus:ring-1 focus:ring-primary block p-3 [color-scheme:dark]"/>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <!-- Gatekeeping toggles -->
-                                <div class="glass-panel rounded-2xl p-6 space-y-5">
-                                    <h3 class="text-base font-bold text-white">Gatekeeping & Registration Access Control</h3>
-                                    
-                                    <div class="divide-y divide-dark-border">
-                                        <div class="flex items-center justify-between py-4">
-                                            <div>
-                                                <span class="text-sm font-bold text-white block">Requires Registration</span>
-                                                <span class="text-xs text-text-secondary">If disabled, the event is open to the public without sign up.</span>
-                                            </div>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" x-model="event.requires_registration" class="sr-only peer">
-                                                <div class="w-9 h-5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                                            </label>
-                                        </div>
-
-                                        <div class="flex items-center justify-between py-4">
-                                            <div>
-                                                <span class="text-sm font-bold text-white block">Require Manual Admin Approval</span>
-                                                <span class="text-xs text-text-secondary">All new registrations will be held as pending until approved by coordinators.</span>
-                                            </div>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" x-model="event.registration_requires_approval" class="sr-only peer">
-                                                <div class="w-9 h-5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                                            </label>
-                                        </div>
-
-                                        <div class="flex items-center justify-between py-4">
-                                            <div>
-                                                <span class="text-sm font-bold text-white block">Corporate Email Only</span>
-                                                <span class="text-xs text-text-secondary">Restricts registrations to official corporate domains (rejecting gmail, yahoo, outlook, etc.).</span>
-                                            </div>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" x-model="event.requires_corporate_email" class="sr-only peer">
-                                                <div class="w-9 h-5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- TAB 5: SUCCESS PAGE CONFIG -->
                     <div x-show="currentTab === 'success-page'" class="space-y-6" x-transition>
