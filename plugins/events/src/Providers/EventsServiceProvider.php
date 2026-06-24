@@ -40,6 +40,14 @@ class EventsServiceProvider extends ServiceProvider
         Livewire::component('plugins.events-questions-manager', \Plugins\Events\Livewire\QuestionsManager::class);
         Livewire::component('plugins.event-guests-table', \Plugins\Events\Livewire\EventGuestsTable::class);
 
+        // Console Tab Components
+        Livewire::component('plugins.event-console-general', \Plugins\Events\Livewire\EventConsoleGeneral::class);
+        Livewire::component('plugins.event-console-datetime', \Plugins\Events\Livewire\EventConsoleDatetime::class);
+        Livewire::component('plugins.event-console-emails', \Plugins\Events\Livewire\EventConsoleEmails::class);
+        Livewire::component('plugins.event-console-feedback', \Plugins\Events\Livewire\EventConsoleFeedback::class);
+        Livewire::component('plugins.event-console-doorprize', \Plugins\Events\Livewire\EventConsoleDoorprize::class);
+        Livewire::component('plugins.event-console-referrals', \Plugins\Events\Livewire\EventConsoleReferrals::class);
+
         // Register model observer — fires after event create to seed email templates
         EventModel::observe(EventObserver::class);
 

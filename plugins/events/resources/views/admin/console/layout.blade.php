@@ -47,6 +47,11 @@
     .bg-dark-bg-console      { background-color: var(--c-bg); }
     .bg-console-input        { background-color: var(--c-input); }
     .divide-dark-border > :not([hidden]) ~ :not([hidden]) { border-color: var(--c-border) !important; }
+
+    /* Make Material Symbols icons respect font-size properly */
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
 </style>
 @endpush
 

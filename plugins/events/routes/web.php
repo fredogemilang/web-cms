@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Plugins\Events\Http\Controllers\EventController;
+use Plugins\Events\Http\Controllers\EventConsoleController;
 use Plugins\Events\Http\Controllers\EventRegistrationController;
 use Plugins\Events\Http\Controllers\EventGuestController;
+use Plugins\Events\Http\Controllers\FeedbackFormController;
 
 // Admin Routes
 Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web', 'auth'])->group(function () {
@@ -88,6 +90,20 @@ Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web',
                 ->name('checkin');
             Route::get('export', [EventGuestController::class, 'export'])
                 ->name('export');
+        });
+
+        // ── Event Console (multi-page dashboard) ─────────────────────────────
+        Route::prefix('{event}/console')->name('console.')->middleware('permission:events.edit')->group(function () {
+            Route::get('/', fn(\Plugins\Events\Models\Event $event) => redirect()->route('admin.events.console.overview', $event))->name('index');
+            Route::get('/overview', [EventConsoleController::class, 'overview'])->name('overview');
+            Route::get('/general', [EventConsoleController::class, 'general'])->name('general');
+            Route::get('/datetime', [EventConsoleController::class, 'datetime'])->name('datetime');
+            Route::get('/emails', [EventConsoleController::class, 'emails'])->name('emails');
+            Route::get('/questions', [EventConsoleController::class, 'questions'])->name('questions');
+            Route::get('/attendees', [EventConsoleController::class, 'attendees'])->name('attendees');
+            Route::get('/feedback', [EventConsoleController::class, 'feedback'])->name('feedback');
+            Route::get('/doorprize', [EventConsoleController::class, 'doorprize'])->name('doorprize');
+            Route::get('/referrals', [EventConsoleController::class, 'referrals'])->name('referrals');
         });
     });
 });
