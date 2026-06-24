@@ -230,7 +230,12 @@
                     our events, learn from member-written articles, and connect with people who share the same passion
                     for cloud.</p>
                 <h4 class="fw-bold">Let's #UnitedatCloud</h4>
-            </div>
+            </div>            <style>
+                .form-control-flushed.is-invalid,
+                .form-select.is-invalid {
+                    border-bottom-color: #EF4444 !important;
+                }
+            </style>
 
             <div class="card p-4 p-md-5 rounded-4 border-0 text-dark mx-auto shadow-lg" style="max-width: 1000px;" data-aos="fade-up" data-aos-delay="100">
                 @if ($errors->any())
@@ -249,14 +254,58 @@
                     </div>
                 @endif
 
-                <form action="{{ route('membership.store') }}" method="POST">
+                <form
+                    action="{{ route('membership.store') }}"
+                    method="POST"
+                    x-data="{
+                        errors: {},
+                        validate() {
+                            this.errors = {};
+                            let isValid = true;
+                            
+                            // Name validation
+                            let nameVal = this.$el.querySelector('[name=name]')?.value || '';
+                            if (!nameVal.trim()) {
+                                this.errors.name = 'Name is required.';
+                                isValid = false;
+                            }
+                            
+                            // Email validation
+                            let emailVal = this.$el.querySelector('[name=email]')?.value || '';
+                            if (!emailVal.trim()) {
+                                this.errors.email = 'E-mail is required.';
+                                isValid = false;
+                            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+                                this.errors.email = 'Please enter a valid e-mail address.';
+                                isValid = false;
+                            }
+                            
+                            return isValid;
+                        },
+                        clearError(name) {
+                            if (this.errors[name]) {
+                                delete this.errors[name];
+                            }
+                        }
+                    }"
+                    @submit="if (!validate()) { $event.preventDefault(); $event.stopPropagation(); return false; }"
+                    @input="clearError($event.target.name)"
+                    @change="clearError($event.target.name)"
+                    novalidate
+                >
                     @csrf
 
                     <div class="row g-4">
                         <!-- Row 1 -->
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Name: <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control form-control-flushed @error('name') is-invalid @enderror" placeholder="Name" value="{{ old('name') }}" required>
+                            <input type="text" name="name"
+                                class="form-control form-control-flushed @error('name') is-invalid @enderror"
+                                :class="errors.name ? 'is-invalid' : ''"
+                                placeholder="Name" value="{{ old('name') }}" required>
+                            <template x-if="errors.name">
+                                <div class="text-danger small mt-1" style="font-size:0.75rem;" x-text="errors.name"></div>
+                            </template>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Job Level:</label>
@@ -288,7 +337,13 @@
                         <!-- Row 2 -->
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">E-mail: <span class="text-danger">*</span></label>
-                            <input type="email" name="email" class="form-control form-control-flushed @error('email') is-invalid @enderror" placeholder="Email" value="{{ old('email') }}" required>
+                            <input type="email" name="email"
+                                class="form-control form-control-flushed @error('email') is-invalid @enderror"
+                                :class="errors.email ? 'is-invalid' : ''"
+                                placeholder="Email" value="{{ old('email') }}" required>
+                            <template x-if="errors.email">
+                                <div class="text-danger small mt-1" style="font-size:0.75rem;" x-text="errors.email"></div>
+                            </template>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Job Title:</label>
@@ -667,4 +722,12 @@
         });
     });
 </script>
+@endpush
+
+@push('livewire-styles')
+    @livewireStyles
+@endpush
+
+@push('livewire-scripts')
+    @livewireScripts
 @endpush
