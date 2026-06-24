@@ -212,10 +212,46 @@
             </table>
         </div>
 
+        <!-- Pagination -->
         @if($redirects->hasPages())
-            <div class="px-8 py-6 border-t border-gray-100 dark:border-[#272B30]">
-                {{ $redirects->links() }}
+        <div class="px-8 py-6 border-t border-gray-100 dark:border-[#272B30] flex items-center justify-between">
+            <p class="text-sm font-medium text-[#6F767E]">
+                Showing {{ $redirects->firstItem() }} to {{ $redirects->lastItem() }} of {{ $redirects->total() }} redirects
+            </p>
+            <div class="flex items-center gap-2">
+                @if($redirects->onFirstPage())
+                <button disabled
+                    class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] opacity-50 cursor-not-allowed">
+                    <span class="material-symbols-outlined text-xl">chevron_left</span>
+                </button>
+                @else
+                <button wire:click="previousPage"
+                    class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] hover:bg-gray-100 dark:hover:bg-[#272B30] transition-all">
+                    <span class="material-symbols-outlined text-xl">chevron_left</span>
+                </button>
+                @endif
+
+                @foreach($redirects->getUrlRange(max(1, $redirects->currentPage() - 2), min($redirects->lastPage(), $redirects->currentPage() + 2)) as $page => $url)
+                    @if($page == $redirects->currentPage())
+                    <button class="h-10 w-10 rounded-xl bg-[#2563EB] text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-blue-500/20">{{ $page }}</button>
+                    @else
+                    <button wire:click="gotoPage({{ $page }})" class="h-10 w-10 rounded-xl bg-white dark:bg-[#1A1A1A] flex items-center justify-center text-sm font-bold text-[#6F767E] hover:bg-gray-50 dark:hover:bg-[#272B30] transition-all">{{ $page }}</button>
+                    @endif
+                @endforeach
+
+                @if($redirects->hasMorePages())
+                <button wire:click="nextPage"
+                    class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] hover:bg-gray-100 dark:hover:bg-[#272B30] transition-all">
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+                @else
+                <button disabled
+                    class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] opacity-50 cursor-not-allowed">
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+                @endif
             </div>
+        </div>
         @endif
     </div>
 </div>
