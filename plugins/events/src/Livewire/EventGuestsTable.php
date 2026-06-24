@@ -414,6 +414,171 @@ class EventGuestsTable extends Component
         $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Status updated successfully.']);
     }
 
+    public function bulkUpdateStatus(string $status, int $approvalTypeId, ?string $note = null): void
+    {
+        if (empty($this->selectedItems)) {
+            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'No attendees selected.']);
+            return;
+        }
+
+        $approvalType = \Plugins\Events\Models\ApprovalType::find($approvalTypeId);
+        if (!$approvalType) {
+            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Selected reason/approval type not found.']);
+            return;
+        }
+
+        $registrations = EventRegistration::whereIn('id', $this->selectedItems)
+            ->where('event_id', $this->event->id)
+            ->get();
+
+        $count = 0;
+        foreach ($registrations as $reg) {
+            $oldStatus = $reg->status;
+            if ($oldStatus === $status) {
+                continue;
+            }
+
+            \DB::transaction(function () use ($reg, $status, $oldStatus, $approvalType, $note) {
+                if ($status === 'confirmed' && $oldStatus !== 'confirmed') {
+                    $this->event->incrementRegisteredCount();
+                } elseif ($status !== 'confirmed' && $oldStatus === 'confirmed') {
+                    $this->event->decrementRegisteredCount();
+                }
+
+                if ($status === 'confirmed') {
+                    $reg->update([
+                        'status'         => 'confirmed',
+                        'confirmed_at'   => now(),
+                        'verified_by'    => auth()->id(),
+                        'verified_at'    => now(),
+                        'verified_type'  => $approvalType->type_name,
+                        'verified_note'  => $note,
+                    ]);
+                } elseif ($status === 'cancelled') {
+                    $reg->update([
+                        'status'         => 'cancelled',
+                        'cancelled_at'   => now(),
+                        'verified_by'    => auth()->id(),
+                        'verified_at'    => now(),
+                        'verified_type'  => $approvalType->type_name,
+                        'verified_note'  => $note,
+                    ]);
+                }
+            });
+
+            // Send Email notifications
+            if ($status === 'confirmed') {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to send guest approved email via Livewire bulk action', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
+                }
+            } elseif ($status === 'cancelled') {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to send guest rejected email via Livewire bulk action', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
+                }
+            }
+
+            $count++;
+        }
+
+        $this->selectedItems = [];
+        $this->selectAll = false;
+
+        $this->dispatch('show-toast', ['type' => 'success', 'message' => "Successfully updated {$count} attendee(s) status."]);
+    }
+
+    public function exportExcel()
+    {
+        $registrations = EventRegistration::with(['event', 'user', 'verifiedBy'])
+            ->where('event_id', $this->event->id)
+            ->when($this->activeTab !== 'all', function ($query) {
+                $map = ['pending' => 'pending', 'approved' => 'confirmed', 'rejected' => 'cancelled'];
+                $query->where('status', $map[$this->activeTab]);
+            })
+            ->when($this->search, function ($query) {
+                $term = '%' . $this->search . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->where('full_name', 'like', $term)
+                      ->orWhere('name', 'like', $term)
+                      ->orWhere('email', 'like', $term)
+                      ->orWhere('company_name', 'like', $term)
+                      ->orWhere('organization', 'like', $term);
+                });
+            })
+            ->when($this->dateFrom, fn($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn($q) => $q->whereDate('created_at', '<=', $this->dateTo))
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->get();
+
+        $headers = [
+            'ID', 'UUID', 'Salutation', 'Full Name', 'Email', 'Phone', 'Company',
+            'Company Type', 'Job Title', 'Status', 'Walk-in', 'Checked In',
+            'Registered At', 'Confirmed At', 'Verified By', 'Verified At',
+            'Verified Type', 'Verified Note', 'Referral Source',
+        ];
+
+        $customQuestions = $this->event->customQuestions()->ordered()->get();
+        foreach ($customQuestions as $question) {
+            $headers[] = $question->question;
+        }
+
+        $callback = function () use ($registrations, $headers, $customQuestions) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM for UTF-8
+
+            fputcsv($handle, $headers);
+
+            foreach ($registrations as $reg) {
+                $row = [
+                    $reg->id,
+                    $reg->uuid,
+                    $reg->salutation ?? '',
+                    $reg->full_name ?? $reg->name,
+                    $reg->email,
+                    $reg->mobile_phone ?? $reg->phone ?? '',
+                    $reg->company_name ?? $reg->organization ?? '',
+                    $reg->company_type ?? '',
+                    $reg->job_title ?? '',
+                    ucfirst($reg->status),
+                    $reg->walk_in ? 'Yes' : 'No',
+                    $reg->check_in ? 'Yes' : 'No',
+                    $reg->created_at->format('Y-m-d H:i:s'),
+                    $reg->confirmed_at?->format('Y-m-d H:i:s') ?? '',
+                    $reg->verifiedBy?->name ?? '',
+                    $reg->verified_at?->format('Y-m-d H:i:s') ?? '',
+                    $reg->verified_type ?? '',
+                    $reg->verified_note ?? '',
+                    $reg->referral_source ?? '',
+                ];
+
+                // Fetch custom answers for this registration
+                $answers = \Plugins\Events\Models\EventCustomAnswer::where('event_registration_id', $reg->id)->get()->keyBy('question_id');
+                foreach ($customQuestions as $question) {
+                    $ans = $answers->get($question->id);
+                    $answerVal = '';
+                    if ($ans) {
+                        $answerVal = is_array($ans->answer) ? implode(', ', $ans->answer) : $ans->answer;
+                    }
+                    $row[] = $answerVal;
+                }
+
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        };
+
+        $filename = \Illuminate\Support\Str::slug($this->event->title) . '-guests-' . date('Ymd') . '.csv';
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
     public function render(): \Illuminate\View\View
     {
         return view('events::livewire.event-guests-table', [
