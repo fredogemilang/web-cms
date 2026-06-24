@@ -49,6 +49,12 @@ class PagesTable extends Component
         }
     }
 
+    public function clearSelection()
+    {
+        $this->selectedPages = [];
+        $this->selectAll = false;
+    }
+
     protected function getPageIds(): array
     {
         return $this->buildQuery()->pluck('id')->map(fn($id) => (string) $id)->toArray();

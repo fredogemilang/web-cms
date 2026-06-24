@@ -104,25 +104,6 @@
                 </div>
             </div>
 
-            <!-- Bulk Actions Bar -->
-            @if(count($selectedMembers) > 0)
-            <div class="rounded-3xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-sm font-bold text-blue-900 dark:text-blue-100">{{ count($selectedMembers) }} selected</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button wire:click="bulkApprove" wire:confirm="Approve selected members?"
-                        class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition-all">
-                        Approve
-                    </button>
-                    <button wire:click="bulkDelete" wire:confirm="Delete selected members?"
-                        class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-all">
-                        Delete
-                    </button>
-                </div>
-            </div>
-            @endif
-
             <!-- Members Table -->
             <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#272B30] overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
@@ -131,7 +112,7 @@
                             <tr class="bg-gray-50/50 dark:bg-[#0B0B0B]/20 border-b border-gray-100 dark:border-[#272B30]">
                                 <th class="px-6 py-5 w-12">
                                     <input type="checkbox" wire:model.live="selectAll"
-                                        class="w-4 h-4 rounded border-gray-300 text-[#2563EB] focus:ring-[#2563EB]">
+                                        class="custom-checkbox">
                                 </th>
                                 <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest cursor-pointer" wire:click="sortBy('user_id')">
                                     Member
@@ -151,7 +132,7 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors">
                                 <td class="px-6 py-4">
                                     <input type="checkbox" wire:model.live="selectedMembers" value="{{ $membership->id }}"
-                                        class="w-4 h-4 rounded border-gray-300 text-[#2563EB] focus:ring-[#2563EB]">
+                                        class="custom-checkbox">
                                 </td>
                                 <td class="px-4 py-4">
                                     <div class="flex items-center gap-3">
@@ -242,4 +223,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Bulk Action Bar -->
+    @if(count($selectedMembers) > 0)
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+        <div class="bg-[#2563EB] border border-[#2563EB] rounded-2xl shadow-2xl px-6 py-3 flex items-center gap-6">
+            <div class="flex items-center gap-3 border-r border-blue-400/30 pr-6">
+                <span class="bg-white text-[#2563EB] text-xs font-bold px-2.5 py-1 rounded-full min-w-[24px] text-center">{{ count($selectedMembers) }}</span>
+                <span class="text-sm font-semibold text-white">Selected</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button wire:click="bulkApprove" wire:confirm="Approve selected members?"
+                    class="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-white transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                    Approve
+                </button>
+                <button wire:click="bulkDelete" wire:confirm="Delete selected members?"
+                    class="flex items-center gap-2 text-sm font-bold text-white/70 hover:text-[#FF6A55] transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                    Delete
+                </button>
+            </div>
+            <button wire:click="clearSelection" class="ml-2 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+    </div>
+    @endif
 </div>
+

@@ -21,6 +21,21 @@ class MembersTable extends Component
     public $selectedMembers = [];
     public $selectAll = false;
 
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedMembers = Membership::pluck('id')->map(fn($id) => (string)$id)->toArray();
+        } else {
+            $this->selectedMembers = [];
+        }
+    }
+
+    public function clearSelection()
+    {
+        $this->selectedMembers = [];
+        $this->selectAll = false;
+    }
+
     protected $queryString = [
         'search' => ['except' => ''],
         'statusFilter' => ['except' => ''],

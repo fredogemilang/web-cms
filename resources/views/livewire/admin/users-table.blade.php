@@ -294,8 +294,8 @@
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="translate-y-24 opacity-0"
         x-transition:enter-end="translate-y-0 opacity-100">
-        <div class="bg-[#2563EB] border-[#2563EB] dark:bg-[#1A1A1A] border dark:border-[#272B30] rounded-2xl shadow-2xl px-6 py-3 flex items-center gap-6">
-            <div class="flex items-center gap-3 border-r border-blue-400/30 dark:border-[#272B30] pr-6">
+        <div class="bg-[#2563EB] border border-[#2563EB] rounded-2xl shadow-2xl px-6 py-3 flex items-center gap-6">
+            <div class="flex items-center gap-3 border-r border-blue-400/30 pr-6">
                 <span class="bg-white text-[#2563EB] text-xs font-bold px-2.5 py-1 rounded-full min-w-[24px] text-center">{{ count($selectedUsers) }}</span>
                 <span class="text-sm font-semibold text-white">Selected</span>
             </div>

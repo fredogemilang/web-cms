@@ -59,108 +59,112 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50/50 dark:bg-[#0B0B0B]/20 border-b border-gray-100 dark:border-[#272B30]">
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            <button wire:click="sortBy('plural_label')" class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200">
+                        <th class="px-8 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">
+                            <button wire:click="sortBy('plural_label')" class="flex items-center gap-1 hover:text-[#2563EB] transition-colors">
                                 Taxonomy
                                 @if($sortField === 'plural_label')
-                                    <span class="material-symbols-outlined text-sm">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                    <span class="material-symbols-outlined text-base">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                @else
+                                    <span class="material-symbols-outlined text-base opacity-30">unfold_more</span>
                                 @endif
                             </button>
                         </th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            <button wire:click="sortBy('slug')" class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200">
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">
+                            <button wire:click="sortBy('slug')" class="flex items-center gap-1 hover:text-[#2563EB] transition-colors">
                                 Slug
                                 @if($sortField === 'slug')
-                                    <span class="material-symbols-outlined text-sm">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                    <span class="material-symbols-outlined text-base">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                @else
+                                    <span class="material-symbols-outlined text-base opacity-30">unfold_more</span>
                                 @endif
                             </button>
                         </th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Post Types</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Post Types</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Type</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Status</th>
+                        <th class="px-8 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="divide-y divide-gray-50 dark:divide-[#272B30]/30">
                     @forelse($taxonomies as $taxonomy)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors">
-                            <td class="px-6 py-4">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30]/30 transition-colors">
+                            <td class="px-8 py-5">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                                        <span class="material-symbols-outlined text-white">{{ $taxonomy->is_hierarchical ? 'account_tree' : 'label' }}</span>
+                                        <span class="material-symbols-outlined text-white text-[20px]">{{ $taxonomy->is_hierarchical ? 'account_tree' : 'label' }}</span>
                                     </div>
                                     <div>
-                                        <div class="font-semibold text-gray-900 dark:text-white">{{ $taxonomy->plural_label }}</div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">ID : {{ $taxonomy->name }}</div>
+                                        <div class="font-semibold text-[#111827] dark:text-[#FCFCFC]">{{ $taxonomy->plural_label }}</div>
+                                        <div class="text-xs text-[#6F767E]">ID : {{ $taxonomy->name }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <code class="px-2 py-1 bg-gray-100 dark:bg-[#272B30] text-gray-700 dark:text-gray-300 rounded text-sm font-mono">{{ $taxonomy->slug }}</code>
+                            <td class="px-4 py-5">
+                                <code class="px-2.5 py-1 bg-gray-100 dark:bg-[#272B30] text-[#2563EB] rounded-lg text-xs font-mono">{{ $taxonomy->slug }}</code>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-5">
                                 @if(count($taxonomy->post_types ?? []) > 0)
                                     <div class="flex flex-wrap gap-1">
                                         @foreach($taxonomy->post_types as $postType)
-                                            <span class="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-medium border border-blue-100 dark:border-blue-900/30">{{ $postType }}</span>
+                                            <span class="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-[#2563EB] rounded-lg text-xs font-bold uppercase tracking-wider">{{ $postType }}</span>
                                         @endforeach
                                     </div>
                                 @else
-                                    <span class="text-gray-400 text-sm">Not assigned</span>
+                                    <span class="text-[#6F767E] text-xs">Not assigned</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 {{ $taxonomy->is_hierarchical ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30' : 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-900/30' }} rounded-lg text-xs font-medium">
+                            <td class="px-4 py-5">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 {{ $taxonomy->is_hierarchical ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' : 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' }} rounded-lg text-xs font-bold uppercase tracking-wider">
                                     <span class="material-symbols-outlined text-[16px]">{{ $taxonomy->is_hierarchical ? 'account_tree' : 'label' }}</span>
                                     {{ $taxonomy->is_hierarchical ? 'Hierarchical' : 'Flat' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-5">
                                 <button 
                                     wire:click="toggleStatus({{ $taxonomy->id }})"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ $taxonomy->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' }}"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all {{ $taxonomy->is_active ? 'bg-[#3F8C5826] text-[#83BF6E]' : 'bg-gray-100 dark:bg-[#272B30] text-[#6F767E]' }}"
                                 >
                                     <span class="material-symbols-outlined text-sm">{{ $taxonomy->is_active ? 'check_circle' : 'cancel' }}</span>
                                     {{ $taxonomy->is_active ? 'Active' : 'Inactive' }}
                                 </button>
                             </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
+                            <td class="px-8 py-5 text-right">
+                                <div class="flex items-center justify-end gap-1">
                                      <a 
                                         href="{{ route('admin.taxonomies.terms.index', $taxonomy->id) }}"
-                                        class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-all"
+                                        class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-emerald-500 flex items-center justify-center transition-colors"
                                         title="Manage Terms"
                                     >
-                                        <span class="material-symbols-outlined">list</span>
+                                        <span class="material-symbols-outlined text-[20px]">list</span>
                                     </a>
                                     <a 
                                         href="{{ route('admin.taxonomies.edit', $taxonomy->id) }}"
-                                        class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                                        class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
                                         title="Edit"
                                     >
-                                        <span class="material-symbols-outlined">edit</span>
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
                                     </a>
                                     <button 
                                         wire:click="delete({{ $taxonomy->id }})"
                                         wire:confirm="Are you sure you want to delete this taxonomy?"
-                                        class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                        class="h-9 w-9 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-[#6F767E] hover:text-[#FF6A55] flex items-center justify-center transition-colors"
                                         title="Delete"
                                     >
-                                        <span class="material-symbols-outlined">delete</span>
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
+                            <td colspan="6" class="px-8 py-16 text-center">
                                 <div class="flex flex-col items-center">
                                     <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-[#272B30] flex items-center justify-center mb-4">
                                         <span class="material-symbols-outlined text-3xl text-gray-400">category</span>
                                     </div>
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">No taxonomies yet</h3>
                                     <p class="text-gray-500 dark:text-gray-400 mb-4">Create your first taxonomy to get started</p>
-                                    <a href="{{ route('admin.taxonomies.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all">
+                                    <a href="{{ route('admin.taxonomies.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] hover:bg-blue-600 text-white font-medium rounded-xl transition-all">
                                         <span class="material-symbols-outlined text-lg">add</span>
                                         <span>Create Taxonomy</span>
                                     </a>
@@ -174,7 +178,7 @@
         
         <!-- Pagination -->
         @if($taxonomies->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="px-8 py-6 border-t border-gray-100 dark:border-[#272B30]">
                 {{ $taxonomies->links() }}
             </div>
         @endif

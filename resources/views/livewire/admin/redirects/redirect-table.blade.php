@@ -124,40 +124,40 @@
     {{-- Table --}}
     <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#272B30] overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 dark:bg-[#0F1113]">
-                    <tr class="text-left">
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider">From</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider">To</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider text-center">Code</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider text-center">Type</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider text-center">Hits</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider">Last hit</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider text-center">Active</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-[#6F767E] uppercase tracking-wider text-right">Actions</th>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50/50 dark:bg-[#0B0B0B]/20 border-b border-gray-100 dark:border-[#272B30]">
+                        <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">From</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">To</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">Code</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">Type</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">Hits</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Last hit</th>
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-center">Active</th>
+                        <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-[#272B30]">
+                <tbody class="divide-y divide-gray-50 dark:divide-[#272B30]/30">
                     @forelse($redirects as $r)
                         <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30]/30 transition-colors {{ $editingId === $r->id ? 'bg-blue-50 dark:bg-blue-500/10' : '' }}">
-                            <td class="px-4 py-3 font-mono text-xs text-[#111827] dark:text-[#FCFCFC] break-all max-w-[280px]">{{ $r->from_path }}</td>
-                            <td class="px-4 py-3 font-mono text-xs text-[#6F767E] break-all max-w-[280px]">{{ $r->to_url }}</td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="text-xs font-bold px-2 py-1 rounded
+                            <td class="px-6 py-4 font-mono text-xs text-[#111827] dark:text-[#FCFCFC] break-all max-w-[280px]">{{ $r->from_path }}</td>
+                            <td class="px-4 py-4 font-mono text-xs text-[#6F767E] break-all max-w-[280px]">{{ $r->to_url }}</td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg
                                     {{ in_array($r->status_code, [301,308]) ? 'bg-purple-500/15 text-purple-600 dark:text-purple-400' : 'bg-blue-500/15 text-blue-600 dark:text-blue-400' }}">
                                     {{ $r->status_code }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-4 text-center">
                                 @if($r->is_regex)
-                                    <span class="text-xs font-bold text-orange-500 bg-orange-500/15 px-2 py-1 rounded">regex</span>
+                                    <span class="text-xs font-bold text-orange-500 bg-orange-500/15 px-2 py-1 rounded-lg">regex</span>
                                 @else
                                     <span class="text-xs text-[#6F767E]">exact</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-center text-[#111827] dark:text-[#FCFCFC] font-bold">{{ number_format($r->hit_count) }}</td>
-                            <td class="px-4 py-3 text-xs text-[#6F767E]">{{ $r->last_hit_at?->diffForHumans() ?? '—' }}</td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-4 text-center text-[#111827] dark:text-[#FCFCFC] font-bold">{{ number_format($r->hit_count) }}</td>
+                            <td class="px-4 py-4 text-xs text-[#6F767E]">{{ $r->last_hit_at?->diffForHumans() ?? '—' }}</td>
+                            <td class="px-4 py-4 text-center">
                                 <button
                                     type="button"
                                     wire:click="toggleActive({{ $r->id }})"
@@ -168,36 +168,38 @@
                                     <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $r->is_active ? 'translate-x-4' : 'translate-x-0.5' }}"></span>
                                 </button>
                             </td>
-                            <td class="px-4 py-3 text-right">
-                                <button
-                                    type="button"
-                                    wire:click="edit({{ $r->id }})"
-                                    class="p-2 rounded-lg text-[#6F767E] hover:text-[#2563EB] hover:bg-blue-500/10 transition"
-                                    title="Edit"
-                                >
-                                    <span class="material-symbols-outlined text-[18px]">edit</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    wire:click="delete({{ $r->id }})"
-                                    wire:confirm="Delete this redirect rule?"
-                                    class="p-2 rounded-lg text-[#6F767E] hover:text-[#FF6A55] hover:bg-red-500/10 transition"
-                                    title="Delete"
-                                >
-                                    <span class="material-symbols-outlined text-[18px]">delete</span>
-                                </button>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <button
+                                        type="button"
+                                        wire:click="edit({{ $r->id }})"
+                                        class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
+                                        title="Edit"
+                                    >
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        wire:click="delete({{ $r->id }})"
+                                        wire:confirm="Delete this redirect rule?"
+                                        class="h-9 w-9 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-[#6F767E] hover:text-[#FF6A55] flex items-center justify-center transition-colors"
+                                        title="Delete"
+                                    >
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         @if($r->notes)
                             <tr class="bg-transparent">
-                                <td colspan="8" class="px-4 pb-3 -mt-2">
+                                <td colspan="8" class="px-6 pb-4 -mt-2">
                                     <p class="text-xs text-[#6F767E] italic">{{ $r->notes }}</p>
                                 </td>
                             </tr>
                         @endif
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-16 text-center">
+                            <td colspan="8" class="px-8 py-16 text-center">
                                 <div class="flex flex-col items-center gap-2">
                                     <span class="material-symbols-outlined text-[40px] text-[#6F767E]">trending_flat</span>
                                     <p class="text-sm font-medium text-[#6F767E]">No redirect rules yet.</p>
@@ -211,7 +213,7 @@
         </div>
 
         @if($redirects->hasPages())
-            <div class="px-4 py-3 border-t border-gray-100 dark:border-[#272B30]">
+            <div class="px-8 py-6 border-t border-gray-100 dark:border-[#272B30]">
                 {{ $redirects->links() }}
             </div>
         @endif

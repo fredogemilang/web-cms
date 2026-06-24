@@ -330,8 +330,8 @@
     <!-- Bulk Action Bar -->
     @if(count($selectedPosts) > 0)
     <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-        <div class="bg-[#2563EB] dark:bg-[#1A1A1A] border border-[#2563EB] dark:border-[#272B30] rounded-2xl shadow-2xl px-6 py-3 flex items-center gap-6">
-            <div class="flex items-center gap-3 border-r border-blue-400/30 dark:border-[#272B30] pr-6">
+        <div class="bg-[#2563EB] border border-[#2563EB] rounded-2xl shadow-2xl px-6 py-3 flex items-center gap-6">
+            <div class="flex items-center gap-3 border-r border-blue-400/30 pr-6">
                 <span class="bg-white text-[#2563EB] text-xs font-bold px-2.5 py-1 rounded-full min-w-[24px] text-center">{{ count($selectedPosts) }}</span>
                 <span class="text-sm font-semibold text-white">Selected</span>
             </div>

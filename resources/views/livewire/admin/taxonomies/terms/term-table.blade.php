@@ -32,76 +32,76 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50/50 dark:bg-[#0B0B0B]/20 border-b border-gray-100 dark:border-[#272B30]">
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            <button wire:click="sortBy('name')" class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200">
+                        <th class="px-8 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">
+                            <button wire:click="sortBy('name')" class="flex items-center gap-1 hover:text-[#2563EB] transition-colors">
                                 Name
                                 @if($sortField === 'name')
-                                    <span class="material-symbols-outlined text-sm">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                    <span class="material-symbols-outlined text-base">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                @else
+                                    <span class="material-symbols-outlined text-base opacity-30">unfold_more</span>
                                 @endif
                             </button>
                         </th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            <button wire:click="sortBy('slug')" class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-200">
+                        <th class="px-4 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">
+                            <button wire:click="sortBy('slug')" class="flex items-center gap-1 hover:text-[#2563EB] transition-colors">
                                 Slug
                                 @if($sortField === 'slug')
-                                    <span class="material-symbols-outlined text-sm">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                    <span class="material-symbols-outlined text-base">{{ $sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span>
+                                @else
+                                    <span class="material-symbols-outlined text-base opacity-30">unfold_more</span>
                                 @endif
                             </button>
                         </th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Count</th>
+                        <th class="px-8 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-right">Count</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="divide-y divide-gray-50 dark:divide-[#272B30]/30">
                     @forelse($terms as $term)
-                        <tr class="group hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors">
-                            <td class="px-6 py-4">
+                        <tr class="group hover:bg-gray-50 dark:hover:bg-[#272B30]/30 transition-colors">
+                            <td class="px-8 py-5">
                                 <div class="flex items-center gap-2" style="padding-left: {{ ($term->depth ?? 0) * 1.5 }}rem">
                                     @if(($term->depth ?? 0) > 0)
-                                        <span class="material-symbols-outlined text-gray-400 text-base shrink-0 select-none">subdirectory_arrow_right</span>
+                                        <span class="material-symbols-outlined text-[#6F767E] text-base shrink-0 select-none">subdirectory_arrow_right</span>
                                     @endif
                                     <div>
-                                        <div class="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">{{ $term->name }}</div>
+                                        <div class="font-semibold text-[#111827] dark:text-[#FCFCFC] group-hover:text-[#2563EB] transition-colors">{{ $term->name }}</div>
                                         
                                         <!-- WP Style Hover Actions -->
                                         <div class="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                             <button 
                                                 wire:click="$dispatch('edit-term', { id: {{ $term->id }} })"
-                                                class="text-[11px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-tighter"
+                                                class="text-[11px] font-bold text-[#2563EB] hover:underline uppercase tracking-wider"
                                             >
                                                 Edit
                                             </button>
-                                            <span class="text-gray-300 dark:text-gray-600">|</span>
+                                            <span class="text-gray-300 dark:text-[#272B30]">|</span>
                                             <button 
                                                 wire:click="confirmDelete({{ $term->id }})"
-                                                class="text-[11px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter"
+                                                class="text-[11px] font-bold text-[#FF6A55] hover:underline uppercase tracking-wider"
                                             >
                                                 Delete
                                             </button>
-                                            <span class="text-gray-300 dark:text-gray-600">|</span>
-                                            <a href="#" class="text-[11px] font-bold text-[#6F767E] hover:text-gray-900 dark:hover:text-white uppercase tracking-tighter">
-                                                View
-                                            </a>
                                         </div>
 
                                         @if($term->description)
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs mt-1">{{ $term->description }}</div>
+                                            <div class="text-xs text-[#6F767E] truncate max-w-xs mt-1">{{ $term->description }}</div>
                                         @endif
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <code class="px-2 py-1 bg-gray-100 dark:bg-[#272B30] text-gray-700 dark:text-gray-300 rounded text-sm font-mono">{{ $term->slug }}</code>
+                            <td class="px-4 py-5">
+                                <code class="px-2.5 py-1 bg-gray-100 dark:bg-[#272B30] text-[#2563EB] rounded-lg text-xs font-mono">{{ $term->slug }}</code>
                             </td>
 
-                            <td class="px-6 py-4 text-right">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                            <td class="px-8 py-5 text-right">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-[#2563EB] dark:bg-blue-900/30">
                                     {{ $term->entries_count }}
                                 </span>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="px-6 py-12 text-center">
+                            <td colspan="3" class="px-8 py-16 text-center">
                                 <div class="flex flex-col items-center">
                                     <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-[#272B30] flex items-center justify-center mb-4">
                                         <span class="material-symbols-outlined text-3xl text-gray-400">category</span>
@@ -118,7 +118,7 @@
         
         <!-- Pagination -->
         @if($terms->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="px-8 py-6 border-t border-gray-100 dark:border-[#272B30]">
                 {{ $terms->links() }}
             </div>
         @endif
