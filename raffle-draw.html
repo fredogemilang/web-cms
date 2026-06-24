@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iC-Connect Doorprize Raffle Presenter</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Plus Jakarta Sans", "Inter", "sans-serif"],
+                        outfit: ["Outfit", "sans-serif"],
+                        mono: ["Share Tech Mono", "monospace"],
+                    },
+                    colors: {
+                        primary: "#2563EB",
+                        success: "#10B981",
+                        dark: "#0B0B0B",
+                        "dark-surface": "#161618",
+                        "dark-surface-lighter": "#222225",
+                        "dark-border": "#27272A",
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            background-color: #0B0B0B;
+            color: #FCFCFC;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+        }
+        .glow-border {
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+            border-color: rgba(37, 99, 235, 0.4);
+        }
+        .glow-text-gold {
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        }
+        .glow-button {
+            box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 35px rgba(37, 99, 235, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 overflow-hidden select-none" x-data="rafflePresenter()">
+
+    <!-- Main Card Container -->
+    <div class="max-w-xl w-full bg-dark-surface border border-dark-border rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden text-center space-y-8">
+        
+        <!-- Glowing background aura effects -->
+        <div class="absolute -top-32 -left-32 w-64 h-64 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-32 -right-32 w-64 h-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
+
+        <!-- Header Brand -->
+        <div class="flex items-center justify-center gap-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
+            <span class="material-symbols-outlined text-base">card_membership</span>
+            <span>Doorprize Live Drawing</span>
+        </div>
+
+        <!-- DYNAMIC PRESENTATION INTERFACE -->
+        <!-- Icon & Header Info -->
+        <div class="space-y-6">
+            <!-- Show Image if present -->
+            <template x-if="prize?.image">
+                <div class="relative h-32 w-32 mx-auto rounded-2xl overflow-hidden border-2 shadow-2xl bg-dark-surface-lighter flex items-center justify-center transition-all duration-500"
+                     :class="state === 'drawing' ? 'border-primary/50 shadow-[0_0_25px_rgba(37,99,235,0.3)] animate-pulse' : (state === 'winner' ? 'border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.35)] animate-bounce' : 'border-dark-border')">
+                    <img :src="prize.image" class="h-full w-full object-cover" />
+                </div>
+            </template>
+
+            <!-- Fallback to Icon if image is absent -->
+            <template x-if="!prize?.image">
+                <div class="relative h-20 w-20 mx-auto flex items-center justify-center bg-primary/10 border border-primary/20 rounded-full">
+                    <span x-show="state === 'ready'" class="material-symbols-outlined text-[42px] text-primary" x-cloak>redeem</span>
+                    <span x-show="state === 'drawing'" class="material-symbols-outlined text-[42px] text-primary animate-spin" style="animation-duration: 1.5s;" x-cloak>casino</span>
+                    <span x-show="state === 'winner'" class="material-symbols-outlined text-[42px] text-amber-400 animate-bounce" x-cloak>emoji_events</span>
+                </div>
+            </template>
+
+            <div class="space-y-1">
+                <span class="text-zinc-500 text-xs font-bold uppercase tracking-wider block">Drawing Prize</span>
+                <h1 class="text-3xl font-black text-white font-outfit" x-text="prize?.name || 'Loading Prize...'"></h1>
+                <p class="text-xs text-amber-400 font-medium" x-text="prize?.gift || ''"></p>
+            </div>
+        </div>
+
+        <!-- Central Unified Box -->
+        <div class="bg-dark-surface-lighter border rounded-2xl p-6 min-h-[150px] flex flex-col justify-center items-center relative overflow-hidden transition-all duration-300"
+             :class="state === 'drawing' ? 'border-primary/50 shadow-[0_0_20px_rgba(37,99,235,0.2)]' : (state === 'winner' ? 'border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'border-dark-border')">
+            
+            <!-- READY PLACEHOLDER -->
+            <div x-show="state === 'ready'" class="space-y-2 text-center" x-transition x-cloak>
+                <span class="text-2xl font-black text-zinc-600 block tracking-wide font-outfit uppercase border-b border-dashed border-zinc-800 pb-1.5 px-4">Waiting to Spin...</span>
+                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block font-mono">Organization / Company</span>
+            </div>
+
+            <!-- DRAWING RUNNING -->
+            <div x-show="state === 'drawing'" class="space-y-1 text-center" x-transition x-cloak>
+                <span class="text-2xl font-black text-amber-400 block tracking-wide font-outfit" x-text="tickerName"></span>
+                <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block font-mono" x-text="tickerOrg"></span>
+            </div>
+
+            <!-- WINNER SHOWN -->
+            <div x-show="state === 'winner'" class="space-y-1 text-center" x-transition x-cloak>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-400 block animate-pulse">★ Winner Drawn ★</span>
+                <span class="text-2xl font-black text-white block tracking-wide font-outfit glow-text-gold" x-text="winner?.name"></span>
+                <span class="text-xs font-bold text-zinc-300 block" x-text="winner?.organization"></span>
+            </div>
+        </div>
+
+        <!-- Buttons Area -->
+        <div class="pt-2">
+            <!-- READY BUTTON -->
+            <button x-show="state === 'ready'" @click="startDrawing()" 
+                    class="w-full py-4 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-2xl transition-all glow-button flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                <span class="material-symbols-outlined text-lg">casino</span>
+                <span>Start Drawing Spin</span>
+            </button>
+
+            <!-- DRAWING BUTTON -->
+            <button x-show="state === 'drawing'" @click="stopDrawing()" 
+                    class="w-full py-4 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                <span class="material-symbols-outlined text-lg">stop_circle</span>
+                <span>Stop Spin & Pick Winner</span>
+            </button>
+
+            <!-- WINNER COOLDOWN DRAW NEXT BUTTON -->
+            <button x-show="state === 'winner'" @click="drawAgain()" 
+                    :disabled="cooldownCount > 0"
+                    class="w-full py-4 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-zinc-800 disabled:to-zinc-900 disabled:text-zinc-600 disabled:border disabled:border-zinc-800 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all glow-button flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                <span class="material-symbols-outlined text-lg">casino</span>
+                <span x-text="cooldownCount > 0 ? 'Start Drawing (' + cooldownCount + 's)' : 'Start Drawing'"></span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Background Confetti Elements (visible on winner state) -->
+    <div x-show="state === 'winner'" class="absolute inset-0 pointer-events-none z-0">
+        <template x-for="n in 30" :key="n">
+            <div class="absolute rounded-full"
+                 :style="'top: ' + Math.random()*100 + '%; left: ' + Math.random()*100 + '%; width: ' + (Math.random()*8+4) + 'px; height: ' + (Math.random()*8+4) + 'px; background-color: ' + ['#2563EB','#10B981','#F59E0B','#EF4444','#8B5CF6'][Math.floor(Math.random()*5)] + '; opacity: ' + (Math.random()*0.5+0.3) + '; transform: rotate(' + Math.random()*360 + 'deg); transition: all 1s;'">
+            </div>
+        </template>
+    </div>
+
+    <script>
+        function rafflePresenter() {
+            return {
+                state: 'ready', // 'ready', 'drawing', 'winner'
+                prize: null,
+                eligibleList: [],
+                winner: null,
+                tickerName: '',
+                tickerOrg: '',
+                tickerInterval: null,
+                cooldownCount: 0,
+                
+                init() {
+                    // Fetch state from localStorage
+                    const prizeData = localStorage.getItem('raffle_prize');
+                    const eligibleData = localStorage.getItem('raffle_eligible');
+                    
+                    if (prizeData && eligibleData) {
+                        this.prize = JSON.parse(prizeData);
+                        this.eligibleList = JSON.parse(eligibleData);
+                    } else {
+                        alert('No raffle data found in localStorage. Please draw from event dashboard.');
+                    }
+                },
+                startDrawing() {
+                    if (this.eligibleList.length === 0) {
+                        alert('No eligible attendees left in the pool.');
+                        return;
+                    }
+                    
+                    this.state = 'drawing';
+                    this.winner = null;
+                    
+                    // Run visual ticker indefinitely
+                    let intervalTime = 75;
+                    this.tickerInterval = setInterval(() => {
+                        const randomTick = this.eligibleList[Math.floor(Math.random() * this.eligibleList.length)];
+                        this.tickerName = randomTick.name;
+                        this.tickerOrg = randomTick.organization;
+                    }, intervalTime);
+                },
+                stopDrawing() {
+                    if (this.tickerInterval) {
+                        clearInterval(this.tickerInterval);
+                    }
+                    
+                    // Choose random winner
+                    const randomIndex = Math.floor(Math.random() * this.eligibleList.length);
+                    this.winner = this.eligibleList[randomIndex];
+                    this.state = 'winner';
+                    
+                    // Write result to localStorage to notify main dashboard
+                    localStorage.setItem('raffle_result', JSON.stringify({
+                        prizeId: this.prize.id,
+                        winner: this.winner
+                    }));
+
+                    // Start 5-second cooldown
+                    this.cooldownCount = 5;
+                    let timer = setInterval(() => {
+                        this.cooldownCount--;
+                        if (this.cooldownCount <= 0) {
+                            clearInterval(timer);
+                        }
+                    }, 1000);
+                },
+                resetDraw() {
+                    // Update current quota local state
+                    if (this.prize) {
+                        if (!this.prize.winners) this.prize.winners = [];
+                        this.prize.winners.push(this.winner);
+                    }
+                    // Filter out this winner from eligible list for a consecutive draw
+                    this.eligibleList = this.eligibleList.filter(e => e.email.toLowerCase() !== this.winner.email.toLowerCase());
+                    this.winner = null;
+                    this.state = 'ready';
+                },
+                drawAgain() {
+                    this.resetDraw();
+                    this.startDrawing();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

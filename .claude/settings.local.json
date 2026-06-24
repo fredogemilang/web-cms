@@ -14,7 +14,9 @@
       "Bash(git stash *)",
       "Bash(git push *)",
       "Bash(powershell.exe -Command \"[Environment]::GetEnvironmentVariable\\('ANTHROPIC_AUTH_TOKEN', 'User'\\); Write-Host '---'; [Environment]::GetEnvironmentVariable\\('ANTHROPIC_API_KEY', 'User'\\); Write-Host '---DONE---'\")",
-      "Bash(ping -n 4 api.anthropic.com)"
+      "Bash(ping -n 4 api.anthropic.com)",
+      "Bash(git reset *)",
+      "Bash(git add *)"
     ]
   }
 }
