@@ -195,4 +195,10 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
     // Event registration
     Route::post('/{slug}/register', [EventRegistrationController::class, 'register'])->name('register');
     Route::post('/{slug}/cancel', [EventRegistrationController::class, 'cancel'])->name('cancel');
+
+    // Event feedback
+    Route::get('/{slug}/feedback', [FeedbackFormController::class, 'show'])->name('feedback');
+    Route::post('/{slug}/feedback/verify', [FeedbackFormController::class, 'verifyEmail'])->name('feedback.verify');
+    Route::get('/{slug}/feedback/{uuid}', [FeedbackFormController::class, 'showByUuid'])->name('feedback.uuid');
+    Route::post('/{slug}/feedback/{uuid}', [FeedbackFormController::class, 'submit'])->name('feedback.submit');
 });

@@ -356,6 +356,65 @@
             <div class="bg-dark-surface border border-dark-border rounded-2xl max-w-lg w-full p-6 shadow-xl text-text-primary">
                 <h3 class="text-lg font-bold text-text-primary mb-4">Feedback Settings</h3>
                 <div class="space-y-4">
+                    {{-- Banner Image --}}
+                    <div>
+                        <label class="block text-sm font-bold text-text-primary mb-1.5">Banner Image (Feedback Background)</label>
+                        @if($feedbackBackground)
+                            <div class="relative w-full h-32 rounded-xl overflow-hidden mb-2 border border-dark-border">
+                                <img src="{{ $feedbackBackground->temporaryUrl() }}" class="w-full h-full object-cover"/>
+                                <button type="button" wire:click="$set('feedbackBackground', null)" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 transition-all flex items-center justify-center shadow-lg">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                        @elseif($currentFeedbackBackground)
+                            <div class="relative w-full h-32 rounded-xl overflow-hidden mb-2 border border-dark-border">
+                                <img src="{{ asset('storage/' . $currentFeedbackBackground) }}" class="w-full h-full object-cover"/>
+                                <button type="button" wire:click="removeBannerImage" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 transition-all flex items-center justify-center shadow-lg">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                        @else
+                            <div class="border-2 border-dashed border-dark-border rounded-xl p-4 text-center cursor-pointer hover:border-[#2563EB] transition-all relative bg-console-input">
+                                <input type="file" wire:model="feedbackBackground" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*"/>
+                                <span class="material-symbols-outlined text-2xl text-text-secondary mb-1">upload_file</span>
+                                <p class="text-xs text-text-secondary font-medium">Click or drag banner image (max 1MB)</p>
+                            </div>
+                        @endif
+                        @error('feedbackBackground') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    {{-- Logo Image --}}
+                    <div>
+                        <label class="block text-sm font-bold text-text-primary mb-1.5">Logo Image (Feedback Foreground)</label>
+                        @if($feedbackForeground)
+                            <div class="relative w-full h-24 rounded-xl overflow-hidden mb-2 border border-dark-border bg-dark-surface-lighter flex items-center justify-center p-2">
+                                <img src="{{ $feedbackForeground->temporaryUrl() }}" class="max-h-full object-contain"/>
+                                <button type="button" wire:click="$set('feedbackForeground', null)" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 transition-all flex items-center justify-center shadow-lg">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                        @elseif($currentFeedbackForeground)
+                            <div class="relative w-full h-24 rounded-xl overflow-hidden mb-2 border border-dark-border bg-dark-surface-lighter flex items-center justify-center p-2">
+                                <img src="{{ asset('storage/' . $currentFeedbackForeground) }}" class="max-h-full object-contain"/>
+                                <button type="button" wire:click="removeLogoImage" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 transition-all flex items-center justify-center shadow-lg">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                        @else
+                            <div class="border-2 border-dashed border-dark-border rounded-xl p-4 text-center cursor-pointer hover:border-[#2563EB] transition-all relative bg-console-input">
+                                <input type="file" wire:model="feedbackForeground" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*"/>
+                                <span class="material-symbols-outlined text-2xl text-text-secondary mb-1">upload_file</span>
+                                <p class="text-xs text-text-secondary font-medium">Click or drag logo image (max 1MB)</p>
+                            </div>
+                        @endif
+                        @error('feedbackForeground') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div wire:loading wire:target="feedbackBackground, feedbackForeground" class="text-xs text-[#2563EB] font-semibold mt-1 flex items-center gap-1.5">
+                        <span class="animate-spin h-3.5 w-3.5 border-2 border-[#2563EB] border-t-transparent rounded-full"></span>
+                        Uploading image...
+                    </div>
+
                     <div>
                         <label class="block text-sm font-bold text-text-primary mb-1.5">Primary Color</label>
                         <input type="color" wire:model="feedbackPrimaryColor" class="w-full h-12 rounded-xl border border-dark-border bg-console-input"/>

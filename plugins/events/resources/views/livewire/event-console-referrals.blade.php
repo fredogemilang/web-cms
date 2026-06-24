@@ -39,7 +39,7 @@
         {{-- Checked-in Referral Signups --}}
         <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between hover:border-indigo-500/40 transition-all duration-300">
             <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-extrabold text-text-secondary uppercase tracking-wider">Attended Referrals</span>
+                <span class="text-[10px] font-extrabold text-text-secondary uppercase tracking-wider">Checked-in Referrals</span>
                 <div class="h-8 w-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                     <span class="material-symbols-outlined text-base">qr_code_scanner</span>
                 </div>
@@ -177,7 +177,7 @@
                                 <th class="py-3 px-4">Source / Code</th>
                                 <th class="py-3 px-4 text-center">Registrants</th>
                                 <th class="py-3 px-4 text-center">Approved</th>
-                                <th class="py-3 px-4 text-center">Attended</th>
+                                <th class="py-3 px-4 text-center">Checked In</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-dark-border text-xs">

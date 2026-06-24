@@ -144,9 +144,9 @@ class EventGuestsTable extends Component
         return [
             'all'      => (clone $base)->count(),
             'pending'  => (clone $base)->where('status', 'pending')->count(),
-            'approved' => (clone $base)->where('status', 'confirmed')->count(),
+            'approved' => (clone $base)->where('status', 'approved')->count(),
             'checkin'  => (clone $base)->where('check_in', true)->count(),
-            'rejected' => (clone $base)->where('status', 'cancelled')->count(),
+            'rejected' => (clone $base)->where('status', 'rejected')->count(),
         ];
     }
 
@@ -162,7 +162,7 @@ class EventGuestsTable extends Component
                 if ($this->activeTab === 'checkin') {
                     $query->where('check_in', true);
                 } else {
-                    $map = ['pending' => 'pending', 'approved' => 'confirmed', 'rejected' => 'cancelled'];
+                    $map = ['pending' => 'pending', 'approved' => 'approved', 'rejected' => 'rejected'];
                     if (isset($map[$this->activeTab])) {
                         $query->where('status', $map[$this->activeTab]);
                     }
@@ -249,7 +249,7 @@ class EventGuestsTable extends Component
             ->first();
 
         if ($reg) {
-            if ($reg->status !== 'confirmed' && $reg->status !== 'attended') {
+            if ($reg->status !== 'approved') {
                 $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Only approved guests can check in.']);
                 return;
             }
@@ -292,7 +292,7 @@ class EventGuestsTable extends Component
 
         $this->eligibleCheckinCount = EventRegistration::whereIn('id', $this->selectedItems)
             ->where('event_id', $this->event->id)
-            ->where('status', 'confirmed')
+            ->where('status', 'approved')
             ->where('check_in', false)
             ->count();
 
@@ -335,15 +335,12 @@ class EventGuestsTable extends Component
             return;
         }
 
-        if ($reg->status !== 'confirmed' && $reg->status !== 'attended') {
+        if ($reg->status !== 'approved') {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Only approved guests can check in.']);
             return;
         }
 
         $reg->checkIn();
-        if ($reg->status === 'confirmed') {
-            $reg->update(['status' => 'attended']);
-        }
 
         $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Guest checked in.']);
     }
@@ -364,9 +361,8 @@ class EventGuestsTable extends Component
 
         $count = 0;
         foreach ($registrations as $reg) {
-            if (!$reg->check_in && $reg->status === 'confirmed') {
+            if (!$reg->check_in && $reg->status === 'approved') {
                 $reg->checkIn();
-                $reg->update(['status' => 'attended']);
                 $count++;
             }
         }
@@ -580,7 +576,7 @@ class EventGuestsTable extends Component
 
         // Validate approval type if confirmed or cancelled is selected
         $approvalType = null;
-        if (in_array($status, ['confirmed', 'cancelled'])) {
+        if (in_array($status, ['approved', 'rejected'])) {
             if (!$approvalTypeId) {
                 return ['success' => false, 'message' => 'Please select a reason/approval type.'];
             }
@@ -593,25 +589,25 @@ class EventGuestsTable extends Component
         try {
             \DB::transaction(function () use ($reg, $status, $oldStatus, $approvalType, $note) {
                 // Adjust event registered count
-                if ($status === 'confirmed' && $oldStatus !== 'confirmed') {
+                if ($status === 'approved' && $oldStatus !== 'approved') {
                     $this->event->incrementRegisteredCount();
-                } elseif ($status !== 'confirmed' && $oldStatus === 'confirmed') {
+                } elseif ($status !== 'approved' && $oldStatus === 'approved') {
                     $this->event->decrementRegisteredCount();
                 }
 
-                if ($status === 'confirmed') {
+                if ($status === 'approved') {
                     $reg->update([
-                        'status'         => 'confirmed',
-                        'confirmed_at'   => now(),
+                        'status'         => 'approved',
+                        'approved_at'    => now(),
                         'verified_by'    => auth()->id(),
                         'verified_at'    => now(),
                         'verified_type'  => $approvalType->type_name,
                         'verified_note'  => $note,
                     ]);
-                } elseif ($status === 'cancelled') {
+                } elseif ($status === 'rejected') {
                     $reg->update([
-                        'status'         => 'cancelled',
-                        'cancelled_at'   => now(),
+                        'status'         => 'rejected',
+                        'rejected_at'    => now(),
                         'verified_by'    => auth()->id(),
                         'verified_at'    => now(),
                         'verified_type'  => $approvalType->type_name,
@@ -621,8 +617,8 @@ class EventGuestsTable extends Component
                     // Pending
                     $reg->update([
                         'status'         => 'pending',
-                        'confirmed_at'   => null,
-                        'cancelled_at'   => null,
+                        'approved_at'    => null,
+                        'rejected_at'    => null,
                         'verified_by'    => null,
                         'verified_at'    => null,
                         'verified_type'  => null,
@@ -632,13 +628,13 @@ class EventGuestsTable extends Component
             });
 
             // Send Email notifications
-            if ($status === 'confirmed' && $approvalType) {
+            if ($status === 'approved' && $approvalType) {
                 try {
                     \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
                 } catch (\Exception $e) {
                     \Log::warning('Failed to send guest approved email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
                 }
-            } elseif ($status === 'cancelled' && $approvalType) {
+            } elseif ($status === 'rejected' && $approvalType) {
                 try {
                     \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
                 } catch (\Exception $e) {
@@ -679,25 +675,25 @@ class EventGuestsTable extends Component
             }
 
             \DB::transaction(function () use ($reg, $status, $oldStatus, $approvalType, $note) {
-                if ($status === 'confirmed' && $oldStatus !== 'confirmed') {
+                if ($status === 'approved' && $oldStatus !== 'approved') {
                     $this->event->incrementRegisteredCount();
-                } elseif ($status !== 'confirmed' && $oldStatus === 'confirmed') {
+                } elseif ($status !== 'approved' && $oldStatus === 'approved') {
                     $this->event->decrementRegisteredCount();
                 }
 
-                if ($status === 'confirmed') {
+                if ($status === 'approved') {
                     $reg->update([
-                        'status'         => 'confirmed',
-                        'confirmed_at'   => now(),
+                        'status'         => 'approved',
+                        'approved_at'    => now(),
                         'verified_by'    => auth()->id(),
                         'verified_at'    => now(),
                         'verified_type'  => $approvalType->type_name,
                         'verified_note'  => $note,
                     ]);
-                } elseif ($status === 'cancelled') {
+                } elseif ($status === 'rejected') {
                     $reg->update([
-                        'status'         => 'cancelled',
-                        'cancelled_at'   => now(),
+                        'status'         => 'rejected',
+                        'rejected_at'    => now(),
                         'verified_by'    => auth()->id(),
                         'verified_at'    => now(),
                         'verified_type'  => $approvalType->type_name,
@@ -707,13 +703,13 @@ class EventGuestsTable extends Component
             });
 
             // Send Email notifications
-            if ($status === 'confirmed') {
+            if ($status === 'approved') {
                 try {
                     \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
                 } catch (\Exception $e) {
                     \Log::warning('Failed to send guest approved email via Livewire bulk action', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
                 }
-            } elseif ($status === 'cancelled') {
+            } elseif ($status === 'rejected') {
                 try {
                     \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
                 } catch (\Exception $e) {
@@ -738,7 +734,7 @@ class EventGuestsTable extends Component
                 if ($this->activeTab === 'checkin') {
                     $query->where('check_in', true);
                 } else {
-                    $map = ['pending' => 'pending', 'approved' => 'confirmed', 'rejected' => 'cancelled'];
+                    $map = ['pending' => 'pending', 'approved' => 'approved', 'rejected' => 'rejected'];
                     if (isset($map[$this->activeTab])) {
                         $query->where('status', $map[$this->activeTab]);
                     }
@@ -762,7 +758,7 @@ class EventGuestsTable extends Component
         $headers = [
             'ID', 'UUID', 'Salutation', 'Full Name', 'Email', 'Phone', 'Company',
             'Company Type', 'Job Title', 'Status', 'Walk-in', 'Checked In',
-            'Registered At', 'Confirmed At', 'Verified By', 'Verified At',
+            'Registered At', 'Approved At', 'Verified By', 'Verified At',
             'Verified Type', 'Verified Note', 'Referral Source',
         ];
 
@@ -791,7 +787,7 @@ class EventGuestsTable extends Component
                 $reg->walk_in ? 'Yes' : 'No',
                 $reg->check_in ? 'Yes' : 'No',
                 $reg->created_at->format('Y-m-d H:i:s'),
-                $reg->confirmed_at?->format('Y-m-d H:i:s') ?? '',
+                $reg->approved_at?->format('Y-m-d H:i:s') ?? '',
                 $reg->verifiedBy?->name ?? '',
                 $reg->verified_at?->format('Y-m-d H:i:s') ?? '',
                 $reg->verified_type ?? '',

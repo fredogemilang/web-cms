@@ -195,11 +195,11 @@ class EventRegistrationForm extends Component
 
         // ── Capacity check ──────────────────────────────────────────────────
         if ($this->event->max_participants) {
-            $query = $this->event->registrations()->whereIn('status', ['pending', 'confirmed']);
+            $query = $this->event->registrations()->whereIn('status', ['pending', 'approved']);
 
-            // If approval not required, only count confirmed
+            // If approval not required, only count approved
             if (!($this->event->registration_requires_approval ?? false)) {
-                $query->where('status', 'confirmed');
+                $query->where('status', 'approved');
             }
 
             if ($query->count() >= $this->event->max_participants) {
@@ -211,7 +211,7 @@ class EventRegistrationForm extends Component
         // ── Duplicate check ─────────────────────────────────────────────
         $duplicate = EventRegistration::where('event_id', $this->event->id)
             ->where('email', $this->email)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['pending', 'approved'])
             ->exists();
 
         if ($duplicate) {
@@ -256,8 +256,8 @@ class EventRegistrationForm extends Component
             'notes'                 => null,
             'referral_code'         => null,
             'referral_source'       => EventRegistration::buildReferralSource(null, request()),
-            'status'                => $requiresApproval ? 'pending' : 'confirmed',
-            'confirmed_at'          => $requiresApproval ? null : now(),
+            'status'                => $requiresApproval ? 'pending' : 'approved',
+            'approved_at'           => $requiresApproval ? null : now(),
             'consent_accepted_at'   => now(),
             'walk_in'               => false,
             'ip_address'            => request()->ip(),
@@ -270,7 +270,7 @@ class EventRegistrationForm extends Component
             ],
         ]);
 
-        // Increment count only if auto-confirmed
+        // Increment count only if auto-approved
         if (!$requiresApproval) {
             $this->event->incrementRegisteredCount();
         }

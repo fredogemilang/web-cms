@@ -27,7 +27,7 @@
                             Walk-in Registration
                         </h5>
                         <p class="text-muted small mb-0">
-                            {{ $event->title }} — Registrant will be immediately confirmed & checked in.
+                            {{ $event->title }} — Registrant will be immediately approved & checked in.
                         </p>
                     </div>
                     <button wire:click="closeModal" type="button" class="btn-close" aria-label="Close"></button>
@@ -217,7 +217,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        Walk-in registrations are <strong>immediately confirmed & checked in</strong>.
+                                        Walk-in registrations are <strong>immediately approved & checked in</strong>.
                                         No approval required.
                                     </div>
                                 </div>

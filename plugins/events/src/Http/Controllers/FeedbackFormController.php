@@ -201,8 +201,8 @@ class FeedbackFormController extends Controller
      */
     private function checkEligibility(Event $event, EventRegistration $registration): ?string
     {
-        // Must be approved (confirmed)
-        if ($registration->status !== 'confirmed') {
+        // Must be approved
+        if ($registration->status !== 'approved') {
             return 'Email not eligible for feedback. Please make sure you are registered, approved, and checked in for this event.';
         }
 

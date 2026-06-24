@@ -88,8 +88,8 @@ class EventGuestController extends Controller
 
         $approvalType = ApprovalType::findOrFail($request->approval_type_id);
 
-        // Only allow rejecting pending or confirmed registrations
-        if (!in_array($registration->status, ['pending', 'confirmed'])) {
+        // Only allow rejecting pending or approved registrations
+        if (!in_array($registration->status, ['pending', 'approved'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'This registration cannot be rejected.',
@@ -152,7 +152,7 @@ class EventGuestController extends Controller
         $approvalType = ApprovalType::findOrFail($request->approval_type_id);
 
         $pendingRegs = EventRegistration::where('event_id', $event->id)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['pending', 'approved'])
             ->get();
 
         $count = $this->guestService->bulkReject($event, $pendingRegs, $approvalType);
@@ -209,11 +209,6 @@ class EventGuestController extends Controller
 
         $registration->checkIn();
 
-        // Update status to attended if confirmed
-        if ($registration->status === 'confirmed') {
-            $registration->update(['status' => 'attended']);
-        }
-
         return response()->json([
             'success' => true,
             'message' => 'Guest checked in successfully.',
@@ -233,7 +228,7 @@ class EventGuestController extends Controller
         $headers = [
             'ID', 'UUID', 'Salutation', 'Full Name', 'Email', 'Phone', 'Company',
             'Company Type', 'Job Title', 'Status', 'Walk-in', 'Checked In',
-            'Registered At', 'Confirmed At', 'Verified By', 'Verified At',
+            'Registered At', 'Approved At', 'Verified By', 'Verified At',
             'Verified Type', 'Verified Note', 'Referral Source',
         ];
 
@@ -257,7 +252,7 @@ class EventGuestController extends Controller
                 $reg->walk_in ? 'Yes' : 'No',
                 $reg->check_in ? 'Yes' : 'No',
                 $reg->created_at->format('Y-m-d H:i:s'),
-                $reg->confirmed_at?->format('Y-m-d H:i:s') ?? '',
+                $reg->approved_at?->format('Y-m-d H:i:s') ?? '',
                 $reg->verifiedBy?->name ?? '',
                 $reg->verified_at?->format('Y-m-d H:i:s') ?? '',
                 $reg->verified_type ?? '',

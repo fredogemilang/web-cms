@@ -36,7 +36,7 @@ class ApprovalTypeService
         $defaults = [
             'default' => [
                 'type_name' => 'Default Registration',
-                'subject' => "Registration Confirmed: {$event->title}",
+                'subject' => "Registration Approved: {$event->title}",
                 'body' => $this->buildDefaultBody($event, 'default'),
             ],
             'pending' => [
@@ -77,7 +77,7 @@ class ApprovalTypeService
     {
         $messages = [
             'default'  => "Thank you for registering for {$event->title}. We look forward to seeing you!",
-            'pending'  => "Your registration for {$event->title} is pending approval. We will notify you once confirmed.",
+            'pending'  => "Your registration for {$event->title} is pending approval. We will notify you once approved.",
             'approved' => "Your registration for {$event->title} has been approved. See you there!",
             'rejected' => "Unfortunately, your registration for {$event->title} has been declined.",
         ];

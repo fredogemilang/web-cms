@@ -178,15 +178,13 @@
                             @php
                                 $statusClasses = [
                                     'pending'   => 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-                                    'confirmed' => 'bg-[#3F8C5826] text-[#83BF6E]',
-                                    'cancelled' => 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
-                                    'attended'  => 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+                                    'approved'  => 'bg-[#3F8C5826] text-[#83BF6E]',
+                                    'rejected'  => 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
                                 ];
                                 $statusLabels = [
                                     'pending'   => 'Pending',
-                                    'confirmed' => 'Approved',
-                                    'cancelled' => 'Rejected',
-                                    'attended'  => 'Attended',
+                                    'approved'  => 'Approved',
+                                    'rejected'  => 'Rejected',
                                 ];
                                 $cls = $statusClasses[$reg->status] ?? 'bg-gray-100 text-[#6F767E]';
                                 $displayStatus = $statusLabels[$reg->status] ?? ucfirst($reg->status);
@@ -215,7 +213,7 @@
                                     <div class="text-[10px] text-[#6F767E] font-semibold mt-1.5">{{ $reg->check_in_date->format('M d, Y H:i') }}</div>
                                 @endif
                             @else
-                                @if($reg->status !== 'confirmed')
+                                @if($reg->status !== 'approved')
                                     <button disabled type="button"
                                         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider bg-gray-100/50 dark:bg-[#272B30]/30 text-[#6F767E]/40 cursor-not-allowed opacity-50"
                                         title="Hanya peserta yang disetujui (Approved) yang dapat check-in">
@@ -405,8 +403,8 @@
                         </button>
 
                         <!-- Approve Option -->
-                        <button type="button" @click="selectedStatus = 'confirmed'; validationError = ''; errorMsg = '';" :disabled="saving"
-                            :class="selectedStatus === 'confirmed'
+                        <button type="button" @click="selectedStatus = 'approved'; validationError = ''; errorMsg = '';" :disabled="saving"
+                            :class="selectedStatus === 'approved'
                                 ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-500/20 font-bold'
                                 : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
                             class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer disabled:opacity-50">
@@ -415,8 +413,8 @@
                         </button>
 
                         <!-- Reject Option -->
-                        <button type="button" @click="selectedStatus = 'cancelled'; validationError = ''; errorMsg = '';" :disabled="saving"
-                            :class="selectedStatus === 'cancelled'
+                        <button type="button" @click="selectedStatus = 'rejected'; validationError = ''; errorMsg = '';" :disabled="saving"
+                            :class="selectedStatus === 'rejected'
                                 ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 ring-2 ring-rose-500/20 font-bold'
                                 : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
                             class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer disabled:opacity-50">
@@ -426,7 +424,7 @@
                     </div>
 
                     {{-- Approval Type Options --}}
-                    <div x-show="selectedStatus === 'confirmed'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
+                    <div x-show="selectedStatus === 'approved'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
                         <div>
                             <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Approval Type <span class="text-rose-500">*</span></label>
                             <select x-model="approvalTypeId" @change="validationError = ''" :disabled="saving"
@@ -449,7 +447,7 @@
                     </div>
 
                     {{-- Reject Reason Options --}}
-                    <div x-show="selectedStatus === 'cancelled'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
+                    <div x-show="selectedStatus === 'rejected'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
                         <div>
                             <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Rejection Reason <span class="text-rose-500">*</span></label>
                             <select x-model="approvalTypeId" @change="validationError = ''" :disabled="saving"
@@ -472,7 +470,7 @@
                     </div>
 
                     {{-- Warning Alert --}}
-                    <template x-if="selectedStatus !== currentStatus && (currentStatus === 'confirmed' || currentStatus === 'cancelled')">
+                    <template x-if="selectedStatus !== currentStatus && (currentStatus === 'approved' || currentStatus === 'rejected')">
                         <div class="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
                             <span class="material-symbols-outlined text-base mt-0.5 select-none">warning</span>
                             <div class="leading-relaxed">
@@ -562,7 +560,7 @@
                     Cancel
                 </button>
                 <button 
-                    @click="if (!approvalTypeId) { alert('Please select approval type'); return; } $wire.bulkUpdateStatus('confirmed', parseInt(approvalTypeId), note); show = false;"
+                    @click="if (!approvalTypeId) { alert('Please select approval type'); return; } $wire.bulkUpdateStatus('approved', parseInt(approvalTypeId), note); show = false;"
                     class="flex-1 h-12 rounded-xl bg-[#83BF6E] text-white text-sm font-bold hover:bg-[#6fa85a] transition-all shadow-lg shadow-[#83BF6E]/20 cursor-pointer">
                     Approve
                 </button>
@@ -618,7 +616,7 @@
                     Cancel
                 </button>
                 <button 
-                    @click="if (!approvalTypeId) { alert('Please select rejection reason'); return; } $wire.bulkUpdateStatus('cancelled', parseInt(approvalTypeId), note); show = false;"
+                    @click="if (!approvalTypeId) { alert('Please select rejection reason'); return; } $wire.bulkUpdateStatus('rejected', parseInt(approvalTypeId), note); show = false;"
                     class="flex-1 h-12 rounded-xl bg-[#FF6A55] text-white text-sm font-bold hover:bg-[#E55F4D] transition-all shadow-lg shadow-[#FF6A55]/20 cursor-pointer">
                     Reject
                 </button>
@@ -998,7 +996,7 @@ function changeStatusModal() {
             this.validationError = '';
             this.errorMsg = '';
             
-            if (this.selectedStatus === 'confirmed' || this.selectedStatus === 'cancelled') {
+            if (this.selectedStatus === 'approved' || this.selectedStatus === 'rejected') {
                 if (!this.approvalTypeId) {
                     this.validationError = 'Please select a reason/approval type.';
                     return;

@@ -102,14 +102,14 @@
                                         <span class="text-[10px] text-text-secondary">{{ $reg->updated_at->diffForHumans() }} &bull; Main Entrance</span>
                                     </div>
                                 </div>
-                            @elseif($reg->status === 'confirmed')
-                                {{-- Approved/Confirmed Feed Item --}}
+                            @elseif($reg->status === 'approved')
+                                {{-- Approved Feed Item --}}
                                 <div class="flex gap-3 text-xs">
                                     <div class="h-6 w-6 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
                                         <span class="material-symbols-outlined text-sm">mail</span>
                                     </div>
                                     <div>
-                                        <p class="text-text-primary font-medium">Ticket confirmed for {{ $reg->name }}</p>
+                                        <p class="text-text-primary font-medium">Ticket approved for {{ $reg->name }}</p>
                                         <span class="text-[10px] text-text-secondary">{{ $reg->updated_at->diffForHumans() }}</span>
                                     </div>
                                 </div>

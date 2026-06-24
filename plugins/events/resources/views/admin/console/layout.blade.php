@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-extrabold text-text-primary">{{ $stats['confirmed'] }} Approved</h3>
+                        <h3 class="text-2xl font-extrabold text-text-primary">{{ $stats['approved'] }} Approved</h3>
                         <a href="{{ route('admin.events.console.attendees', $event) }}" wire:navigate class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-2 hover:underline inline-flex items-center gap-0.5">
                             <span class="material-symbols-outlined text-xs">open_in_new</span> View approved attendees
                         </a>
@@ -171,8 +171,8 @@
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-extrabold text-text-primary">{{ $stats['checkedIn'] }} Attended</h3>
-                        <p class="text-[10px] text-text-secondary mt-2">Attendance Rate: {{ $stats['confirmed'] > 0 ? round(($stats['checkedIn'] / $stats['confirmed']) * 100) : 0 }}%</p>
+                        <h3 class="text-2xl font-extrabold text-text-primary">{{ $stats['checkedIn'] }} Checked In</h3>
+                        <p class="text-[10px] text-text-secondary mt-2">Attendance Rate: {{ $stats['approved'] > 0 ? round(($stats['checkedIn'] / $stats['approved']) * 100) : 0 }}%</p>
                     </div>
                 </div>
             </div>

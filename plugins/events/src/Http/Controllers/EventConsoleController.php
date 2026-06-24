@@ -17,7 +17,7 @@ class EventConsoleController extends Controller
         $event->loadCount([
             'registrations',
             'registrations as pending_count' => fn($q) => $q->where('status', 'pending'),
-            'registrations as confirmed_count' => fn($q) => $q->where('status', 'confirmed'),
+            'registrations as approved_count' => fn($q) => $q->where('status', 'approved'),
             'registrations as checkedin_count' => fn($q) => $q->where('check_in', true),
         ]);
 
@@ -26,7 +26,7 @@ class EventConsoleController extends Controller
             'stats' => [
                 'registered' => $event->registrations_count,
                 'pending' => $event->pending_count,
-                'confirmed' => $event->confirmed_count,
+                'approved' => $event->approved_count,
                 'checkedIn' => $event->checkedin_count,
                 'quota' => $event->max_participants,
             ],

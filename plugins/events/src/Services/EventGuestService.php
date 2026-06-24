@@ -26,16 +26,16 @@ class EventGuestService
     ): void {
         // Capacity check
         if ($event->registration_requires_approval && $event->max_participants > 0) {
-            $confirmedCount = $this->getConfirmedCount($event);
-            if ($confirmedCount >= $event->max_participants) {
+            $approvedCount = $this->getApprovedCount($event);
+            if ($approvedCount >= $event->max_participants) {
                 throw new \Exception('Event capacity has been reached.');
             }
         }
 
         DB::transaction(function () use ($event, $registration, $approvalType, $note) {
             $registration->update([
-                'status'         => 'confirmed',
-                'confirmed_at'   => now(),
+                'status'         => 'approved',
+                'approved_at'    => now(),
                 'verified_by'    => auth()->id(),
                 'verified_at'    => now(),
                 'verified_type'  => $approvalType->type_name,
@@ -66,19 +66,19 @@ class EventGuestService
         ApprovalType $approvalType,
         ?string $note = null
     ): void {
-        $wasConfirmed = $registration->status === 'confirmed';
+        $wasApproved = $registration->status === 'approved';
 
-        DB::transaction(function () use ($event, $registration, $approvalType, $note, $wasConfirmed) {
+        DB::transaction(function () use ($event, $registration, $approvalType, $note, $wasApproved) {
             $registration->update([
-                'status'         => 'cancelled',
-                'cancelled_at'   => now(),
+                'status'         => 'rejected',
+                'rejected_at'    => now(),
                 'verified_by'    => auth()->id(),
                 'verified_at'    => now(),
                 'verified_type'  => $approvalType->type_name,
                 'verified_note'  => $note,
             ]);
 
-            if ($wasConfirmed) {
+            if ($wasApproved) {
                 $event->decrementRegisteredCount();
             }
         });
@@ -102,19 +102,19 @@ class EventGuestService
     {
         $count = 0;
         $maxParticipants = $event->max_participants ?? 0;
-        $confirmedCount = $this->getConfirmedCount($event);
+        $approvedCount = $this->getApprovedCount($event);
         $requiresCapacityCheck = $event->registration_requires_approval && $maxParticipants > 0;
 
         foreach ($registrations as $registration) {
             // Stop if capacity reached
-            if ($requiresCapacityCheck && $confirmedCount >= $maxParticipants) {
+            if ($requiresCapacityCheck && $approvedCount >= $maxParticipants) {
                 break;
             }
 
             try {
                 $this->approve($event, $registration, $approvalType);
                 $count++;
-                $confirmedCount++;
+                $approvedCount++;
             } catch (\Exception $e) {
                 // Skip individual failures
                 continue;
@@ -145,12 +145,12 @@ class EventGuestService
     }
 
     /**
-     * Get the current confirmed (approved) registration count for an event.
+     * Get the current approved registration count for an event.
      */
-    public function getConfirmedCount(Event $event): int
+    public function getApprovedCount(Event $event): int
     {
         return EventRegistration::where('event_id', $event->id)
-            ->where('status', 'confirmed')
+            ->where('status', 'approved')
             ->count();
     }
 
@@ -164,6 +164,6 @@ class EventGuestService
             return null;
         }
 
-        return max(0, $event->max_participants - $this->getConfirmedCount($event));
+        return max(0, $event->max_participants - $this->getApprovedCount($event));
     }
 }

@@ -4,6 +4,7 @@ namespace Plugins\Events\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Models\EventFeedbackQuestion;
 use Plugins\Events\Models\EventFeedbackOption;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class EventConsoleFeedback extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     // ─── Core ───
     public Event $event;
@@ -43,6 +44,10 @@ class EventConsoleFeedback extends Component
     public string $feedbackPrimaryColor = '#2563EB';
     public string $feedbackRedirectUrl = '';
     public bool $feedbackRequireCheckin = false;
+    public $feedbackBackground; // temporary uploaded file
+    public $feedbackForeground; // temporary uploaded file
+    public $currentFeedbackBackground; // currently saved path
+    public $currentFeedbackForeground; // currently saved path
 
     // ─── Delete Confirmation ───
     public bool $showDeleteModal = false;
@@ -64,6 +69,8 @@ class EventConsoleFeedback extends Component
         $this->feedbackPrimaryColor = $event->feedback_primary_color ?? '#2563EB';
         $this->feedbackRedirectUrl = $event->feedback_redirect_url ?? '';
         $this->feedbackRequireCheckin = (bool) $event->feedback_require_checkin;
+        $this->currentFeedbackBackground = $event->feedback_background;
+        $this->currentFeedbackForeground = $event->feedback_foreground;
     }
 
     // ═══════════════════════════════════════════════════════
@@ -278,20 +285,68 @@ class EventConsoleFeedback extends Component
 
     public function openSettings()
     {
+        $this->feedbackPrimaryColor = $this->event->feedback_primary_color ?? '#2563EB';
+        $this->feedbackRedirectUrl = $this->event->feedback_redirect_url ?? '';
+        $this->feedbackRequireCheckin = (bool) $this->event->feedback_require_checkin;
+        $this->currentFeedbackBackground = $this->event->feedback_background;
+        $this->currentFeedbackForeground = $this->event->feedback_foreground;
+        $this->feedbackBackground = null;
+        $this->feedbackForeground = null;
         $this->showSettingsModal = true;
     }
 
     public function saveSettings()
     {
-        $this->event->update([
+        $this->validate([
+            'feedbackBackground' => 'nullable|image|max:1024', // max 1MB
+            'feedbackForeground' => 'nullable|image|max:1024', // max 1MB
+            'feedbackPrimaryColor' => 'required|string|max:7',
+            'feedbackRedirectUrl' => 'nullable|url|max:500',
+        ]);
+
+        $data = [
             'feedback_primary_color' => $this->feedbackPrimaryColor,
             'feedback_redirect_url' => $this->feedbackRedirectUrl,
             'feedback_require_checkin' => $this->feedbackRequireCheckin,
             'feedback_step_count' => $this->stepCount,
-        ]);
+        ];
+
+        if ($this->feedbackBackground) {
+            $folder = $this->event->slug ?: \Illuminate\Support\Str::slug($this->event->title ?: 'event');
+            $data['feedback_background'] = $this->feedbackBackground->store("events/{$folder}/feedback", 'public');
+            $this->currentFeedbackBackground = $data['feedback_background'];
+            $this->feedbackBackground = null;
+        }
+
+        if ($this->feedbackForeground) {
+            $folder = $this->event->slug ?: \Illuminate\Support\Str::slug($this->event->title ?: 'event');
+            $data['feedback_foreground'] = $this->feedbackForeground->store("events/{$folder}/feedback", 'public');
+            $this->currentFeedbackForeground = $data['feedback_foreground'];
+            $this->feedbackForeground = null;
+        }
+
+        $this->event->update($data);
 
         $this->showSettingsModal = false;
         $this->dispatch('notify', type: 'success', message: 'Feedback settings saved');
+    }
+
+    public function removeBannerImage()
+    {
+        if ($this->currentFeedbackBackground) {
+            $this->event->update(['feedback_background' => null]);
+            $this->currentFeedbackBackground = null;
+            $this->dispatch('notify', type: 'success', message: 'Banner image removed');
+        }
+    }
+
+    public function removeLogoImage()
+    {
+        if ($this->currentFeedbackForeground) {
+            $this->event->update(['feedback_foreground' => null]);
+            $this->currentFeedbackForeground = null;
+            $this->dispatch('notify', type: 'success', message: 'Logo image removed');
+        }
     }
 
     // ═══════════════════════════════════════════════════════

@@ -48,6 +48,12 @@ class Event extends Model
         'registration_end_date',
         'featured_image_id',
         'banner_image',
+        'feedback_background',
+        'feedback_foreground',
+        'feedback_primary_color',
+        'feedback_redirect_url',
+        'feedback_require_checkin',
+        'feedback_step_count',
         'gallery_images',
         'status',
         'success_title',
@@ -184,11 +190,11 @@ class Event extends Model
     }
 
     /**
-     * Get confirmed registrations.
+     * Get approved registrations.
      */
-    public function confirmedRegistrations()
+    public function approvedRegistrations()
     {
-        return $this->registrations()->where('status', 'confirmed');
+        return $this->registrations()->where('status', 'approved');
     }
 
     /**

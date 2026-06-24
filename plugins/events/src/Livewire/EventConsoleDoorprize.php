@@ -262,7 +262,7 @@ class EventConsoleDoorprize extends Component
 
         // Build eligible pool
         $query = EventRegistration::where('event_id', $this->event->id)
-            ->where('status', 'confirmed');
+            ->where('status', 'approved');
 
         // Require check-in?
         if ($session->require_checkin) {
@@ -339,7 +339,7 @@ class EventConsoleDoorprize extends Component
             ->pluck('registration_id');
 
         return EventRegistration::where('event_id', $this->event->id)
-            ->where('status', 'confirmed')
+            ->where('status', 'approved')
             ->whereNotIn('id', $bannedIds)
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->banSearch}%")

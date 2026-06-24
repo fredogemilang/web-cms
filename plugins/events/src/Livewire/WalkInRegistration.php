@@ -104,7 +104,7 @@ class WalkInRegistration extends Component
         // ── Capacity check ────────────────────────────────────────────────
         if ($this->event->max_participants) {
             $count = $this->event->registrations()
-                ->whereIn('status', ['pending', 'confirmed', 'attended'])
+                ->whereIn('status', ['pending', 'approved'])
                 ->count();
 
             if ($count >= $this->event->max_participants) {
@@ -116,7 +116,7 @@ class WalkInRegistration extends Component
         // ── Duplicate check ───────────────────────────────────────────────
         $duplicate = EventRegistration::where('event_id', $this->event->id)
             ->where('email', $this->email)
-            ->whereIn('status', ['pending', 'confirmed', 'attended'])
+            ->whereIn('status', ['pending', 'approved'])
             ->exists();
 
         if ($duplicate) {
@@ -142,8 +142,8 @@ class WalkInRegistration extends Component
             'email'               => $this->email,
             'notes'               => $this->notes ?: null,
             // Walk-in specifics
-            'status'              => 'confirmed',
-            'confirmed_at'        => now(),
+            'status'              => 'approved',
+            'approved_at'         => now(),
             'walk_in'             => true,
             'check_in'            => true,
             'check_in_date'       => now(),

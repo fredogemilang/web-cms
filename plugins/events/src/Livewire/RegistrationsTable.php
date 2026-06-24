@@ -112,9 +112,8 @@ class RegistrationsTable extends Component
         return [
             'all' => (clone $baseQuery)->count(),
             'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
-            'confirmed' => (clone $baseQuery)->where('status', 'confirmed')->count(),
-            'cancelled' => (clone $baseQuery)->where('status', 'cancelled')->count(),
-            'attended' => (clone $baseQuery)->where('status', 'attended')->count(),
+            'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
+            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
         ];
     }
 
@@ -145,19 +144,19 @@ class RegistrationsTable extends Component
     public function confirmSelected()
     {
         $count = EventRegistration::whereIn('id', $this->selectedRegistrations)
-            ->update(['status' => 'confirmed']);
+            ->update(['status' => 'approved']);
         
         $this->clearSelection();
-        session()->flash('success', $count . ' registration(s) confirmed.');
+        session()->flash('success', $count . ' registration(s) approved.');
     }
 
     public function cancelSelected()
     {
         $count = EventRegistration::whereIn('id', $this->selectedRegistrations)
-            ->update(['status' => 'cancelled']);
+            ->update(['status' => 'rejected']);
         
         $this->clearSelection();
-        session()->flash('success', $count . ' registration(s) cancelled.');
+        session()->flash('success', $count . ' registration(s) rejected.');
     }
 
     public function deleteSelected()

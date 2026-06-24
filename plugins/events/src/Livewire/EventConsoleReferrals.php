@@ -50,7 +50,7 @@ class EventConsoleReferrals extends Component
                 referral_source,
                 referral_code,
                 count(*) as total_count,
-                sum(case when status in ('confirmed', 'attended') then 1 else 0 end) as approved_count,
+                sum(case when status = 'approved' then 1 else 0 end) as approved_count,
                 sum(case when check_in = 1 then 1 else 0 end) as checked_in_count
             ")
             ->groupBy('referral_source', 'referral_code')
@@ -72,7 +72,7 @@ class EventConsoleReferrals extends Component
 
         return [
             'total' => $referralRegs->count(),
-            'approved' => $referralRegs->whereIn('status', ['confirmed', 'attended'])->count(),
+            'approved' => $referralRegs->where('status', 'approved')->count(),
             'checked_in' => $referralRegs->where('check_in', true)->count(),
             'top_campaign' => $top ? $top->referral_source : 'N/A',
             'top_campaign_count' => $top ? $top->total_count : 0,

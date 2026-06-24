@@ -17,7 +17,7 @@ class EventRegistration extends Model
         'country_code', 'mobile_phone', 'uuid', 'qr_image',
         'referral_code', 'referral_source', 'email',
         'phone', 'organization', 'notes', 'status',
-        'confirmed_at', 'cancelled_at', 'consent_accepted_at',
+        'approved_at', 'rejected_at', 'consent_accepted_at',
         'walk_in', 'check_in', 'check_in_date', 'registration_type',
         'custom_fields', 'ip_address', 'user_agent',
         // PRD 04 — Verified tracking
@@ -25,8 +25,8 @@ class EventRegistration extends Model
     ];
 
     protected $casts = [
-        'confirmed_at'        => 'datetime',
-        'cancelled_at'        => 'datetime',
+        'approved_at'         => 'datetime',
+        'rejected_at'         => 'datetime',
         'check_in_date'       => 'datetime',
         'consent_accepted_at' => 'datetime',
         'verified_at'         => 'datetime',
@@ -88,11 +88,11 @@ class EventRegistration extends Model
     }
 
     /**
-     * Scope: Confirmed registrations.
+     * Scope: Approved registrations.
      */
-    public function scopeConfirmed($query)
+    public function scopeApproved($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->where('status', 'approved');
     }
 
     /**
@@ -104,38 +104,38 @@ class EventRegistration extends Model
     }
 
     /**
-     * Scope: Active (non-cancelled).
+     * Scope: Active (non-rejected).
      */
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['pending', 'confirmed']);
+        return $query->whereIn('status', ['pending', 'approved']);
     }
 
     /**
-     * Confirm the registration.
+     * Approve the registration.
      */
-    public function confirm(): void
+    public function approve(): void
     {
         $this->update([
-            'status'       => 'confirmed',
-            'confirmed_at' => now(),
+            'status'      => 'approved',
+            'approved_at' => now(),
         ]);
         $this->event->incrementRegisteredCount();
     }
 
     /**
-     * Cancel the registration.
+     * Reject the registration.
      */
-    public function cancel(): void
+    public function reject(): void
     {
-        $wasConfirmed = $this->status === 'confirmed';
+        $wasApproved = $this->status === 'approved';
 
         $this->update([
-            'status'       => 'cancelled',
-            'cancelled_at' => now(),
+            'status'      => 'rejected',
+            'rejected_at' => now(),
         ]);
 
-        if ($wasConfirmed) {
+        if ($wasApproved) {
             $this->event->decrementRegisteredCount();
         }
     }
@@ -151,13 +151,6 @@ class EventRegistration extends Model
         ]);
     }
 
-    /**
-     * Mark as attended.
-     */
-    public function markAsAttended(): void
-    {
-        $this->update(['status' => 'attended']);
-    }
 
     /**
      * Get custom field value.
@@ -270,8 +263,8 @@ class EventRegistration extends Model
             'Registered At'=> $this->created_at->format('Y-m-d H:i:s'),
         ];
 
-        if ($this->confirmed_at) {
-            $export['Confirmed At'] = $this->confirmed_at->format('Y-m-d H:i:s');
+        if ($this->approved_at) {
+            $export['Approved At'] = $this->approved_at->format('Y-m-d H:i:s');
         }
 
         if ($this->custom_fields) {

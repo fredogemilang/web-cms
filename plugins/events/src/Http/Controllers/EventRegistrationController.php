@@ -58,7 +58,7 @@ class EventRegistrationController extends Controller
             // Check for duplicate registration
             $existingRegistration = EventRegistration::where('event_id', $event->id)
                 ->where('email', $request->email)
-                ->whereIn('status', ['pending', 'confirmed'])
+                ->whereIn('status', ['pending', 'approved'])
                 ->first();
 
             if ($existingRegistration) {
@@ -73,8 +73,8 @@ class EventRegistrationController extends Controller
 
             // Check if event requires approval for registrations
             $requiresApproval = $event->registration_requires_approval ?? false;
-            $status           = $requiresApproval ? 'pending' : 'confirmed';
-            $confirmedAt      = $requiresApproval ? null : now();
+            $status           = $requiresApproval ? 'pending' : 'approved';
+            $approvedAt       = $requiresApproval ? null : now();
 
             // Collect extra fields into custom_fields JSON
             $customFields = array_filter([
@@ -96,13 +96,13 @@ class EventRegistrationController extends Controller
                 'organization'  => $request->institution, // map institution → organization
                 'notes'         => $request->notes,
                 'status'        => $status,
-                'confirmed_at'  => $confirmedAt,
+                'approved_at'   => $approvedAt,
                 'custom_fields' => !empty($customFields) ? $customFields : null,
                 'ip_address'    => $request->ip(),
                 'user_agent'    => $request->userAgent(),
             ]);
 
-            // Only increment count if auto-confirmed
+            // Only increment count if auto-approved
             if (!$requiresApproval) {
                 $event->incrementRegisteredCount();
             }
@@ -144,10 +144,10 @@ class EventRegistrationController extends Controller
         
         $registration = EventRegistration::where('event_id', $event->id)
             ->where('email', $request->email)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['pending', 'approved'])
             ->firstOrFail();
 
-        $registration->cancel();
+        $registration->reject();
 
         return back()->with('success', 'Your registration has been cancelled.');
     }

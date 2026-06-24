@@ -65,9 +65,8 @@
                     $statuses = [
                         '' => ['label' => 'All', 'count' => $statusCounts['all']],
                         'pending' => ['label' => 'Pending', 'count' => $statusCounts['pending']],
-                        'confirmed' => ['label' => 'Confirmed', 'count' => $statusCounts['confirmed']],
-                        'cancelled' => ['label' => 'Cancelled', 'count' => $statusCounts['cancelled']],
-                        'attended' => ['label' => 'Attended', 'count' => $statusCounts['attended']],
+                        'approved' => ['label' => 'Approved', 'count' => $statusCounts['approved']],
+                        'rejected' => ['label' => 'Rejected', 'count' => $statusCounts['rejected']],
                     ];
                 @endphp
 
@@ -123,9 +122,8 @@
                     @php
                         $statusClasses = [
                             'pending' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-                            'confirmed' => 'bg-[#3F8C5826] text-[#83BF6E]',
-                            'cancelled' => 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
-                            'attended' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+                            'approved' => 'bg-[#3F8C5826] text-[#83BF6E]',
+                            'rejected' => 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
                         ];
                     @endphp
                     <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors" wire:key="registration-{{ $registration->id }}">
@@ -160,26 +158,17 @@
                             <div class="flex gap-2 items-center justify-end">
                                 @if($registration->status === 'pending')
                                 <button 
-                                    wire:click="updateStatus({{ $registration->id }}, 'confirmed')"
+                                    wire:click="updateStatus({{ $registration->id }}, 'approved')"
                                     class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#83BF6E] transition-colors"
-                                    title="Confirm">
+                                    title="Approve">
                                     <span class="material-symbols-outlined text-[20px]">check_circle</span>
                                 </button>
                                 @endif
                                 
-                                @if($registration->status === 'confirmed')
                                 <button 
-                                    wire:click="updateStatus({{ $registration->id }}, 'attended')"
-                                    class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] transition-colors"
-                                    title="Mark as Attended">
-                                    <span class="material-symbols-outlined text-[20px]">done_all</span>
-                                </button>
-                                @endif
-                                
-                                <button 
-                                    wire:click="updateStatus({{ $registration->id }}, 'cancelled')"
+                                    wire:click="updateStatus({{ $registration->id }}, 'rejected')"
                                     class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] transition-colors"
-                                    title="Cancel">
+                                    title="Reject">
                                     <span class="material-symbols-outlined text-[20px]">cancel</span>
                                 </button>
                             </div>
