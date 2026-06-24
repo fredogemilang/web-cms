@@ -314,21 +314,37 @@ class PageForm extends Component
     public function updatedTitle($value)
     {
         if (!$this->manualSlug && !$this->isEdit) {
-            $this->slug = Str::slug($value);
+            $this->slug = $this->makeUniqueSlug(Str::slug($value));
         }
         $this->hasUnsavedChanges = true;
     }
 
     public function updatedSlug($value)
     {
+        $this->slug = Str::slug($value);
         $this->manualSlug = true;
         $this->hasUnsavedChanges = true;
     }
 
     public function generateSlug()
     {
-        $this->slug = Str::slug($this->title);
+        $this->slug = $this->makeUniqueSlug(Str::slug($this->title));
         $this->manualSlug = false;
+    }
+
+    protected function makeUniqueSlug(string $slug): string
+    {
+        if (empty($slug)) return '';
+
+        $original = $slug;
+        $counter = 2;
+
+        while (Page::where('slug', $slug)->where('id', '!=', $this->pageId ?? 0)->exists()) {
+            $slug = $original . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     // === BLOCK MANAGEMENT ===

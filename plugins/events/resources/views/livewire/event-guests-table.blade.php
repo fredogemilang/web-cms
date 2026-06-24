@@ -70,6 +70,10 @@
             class="px-4 py-1.5 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-all">
             Reject All
         </button>
+        <button wire:click="deleteSelected" wire:confirm="Are you sure you want to delete the selected attendees?" type="button"
+            class="px-4 py-1.5 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-all">
+            Delete Selected
+        </button>
         <button wire:click="clearSelection" type="button"
             class="ml-auto text-sm text-[#6F767E] hover:text-[#111827] dark:hover:text-[#FCFCFC] transition-all">
             Clear
@@ -157,11 +161,22 @@
                                 'cancelled' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
                                 'attended'  => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
                             ];
+                            $statusLabels = [
+                                'pending'   => 'Pending',
+                                'confirmed' => 'Approved',
+                                'cancelled' => 'Rejected',
+                                'attended'  => 'Attended',
+                            ];
                             $cls = $statusMap[$reg->status] ?? 'bg-gray-100 text-gray-600';
+                            $displayStatus = $statusLabels[$reg->status] ?? ucfirst($reg->status);
                         @endphp
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $cls }}">
-                            {{ ucfirst($reg->status) }}
-                        </span>
+                        
+                        <button @click="$dispatch('open-change-status-modal', { registrationId: {{ $reg->id }}, currentStatus: '{{ $reg->status }}' })"
+                            type="button"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $cls }} cursor-pointer hover:opacity-80 transition-all">
+                            {{ $displayStatus }}
+                        </button>
+                        
                         @if($reg->verified_type)
                             <div class="text-[10px] text-[#6F767E] mt-0.5">{{ $reg->verified_type }}</div>
                         @endif
@@ -189,32 +204,14 @@
                     {{-- Actions --}}
                     <td class="px-4 py-3">
                         <div class="flex items-center justify-end gap-1">
-                            @if($reg->status === 'pending')
-                                <button wire:click="approve({{ $reg->id }})" type="button"
-                                    title="Approve"
-                                    class="p-1.5 rounded-lg text-[#6F767E] hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
-                                    <span class="material-symbols-outlined text-base">check_circle</span>
-                                </button>
-                                <button wire:click="reject({{ $reg->id }})" type="button"
-                                    title="Reject"
-                                    class="p-1.5 rounded-lg text-[#6F767E] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
-                                    <span class="material-symbols-outlined text-base">cancel</span>
-                                </button>
-                            @endif
-                            @if($reg->status === 'confirmed' && !$reg->check_in)
-                                <button wire:click="checkin({{ $reg->id }})" type="button"
-                                    title="Check In"
-                                    class="p-1.5 rounded-lg text-[#6F767E] hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all">
-                                    <span class="material-symbols-outlined text-base">how_to_reg</span>
-                                </button>
-                            @endif
-                            @if($reg->status === 'confirmed' && !$reg->check_in)
-                                <button wire:click="reject({{ $reg->id }})" type="button"
-                                    title="Revoke Approval"
-                                    class="p-1.5 rounded-lg text-[#6F767E] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
-                                    <span class="material-symbols-outlined text-base">person_remove</span>
-                                </button>
-                            @endif
+                            <button wire:click="editGuest({{ $reg->id }})" type="button" title="Edit"
+                                class="p-1.5 rounded-lg text-[#6F767E] hover:text-[#2563EB] hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all">
+                                <span class="material-symbols-outlined text-base">edit</span>
+                            </button>
+                            <button wire:click="deleteGuest({{ $reg->id }})" wire:confirm="Are you sure you want to delete this attendee?" type="button" title="Delete"
+                                class="p-1.5 rounded-lg text-[#6F767E] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
+                                <span class="material-symbols-outlined text-base">delete</span>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -247,12 +244,12 @@
     </div>
     @endif
 
-    {{-- ══════════════════════════════════════ APPROVE MODAL ══ --}}
+    {{-- ══════════════════════════════════════ CHANGE STATUS MODAL ══ --}}
     <div
-        x-data="approveModal()"
+        x-data="changeStatusModal()"
         x-show="open"
         x-cloak
-        @open-approve-modal.window="openWith($event.detail.registrationId)"
+        @open-change-status-modal.window="openWith($event.detail.registrationId, $event.detail.currentStatus)"
         class="fixed inset-0 bg-black/50 flex items-center justify-center z-[70] p-4"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
@@ -265,30 +262,91 @@
             class="bg-white dark:bg-[#1A1A1A] rounded-2xl max-w-md w-full shadow-xl p-6 space-y-4">
 
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC]">Approve Guest</h3>
+                <h3 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC]">Update Status</h3>
                 <button @click="open = false" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#272B30] rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[#6F767E]">close</span>
                 </button>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-[#111827] dark:text-[#FCFCFC] mb-1.5">
-                    Approval Type <span class="text-red-500">*</span>
-                </label>
-                <select x-model="approvalTypeId"
-                    class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-green-500">
-                    <option value="">— Select approval type —</option>
-                    @foreach($approvalTypes->get('approved', collect()) as $type)
-                        <option value="{{ $type->id }}">{{ $type->type_name }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-3 gap-3">
+                    <!-- Pending Option -->
+                    <button type="button" @click="selectedStatus = 'pending'"
+                        :class="selectedStatus === 'pending'
+                            ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/20'
+                            : 'border-gray-200 dark:border-[#272B30] text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#272B30]'"
+                        class="flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-xl mb-1">hourglass_empty</span>
+                        <span class="text-xs font-bold">Pending</span>
+                    </button>
 
-            <div>
-                <label class="block text-sm font-bold text-[#111827] dark:text-[#FCFCFC] mb-1.5">Note (optional)</label>
-                <textarea x-model="note" rows="2"
-                    class="w-full rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 py-3 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-green-500 resize-none"
-                    placeholder="Optional note for this approval…"></textarea>
+                    <!-- Approve Option -->
+                    <button type="button" @click="selectedStatus = 'confirmed'"
+                        :class="selectedStatus === 'confirmed'
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 ring-2 ring-green-500/20'
+                            : 'border-gray-200 dark:border-[#272B30] text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#272B30]'"
+                        class="flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-xl mb-1">check_circle</span>
+                        <span class="text-xs font-bold">Approve</span>
+                    </button>
+
+                    <!-- Reject Option -->
+                    <button type="button" @click="selectedStatus = 'cancelled'"
+                        :class="selectedStatus === 'cancelled'
+                            ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-2 ring-red-500/20'
+                            : 'border-gray-200 dark:border-[#272B30] text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#272B30]'"
+                        class="flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-xl mb-1">cancel</span>
+                        <span class="text-xs font-bold">Reject</span>
+                    </button>
+                </div>
+
+                <div x-show="selectedStatus === 'confirmed'" class="space-y-3 pt-2" x-cloak>
+                    <div>
+                        <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Approval Type <span class="text-red-500">*</span></label>
+                        <select x-model="approvalTypeId"
+                            class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-green-500">
+                            <option value="">— Select approval type —</option>
+                            @foreach($approvalTypes['approved'] ?? [] as $type)
+                                <option value="{{ $type['id'] }}">{{ $type['type_name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Note (optional)</label>
+                        <textarea x-model="note" rows="2"
+                            class="w-full rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 py-3 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-green-500 resize-none"
+                            placeholder="Optional note..."></textarea>
+                    </div>
+                </div>
+
+                <div x-show="selectedStatus === 'cancelled'" class="space-y-3 pt-2" x-cloak>
+                    <div>
+                        <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Rejection Reason <span class="text-red-500">*</span></label>
+                        <select x-model="approvalTypeId"
+                            class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-red-500">
+                            <option value="">— Select rejection reason —</option>
+                            @foreach($approvalTypes['rejected'] ?? [] as $type)
+                                <option value="{{ $type['id'] }}">{{ $type['type_name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Note (optional)</label>
+                        <textarea x-model="note" rows="2"
+                            class="w-full rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 py-3 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-red-500 resize-none"
+                            placeholder="Optional note..."></textarea>
+                    </div>
+                </div>
+
+                <template x-if="selectedStatus !== currentStatus && (currentStatus === 'confirmed' || currentStatus === 'cancelled')">
+                    <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                        <span class="material-symbols-outlined text-sm mt-0.5 select-none">warning</span>
+                        <div>
+                            <strong>Attention:</strong> Since this attendee has already been processed (Approved/Rejected), changing their status may send another confirmation email. The attendee will receive duplicate/double email confirmations.
+                        </div>
+                    </div>
+                </template>
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-2">
@@ -297,65 +355,83 @@
                     Cancel
                 </button>
                 <button @click="submit" type="button"
-                    class="px-5 py-2 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-sm transition-all">
-                    Approve Guest
+                    class="px-5 py-2 rounded-xl text-sm font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] shadow-sm transition-all">
+                    Save Status
                 </button>
             </div>
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════ REJECT MODAL ══ --}}
+    {{-- ══════════════════════════════════════ EDIT MODAL ══ --}}
     <div
-        x-data="rejectModal()"
+        x-data="{ open: @entangle('showEditModal') }"
         x-show="open"
         x-cloak
-        @open-reject-modal.window="openWith($event.detail.registrationId)"
         class="fixed inset-0 bg-black/50 flex items-center justify-center z-[70] p-4"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100">
 
-        <div @click.away="open = false"
+        <div @click.away="$wire.closeEditModal()"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 scale-95"
             x-transition:enter-end="opacity-100 scale-100"
             class="bg-white dark:bg-[#1A1A1A] rounded-2xl max-w-md w-full shadow-xl p-6 space-y-4">
 
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC]">Reject Guest</h3>
-                <button @click="open = false" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#272B30] rounded-lg transition-colors">
+                <h3 class="text-lg font-bold text-[#111827] dark:text-[#FCFCFC]">Edit Attendee</h3>
+                <button @click="$wire.closeEditModal()" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#272B30] rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[#6F767E]">close</span>
                 </button>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-[#111827] dark:text-[#FCFCFC] mb-1.5">
-                    Rejection Reason <span class="text-red-500">*</span>
-                </label>
-                <select x-model="approvalTypeId"
-                    class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-red-500">
-                    <option value="">— Select reason —</option>
-                    @foreach($approvalTypes->get('rejected', collect()) as $type)
-                        <option value="{{ $type->id }}">{{ $type->type_name }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Full Name</label>
+                    <input wire:model="editFullName" type="text"
+                        class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-[#2563EB]">
+                </div>
 
-            <div>
-                <label class="block text-sm font-bold text-[#111827] dark:text-[#FCFCFC] mb-1.5">Note (optional)</label>
-                <textarea x-model="note" rows="2"
-                    class="w-full rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 py-3 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-red-500 resize-none"
-                    placeholder="Reason for rejection…"></textarea>
+                <div>
+                    <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Email</label>
+                    <input wire:model="editEmail" type="email"
+                        class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-[#2563EB]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Phone</label>
+                    <input wire:model="editPhone" type="text"
+                        class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-[#2563EB]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Company</label>
+                    <input wire:model="editCompany" type="text"
+                        class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-[#2563EB]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Job Title</label>
+                    <input wire:model="editJobTitle" type="text"
+                        class="w-full h-11 rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-[#2563EB]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#6F767E] uppercase tracking-wide mb-1">Notes</label>
+                    <textarea wire:model="editNotes" rows="2"
+                        class="w-full rounded-xl border border-gray-200 dark:border-[#272B30] bg-white dark:bg-[#1A1A1A] px-4 py-3 text-sm text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-[#2563EB] resize-none"
+                        placeholder="Additional notes..."></textarea>
+                </div>
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-2">
-                <button @click="open = false" type="button"
+                <button @click="$wire.closeEditModal()" type="button"
                     class="px-5 py-2 rounded-xl text-sm font-semibold text-[#6F767E] hover:bg-gray-100 dark:hover:bg-[#272B30] transition-all">
                     Cancel
                 </button>
-                <button @click="submit" type="button"
-                    class="px-5 py-2 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-sm transition-all">
-                    Reject Guest
+                <button wire:click="saveGuest" type="button"
+                    class="px-5 py-2 rounded-xl text-sm font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] shadow-sm transition-all">
+                    Save Changes
                 </button>
             </div>
         </div>
@@ -363,79 +439,40 @@
 </div>
 
 <script>
-function approveModal() {
+function changeStatusModal() {
     return {
         open: false,
         registrationId: null,
+        currentStatus: '',
+        selectedStatus: '',
         approvalTypeId: '',
         note: '',
-        openWith(id) {
+        openWith(id, currentStatus) {
             this.registrationId = id;
+            this.currentStatus = currentStatus;
+            this.selectedStatus = currentStatus;
             this.approvalTypeId = '';
             this.note = '';
             this.open = true;
         },
         submit() {
-            if (!this.approvalTypeId) {
-                alert('Please select an approval type.');
-                return;
-            }
-            fetch(`{{ url('/'.config('admin.path','admin').'/events') }}/${window._guestEventId}/guests/${this.registrationId}/approve`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({ approval_type_id: this.approvalTypeId, note: this.note }),
-            })
-            .then(r => r.json())
-            .then(data => {
-                this.open = false;
-                if (data.success) {
-                    window.Livewire.dispatch('refresh');
-                    window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', message: data.message } }));
-                } else {
-                    alert(data.message);
+            if (this.selectedStatus === 'confirmed' || this.selectedStatus === 'cancelled') {
+                if (!this.approvalTypeId) {
+                    alert('Please select a reason/approval type.');
+                    return;
                 }
-            });
-        }
-    }
-}
-
-function rejectModal() {
-    return {
-        open: false,
-        registrationId: null,
-        approvalTypeId: '',
-        note: '',
-        openWith(id) {
-            this.registrationId = id;
-            this.approvalTypeId = '';
-            this.note = '';
-            this.open = true;
-        },
-        submit() {
-            if (!this.approvalTypeId) {
-                alert('Please select a rejection reason.');
-                return;
             }
-            fetch(`{{ url('/'.config('admin.path','admin').'/events') }}/${window._guestEventId}/guests/${this.registrationId}/reject`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({ approval_type_id: this.approvalTypeId, note: this.note }),
-            })
-            .then(r => r.json())
-            .then(data => {
+            
+            // Dispatch a visual toast
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'info', message: 'Saving status...' } }));
+            
+            this.$wire.updateStatus(
+                this.registrationId, 
+                this.selectedStatus, 
+                this.approvalTypeId ? parseInt(this.approvalTypeId) : null, 
+                this.note
+            ).then(() => {
                 this.open = false;
-                if (data.success) {
-                    window.Livewire.dispatch('refresh');
-                    window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', message: data.message } }));
-                } else {
-                    alert(data.message);
-                }
             });
         }
     }

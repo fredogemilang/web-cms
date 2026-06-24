@@ -7,6 +7,7 @@ This guide outlines best practices and requirements for developing plugins for t
 - [Route Configuration](#route-configuration)
 - [Permission System](#permission-system)
 - [Menu Registration](#menu-registration)
+- [Permalink Slug Pattern](#permalink-slug-pattern)
 - [Service Provider Setup](#service-provider-setup)
 - [Common Pitfalls](#common-pitfalls)
 
@@ -277,6 +278,134 @@ This ensures a clean, consistent full-height layout for complex forms.
 
 ---
 
+## Permalink Slug Pattern
+
+All content forms that have a permalink slug (posts, pages, events, etc.) **MUST** follow this standardized pattern for both UI design and backend behavior.
+
+### UI Design: Click-to-Edit Permalink
+
+The slug is displayed inline below the title as a `PERMALINK:` label with a click-to-edit badge. Do **NOT** use a regular text input or a split input with URL prefix box.
+
+#### ✅ Correct Slug UI (Blade)
+
+```blade
+{{-- Permalink Slug --}}
+@if($slug)
+<div class="flex items-center gap-2 text-xs font-bold text-[#6F767E] uppercase tracking-wider pl-1">
+    <span>PERMALINK:</span>
+    <span class="text-[#6F767E] lowercase font-normal">{{ url('/your-base') }}/</span>
+    <div x-data="{ editing: false }" class="relative flex items-center gap-2">
+        <span x-show="!editing" class="bg-[#1A1A1A] px-2 py-0.5 rounded text-[#FCFCFC] lowercase font-normal border border-[#272B30]">{{ $slug }}</span>
+        <input x-show="editing" wire:model.blur="slug"
+            @blur="editing = false" @keydown.enter="editing = false"
+            type="text"
+            class="bg-[#1A1A1A] px-2 py-0.5 rounded text-[#FCFCFC] lowercase font-normal border border-[#2563EB] focus:outline-none w-auto min-w-[100px]"
+            x-cloak>
+        <button @click="editing = !editing; $nextTick(() => $el.previousElementSibling.focus())"
+            class="text-[#6F767E] hover:text-[#FCFCFC] transition-colors">
+            <span class="material-symbols-outlined text-[14px]">edit</span>
+        </button>
+    </div>
+</div>
+@endif
+@error('slug')
+    <p class="text-red-500 text-sm">{{ $message }}</p>
+@enderror
+```
+
+**Key behaviors:**
+- Slug is **hidden until generated** (wrapped in `@if($slug)`)
+- Default state shows slug as a **dark badge** (read-only display)
+- Clicking the **edit pencil icon** toggles to an inline input
+- Uses `wire:model.blur` — commits only when user leaves the field
+- `@keydown.enter` also commits and closes editing mode
+
+> [!IMPORTANT]
+> For dark-mode themed admin pages (e.g., event console), replace the hardcoded colors with theme variables:
+> `bg-dark-surface`, `text-text-primary`, `border-dark-border`, etc.
+
+#### ❌ Incorrect Slug UI
+
+```blade
+{{-- ❌ Don't use a regular full-width input --}}
+<input wire:model="slug" type="text" class="w-full ..." />
+
+{{-- ❌ Don't use a split input with URL prefix box --}}
+<div class="flex">
+    <span class="...">{{ url('/') }}/</span>
+    <input wire:model="slug" class="flex-1 ..." />
+</div>
+```
+
+### Backend: Unique Slug Generation
+
+All Livewire components with slugs **MUST** implement these three methods:
+
+```php
+use Illuminate\Support\Str;
+
+// 1. Auto-generate slug when title changes (for new items)
+public function updatedTitle($value)
+{
+    // Only auto-generate if slug hasn't been manually edited
+    if (!$this->manualSlug && !$this->isEdit) {
+        $this->slug = $this->makeUniqueSlug(Str::slug($value));
+    }
+}
+
+// 2. Sanitize slug when manually edited
+public function updatedSlug($value)
+{
+    $this->slug = Str::slug($value);
+    $this->manualSlug = true;
+}
+
+// 3. Regenerate slug from title (optional refresh button)
+public function generateSlug()
+{
+    $this->slug = $this->makeUniqueSlug(Str::slug($this->title));
+    $this->manualSlug = false;
+}
+
+// 4. Ensure slug uniqueness — appends -2, -3, etc.
+protected function makeUniqueSlug(string $slug): string
+{
+    if (empty($slug)) return '';
+
+    $original = $slug;
+    $counter = 2;
+
+    while (YourModel::where('slug', $slug)
+        ->where('id', '!=', $this->itemId ?? 0)
+        ->exists()
+    ) {
+        $slug = $original . '-' . $counter;
+        $counter++;
+    }
+
+    return $slug;
+}
+```
+
+**Rules:**
+- `updatedTitle()` — auto-generates slug only for **new** items or when slug was auto-generated
+- `updatedSlug()` — always sanitize via `Str::slug()`, mark as manually edited
+- `makeUniqueSlug()` — query the model table, exclude the current item's ID, auto-increment suffix
+- For soft-deletable models, use `YourModel::withTrashed()` in the uniqueness check
+
+> [!WARNING]
+> Never skip the `makeUniqueSlug()` step. Duplicate slugs will cause routing conflicts and 404 errors on the frontend.
+
+### Reference Implementations
+
+| Plugin | Livewire Component | Model |
+|--------|-------------------|-------|
+| Posts | `PostForm` → `ensureUniqueSlug()` | `Post` |
+| Pages | `PageForm` → `makeUniqueSlug()` | `Page` |
+| Events | `EventConsoleGeneral` → `makeUniqueSlug()` | `Event` |
+
+---
+
 ## Service Provider Setup
 
 ### Basic Service Provider Template
@@ -407,5 +536,5 @@ If you encounter issues:
 
 ---
 
-**Last Updated:** 2026-02-01  
-**Version:** 1.0
+**Last Updated:** 2026-06-24  
+**Version:** 1.1

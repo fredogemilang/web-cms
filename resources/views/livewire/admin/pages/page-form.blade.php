@@ -106,16 +106,19 @@
                         <p class="text-red-500 text-sm">{{ $message }}</p>
                     @enderror
 
-                    <div class="flex items-center gap-2 text-sm text-[#6F767E] font-medium bg-white dark:bg-[#1A1A1A] w-fit px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#272B30]">
-                        <span class="material-symbols-outlined text-[16px]">link</span>
-                        <span class="opacity-70">{{ url('/') }}/</span>
-                        <input wire:model.live.debounce.500ms="slug"
-                            class="bg-transparent border-none text-primary focus:ring-0 p-0 text-sm font-medium w-auto min-w-[100px]"
-                            type="text" placeholder="page-slug" />
-                        <button wire:click="generateSlug" class="ml-2 text-[#6F767E] hover:text-[#111827] dark:hover:text-white">
-                            <span class="material-symbols-outlined text-[14px]">refresh</span>
-                        </button>
+                    @if($slug)
+                    <div class="flex items-center gap-2 text-xs font-bold text-[#6F767E] uppercase tracking-wider pl-1">
+                        <span>PERMALINK:</span>
+                        <span class="text-[#6F767E] lowercase font-normal">{{ url('/') }}/</span>
+                        <div x-data="{ editing: false }" class="relative flex items-center gap-2">
+                            <span x-show="!editing" class="bg-[#1A1A1A] px-2 py-0.5 rounded text-[#FCFCFC] lowercase font-normal border border-[#272B30]">{{ $slug }}</span>
+                            <input x-show="editing" wire:model.blur="slug" @blur="editing = false" @keydown.enter="editing = false" type="text" class="bg-[#1A1A1A] px-2 py-0.5 rounded text-[#FCFCFC] lowercase font-normal border border-[#2563EB] focus:outline-none w-auto min-w-[100px]" x-cloak>
+                            <button @click="editing = !editing; $nextTick(() => $el.previousElementSibling.focus())" class="text-[#6F767E] hover:text-[#FCFCFC] transition-colors">
+                                <span class="material-symbols-outlined text-[14px]">edit</span>
+                            </button>
+                        </div>
                     </div>
+                    @endif
                     @error('slug')
                         <p class="text-red-500 text-sm">{{ $message }}</p>
                     @enderror

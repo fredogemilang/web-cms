@@ -39,6 +39,16 @@ class EventGuestsTable extends Component
     public array $selectedItems = [];
     public bool $selectAll = false;
 
+    // Edit Modal state
+    public bool $showEditModal = false;
+    public ?int $editingGuestId = null;
+    public string $editFullName = '';
+    public string $editEmail = '';
+    public string $editPhone = '';
+    public string $editCompany = '';
+    public string $editJobTitle = '';
+    public string $editNotes = '';
+
     protected $queryString = [
         'activeTab' => ['except' => 'all'],
         'search'    => ['except' => ''],
@@ -52,7 +62,29 @@ class EventGuestsTable extends Component
     public function mount(Event $event, $approvalTypes = null): void
     {
         $this->event = $event;
-        $this->approvalTypes = $approvalTypes ?? collect();
+        if ($approvalTypes instanceof \Illuminate\Support\Collection) {
+            $firstItem = $approvalTypes->first();
+            if ($firstItem instanceof \Illuminate\Support\Collection || is_array($firstItem)) {
+                $grouped = $approvalTypes;
+            } else {
+                $grouped = $approvalTypes->groupBy('cat');
+            }
+            
+            $normalized = [];
+            foreach ($grouped as $cat => $items) {
+                $normalized[$cat] = collect($items)->map(function ($item) {
+                    return [
+                        'id' => is_array($item) ? $item['id'] : $item->id,
+                        'type_name' => is_array($item) ? $item['type_name'] : $item->type_name,
+                    ];
+                })->toArray();
+            }
+            $this->approvalTypes = $normalized;
+        } elseif (is_array($approvalTypes)) {
+            $this->approvalTypes = $approvalTypes;
+        } else {
+            $this->approvalTypes = [];
+        }
     }
 
     public function updatingSearch(): void
@@ -129,21 +161,7 @@ class EventGuestsTable extends Component
             ->paginate($this->perPage);
     }
 
-    /**
-     * Approve a single guest via Livewire (bypasses full page reload).
-     */
-    public function approve(int $id): void
-    {
-        $this->dispatch('open-approve-modal', registrationId: $id);
-    }
 
-    /**
-     * Reject a single guest via Livewire.
-     */
-    public function reject(int $id): void
-    {
-        $this->dispatch('open-reject-modal', registrationId: $id);
-    }
 
     /**
      * Inline update a field via AJAX.
@@ -217,6 +235,183 @@ class EventGuestsTable extends Component
         }
 
         $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Guest checked in.']);
+    }
+
+    public function editGuest(int $id): void
+    {
+        $reg = EventRegistration::where('id', $id)
+            ->where('event_id', $this->event->id)
+            ->first();
+
+        if ($reg) {
+            $this->editingGuestId = $id;
+            $this->editFullName = $reg->full_name ?? $reg->name ?? '';
+            $this->editEmail = $reg->email ?? '';
+            $this->editPhone = $reg->mobile_phone ?? $reg->phone ?? '';
+            $this->editCompany = $reg->company_name ?? $reg->organization ?? '';
+            $this->editJobTitle = $reg->job_title ?? '';
+            $this->editNotes = $reg->notes ?? '';
+            $this->showEditModal = true;
+        }
+    }
+
+    public function saveGuest(): void
+    {
+        $this->validate([
+            'editFullName' => 'required|string|max:255',
+            'editEmail' => 'required|email|max:255',
+            'editPhone' => 'nullable|string|max:20',
+            'editCompany' => 'nullable|string|max:255',
+            'editJobTitle' => 'nullable|string|max:255',
+            'editNotes' => 'nullable|string',
+        ]);
+
+        $reg = EventRegistration::where('id', $this->editingGuestId)
+            ->where('event_id', $this->event->id)
+            ->first();
+
+        if ($reg) {
+            $reg->update([
+                'full_name' => $this->editFullName,
+                'name' => $this->editFullName,
+                'email' => $this->editEmail,
+                'mobile_phone' => $this->editPhone,
+                'phone' => $this->editPhone,
+                'company_name' => $this->editCompany,
+                'organization' => $this->editCompany,
+                'job_title' => $this->editJobTitle,
+                'notes' => $this->editNotes,
+            ]);
+
+            $this->showEditModal = false;
+            $this->editingGuestId = null;
+            $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Attendee updated successfully.']);
+        }
+    }
+
+    public function closeEditModal(): void
+    {
+        $this->showEditModal = false;
+        $this->editingGuestId = null;
+    }
+
+    public function deleteGuest(int $id): void
+    {
+        $reg = EventRegistration::where('id', $id)
+            ->where('event_id', $this->event->id)
+            ->first();
+            
+        if ($reg) {
+            $reg->delete();
+            $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Attendee deleted successfully.']);
+        }
+    }
+
+    public function deleteSelected(): void
+    {
+        if (empty($this->selectedItems)) {
+            return;
+        }
+
+        EventRegistration::whereIn('id', $this->selectedItems)
+            ->where('event_id', $this->event->id)
+            ->delete();
+
+        $this->selectedItems = [];
+        $this->selectAll = false;
+        
+        $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Selected attendees deleted successfully.']);
+    }
+
+    public function updateStatus(int $id, string $status, ?int $approvalTypeId = null, ?string $note = null): void
+    {
+        $reg = EventRegistration::where('id', $id)
+            ->where('event_id', $this->event->id)
+            ->first();
+
+        if (!$reg) {
+            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Attendee not found.']);
+            return;
+        }
+
+        $oldStatus = $reg->status;
+
+        // If no change, do nothing
+        if ($oldStatus === $status) {
+            $this->dispatch('show-toast', ['type' => 'info', 'message' => 'No status change made.']);
+            return;
+        }
+
+        // Validate approval type if confirmed or cancelled is selected
+        $approvalType = null;
+        if (in_array($status, ['confirmed', 'cancelled'])) {
+            if (!$approvalTypeId) {
+                $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Please select a reason/approval type.']);
+                return;
+            }
+            $approvalType = \Plugins\Events\Models\ApprovalType::find($approvalTypeId);
+            if (!$approvalType) {
+                $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Selected reason/approval type not found.']);
+                return;
+            }
+        }
+
+        \DB::transaction(function () use ($reg, $status, $oldStatus, $approvalType, $note) {
+            // Adjust event registered count
+            if ($status === 'confirmed' && $oldStatus !== 'confirmed') {
+                $this->event->incrementRegisteredCount();
+            } elseif ($status !== 'confirmed' && $oldStatus === 'confirmed') {
+                $this->event->decrementRegisteredCount();
+            }
+
+            if ($status === 'confirmed') {
+                $reg->update([
+                    'status'         => 'confirmed',
+                    'confirmed_at'   => now(),
+                    'verified_by'    => auth()->id(),
+                    'verified_at'    => now(),
+                    'verified_type'  => $approvalType->type_name,
+                    'verified_note'  => $note,
+                ]);
+            } elseif ($status === 'cancelled') {
+                $reg->update([
+                    'status'         => 'cancelled',
+                    'cancelled_at'   => now(),
+                    'verified_by'    => auth()->id(),
+                    'verified_at'    => now(),
+                    'verified_type'  => $approvalType->type_name,
+                    'verified_note'  => $note,
+                ]);
+            } else {
+                // Pending
+                $reg->update([
+                    'status'         => 'pending',
+                    'confirmed_at'   => null,
+                    'cancelled_at'   => null,
+                    'verified_by'    => null,
+                    'verified_at'    => null,
+                    'verified_type'  => null,
+                    'verified_note'  => null,
+                ]);
+            }
+        });
+
+        // Send Email notifications
+        if ($status === 'confirmed' && $approvalType) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
+            } catch (\Exception $e) {
+                \Log::warning('Failed to send guest approved email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
+            }
+        } elseif ($status === 'cancelled' && $approvalType) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
+            } catch (\Exception $e) {
+                \Log::warning('Failed to send guest rejected email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
+            }
+        }
+
+        $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Status updated successfully.']);
     }
 
     public function render(): \Illuminate\View\View

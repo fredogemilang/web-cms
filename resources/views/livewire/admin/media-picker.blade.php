@@ -89,6 +89,7 @@
 
     {{-- Modal --}}
     @if($showModal)
+    <template x-teleport="body">
     <div 
         x-data="{ show: true }"
         x-show="show"
@@ -98,7 +99,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         @keydown.escape.window="$wire.closeModal()">
         
         {{-- Modal Content --}}
@@ -110,7 +111,7 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="bg-white dark:bg-[#1A1A1A] rounded-3xl max-w-5xl w-full max-h-[85vh] flex flex-col shadow-xl"
+            class="bg-white dark:bg-[#1A1A1A] rounded-3xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-xl"
             @click.away="$wire.closeModal()">
             
             {{-- Header --}}
@@ -357,5 +358,6 @@
             </div>
         </div>
     </div>
+    </template>
     @endif
 </div>

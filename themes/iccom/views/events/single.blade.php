@@ -163,3 +163,11 @@
     </section>
 @endsection
 
+@push('livewire-styles')
+    @livewireStyles
+@endpush
+
+@push('livewire-scripts')
+    @livewireScripts
+@endpush
+

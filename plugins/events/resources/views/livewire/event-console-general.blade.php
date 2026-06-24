@@ -29,14 +29,19 @@
 
                     {{-- Permalink Slug --}}
                     <div class="space-y-1">
-                        <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">Permalink Slug</label>
-                        <div class="flex rounded-xl shadow-sm overflow-hidden">
-                            <span class="inline-flex items-center px-4 border border-r-0 border-dark-border bg-dark-surface-lighter text-text-secondary text-xs">
-                                {{ url('/event') }}/
-                            </span>
-                            <input wire:model="slug" type="text"
-                                class="flex-1 bg-dark-surface border border-dark-border text-text-primary text-sm focus:ring-1 focus:ring-[#2563EB] focus:border-[#2563EB] focus:outline-none block p-3" />
+                        @if($slug)
+                        <div class="flex items-center gap-2 text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            <span>PERMALINK:</span>
+                            <span class="text-text-secondary lowercase font-normal">{{ url('/event') }}/</span>
+                            <div x-data="{ editing: false }" class="relative flex items-center gap-2">
+                                <span x-show="!editing" class="bg-dark-surface px-2 py-0.5 rounded text-text-primary lowercase font-normal border border-dark-border">{{ $slug }}</span>
+                                <input x-show="editing" wire:model.blur="slug" @blur="editing = false" @keydown.enter="editing = false" type="text" class="bg-dark-surface px-2 py-0.5 rounded text-text-primary lowercase font-normal border border-[#2563EB] focus:outline-none w-auto min-w-[100px]" x-cloak>
+                                <button @click="editing = !editing; $nextTick(() => $el.previousElementSibling.focus())" type="button" class="text-text-secondary hover:text-text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[14px]">edit</span>
+                                </button>
+                            </div>
                         </div>
+                        @endif
                         @error('slug') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                     </div>
 
@@ -136,6 +141,40 @@
                 </div>
             </div>
 
+            {{-- Gallery Images Card --}}
+            <div class="glass-panel rounded-2xl p-6 space-y-4">
+                <h3 class="text-sm font-bold text-text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg text-[#2563EB]">photo_library</span>
+                    Gallery Images
+                </h3>
+                <div class="space-y-2">
+                    <div class="grid grid-cols-3 gap-2">
+                        @if(!empty($gallery_images))
+                            @foreach($gallery_images as $index => $image)
+                                <div class="relative group aspect-square rounded-lg overflow-hidden border border-dark-border">
+                                    <img src="/storage/{{ $image }}" class="w-full h-full object-cover" alt="Gallery {{ $index + 1 }}">
+                                    <button wire:click="removeGalleryImage({{ $index }})" type="button"
+                                        class="absolute top-1 right-1 p-1 bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span class="material-symbols-outlined text-[10px]">close</span>
+                                    </button>
+                                </div>
+                            @endforeach
+                        @endif
+
+                        {{-- Add Image Button --}}
+                        <div class="aspect-square">
+                            <livewire:admin.media-picker
+                                field="gallery_images"
+                                label="Add Image"
+                                :multiple="false"
+                                :shouldClearAfterSelection="true"
+                                :compact="false"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- SEO Metadata Card --}}
             <div class="glass-panel rounded-2xl p-6 space-y-4">
                 <h3 class="text-sm font-bold text-text-primary flex items-center gap-2">
@@ -229,9 +268,9 @@
                 @endif
             </div>
 
-            {{-- Event Media Assets --}}
+            {{-- Featured Image --}}
             <div class="glass-panel rounded-2xl p-6 space-y-4">
-                <h3 class="text-sm font-bold text-text-primary">Event Media Assets</h3>
+                <h3 class="text-sm font-bold text-text-primary">Featured Image</h3>
 
                 {{-- Featured Image / Banner --}}
                 <div class="space-y-2">
@@ -269,34 +308,6 @@
                     @endif
                 </div>
 
-                {{-- Gallery Images --}}
-                <div class="space-y-2 pt-2">
-                    <span class="text-xs text-text-secondary font-semibold block">Gallery Images</span>
-                    <div class="grid grid-cols-3 gap-2">
-                        @if(!empty($gallery_images))
-                            @foreach($gallery_images as $index => $image)
-                                <div class="relative group aspect-square rounded-lg overflow-hidden border border-dark-border">
-                                    <img src="/storage/{{ $image }}" class="w-full h-full object-cover" alt="Gallery {{ $index + 1 }}">
-                                    <button wire:click="removeGalleryImage({{ $index }})" type="button"
-                                        class="absolute top-1 right-1 p-1 bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <span class="material-symbols-outlined text-[10px]">close</span>
-                                    </button>
-                                </div>
-                            @endforeach
-                        @endif
-
-                        {{-- Add Image Button --}}
-                        <div class="aspect-square">
-                            <livewire:admin.media-picker
-                                field="gallery_images"
-                                label="Add Image"
-                                :multiple="false"
-                                :shouldClearAfterSelection="true"
-                                :compact="false"
-                            />
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

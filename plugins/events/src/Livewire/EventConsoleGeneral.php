@@ -125,8 +125,34 @@ class EventConsoleGeneral extends Component
         // Auto-generate slug only if slug matches old title slug
         $oldSlug = Str::slug($this->event->title);
         if ($this->slug === $oldSlug || empty($this->slug)) {
-            $this->slug = Str::slug($value);
+            $this->slug = $this->makeUniqueSlug(Str::slug($value));
         }
+    }
+
+    public function updatedSlug($value)
+    {
+        // Sanitize slug input
+        $this->slug = Str::slug($value);
+    }
+
+    public function generateSlug()
+    {
+        $this->slug = $this->makeUniqueSlug(Str::slug($this->title));
+    }
+
+    protected function makeUniqueSlug(string $slug): string
+    {
+        if (empty($slug)) return '';
+
+        $original = $slug;
+        $counter = 2;
+
+        while (Event::where('slug', $slug)->where('id', '!=', $this->eventId)->exists()) {
+            $slug = $original . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     public function removeFeaturedImage()
