@@ -540,95 +540,97 @@ class EventGuestsTable extends Component
         $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Selected attendees deleted successfully.']);
     }
 
-    public function updateStatus(int $id, string $status, ?int $approvalTypeId = null, ?string $note = null): void
+    public function updateStatus(int $id, string $status, ?int $approvalTypeId = null, ?string $note = null): array
     {
         $reg = EventRegistration::where('id', $id)
             ->where('event_id', $this->event->id)
             ->first();
 
         if (!$reg) {
-            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Attendee not found.']);
-            return;
+            return ['success' => false, 'message' => 'Attendee registration not found.'];
         }
 
         $oldStatus = $reg->status;
 
         // If no change, do nothing
         if ($oldStatus === $status) {
-            $this->dispatch('show-toast', ['type' => 'info', 'message' => 'No status change made.']);
-            return;
+            return ['success' => true, 'message' => 'No status change made.'];
         }
 
         // Validate approval type if confirmed or cancelled is selected
         $approvalType = null;
         if (in_array($status, ['confirmed', 'cancelled'])) {
             if (!$approvalTypeId) {
-                $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Please select a reason/approval type.']);
-                return;
+                return ['success' => false, 'message' => 'Please select a reason/approval type.'];
             }
             $approvalType = \Plugins\Events\Models\ApprovalType::find($approvalTypeId);
             if (!$approvalType) {
-                $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Selected reason/approval type not found.']);
-                return;
+                return ['success' => false, 'message' => 'Selected reason/approval type not found.'];
             }
         }
 
-        \DB::transaction(function () use ($reg, $status, $oldStatus, $approvalType, $note) {
-            // Adjust event registered count
-            if ($status === 'confirmed' && $oldStatus !== 'confirmed') {
-                $this->event->incrementRegisteredCount();
-            } elseif ($status !== 'confirmed' && $oldStatus === 'confirmed') {
-                $this->event->decrementRegisteredCount();
+        try {
+            \DB::transaction(function () use ($reg, $status, $oldStatus, $approvalType, $note) {
+                // Adjust event registered count
+                if ($status === 'confirmed' && $oldStatus !== 'confirmed') {
+                    $this->event->incrementRegisteredCount();
+                } elseif ($status !== 'confirmed' && $oldStatus === 'confirmed') {
+                    $this->event->decrementRegisteredCount();
+                }
+
+                if ($status === 'confirmed') {
+                    $reg->update([
+                        'status'         => 'confirmed',
+                        'confirmed_at'   => now(),
+                        'verified_by'    => auth()->id(),
+                        'verified_at'    => now(),
+                        'verified_type'  => $approvalType->type_name,
+                        'verified_note'  => $note,
+                    ]);
+                } elseif ($status === 'cancelled') {
+                    $reg->update([
+                        'status'         => 'cancelled',
+                        'cancelled_at'   => now(),
+                        'verified_by'    => auth()->id(),
+                        'verified_at'    => now(),
+                        'verified_type'  => $approvalType->type_name,
+                        'verified_note'  => $note,
+                    ]);
+                } else {
+                    // Pending
+                    $reg->update([
+                        'status'         => 'pending',
+                        'confirmed_at'   => null,
+                        'cancelled_at'   => null,
+                        'verified_by'    => null,
+                        'verified_at'    => null,
+                        'verified_type'  => null,
+                        'verified_note'  => null,
+                    ]);
+                }
+            });
+
+            // Send Email notifications
+            if ($status === 'confirmed' && $approvalType) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to send guest approved email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
+                }
+            } elseif ($status === 'cancelled' && $approvalType) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to send guest rejected email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
+                }
             }
 
-            if ($status === 'confirmed') {
-                $reg->update([
-                    'status'         => 'confirmed',
-                    'confirmed_at'   => now(),
-                    'verified_by'    => auth()->id(),
-                    'verified_at'    => now(),
-                    'verified_type'  => $approvalType->type_name,
-                    'verified_note'  => $note,
-                ]);
-            } elseif ($status === 'cancelled') {
-                $reg->update([
-                    'status'         => 'cancelled',
-                    'cancelled_at'   => now(),
-                    'verified_by'    => auth()->id(),
-                    'verified_at'    => now(),
-                    'verified_type'  => $approvalType->type_name,
-                    'verified_note'  => $note,
-                ]);
-            } else {
-                // Pending
-                $reg->update([
-                    'status'         => 'pending',
-                    'confirmed_at'   => null,
-                    'cancelled_at'   => null,
-                    'verified_by'    => null,
-                    'verified_at'    => null,
-                    'verified_type'  => null,
-                    'verified_note'  => null,
-                ]);
-            }
-        });
-
-        // Send Email notifications
-        if ($status === 'confirmed' && $approvalType) {
-            try {
-                \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
-            } catch (\Exception $e) {
-                \Log::warning('Failed to send guest approved email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
-            }
-        } elseif ($status === 'cancelled' && $approvalType) {
-            try {
-                \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
-            } catch (\Exception $e) {
-                \Log::warning('Failed to send guest rejected email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
-            }
+            $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Status updated successfully.']);
+            return ['success' => true, 'message' => 'Status updated successfully.'];
+        } catch (\Exception $e) {
+            \Log::error('Error saving guest status: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Failed to save status: ' . $e->getMessage()];
         }
-
-        $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Status updated successfully.']);
     }
 
     public function bulkUpdateStatus(string $status, int $approvalTypeId, ?string $note = null): void

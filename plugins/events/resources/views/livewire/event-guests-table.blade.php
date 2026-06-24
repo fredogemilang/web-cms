@@ -365,115 +365,142 @@
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100">
 
-        <div @click.away="open = false"
+        <div @click.away="if (!saving && !success) open = false"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-            class="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-[#272B30] rounded-3xl max-w-md w-full shadow-2xl p-6 space-y-6">
+            class="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-[#272B30] rounded-3xl max-w-md w-full shadow-2xl p-6">
 
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-[#FCFCFC]">Update Attendee Status</h3>
-                    <p class="text-xs text-slate-400 dark:text-[#6F767E] mt-0.5">Select a new status and specify reasons if required.</p>
-                </div>
-                <button @click="open = false" class="p-1.5 hover:bg-slate-100 dark:hover:bg-[#272B30] rounded-xl transition-colors cursor-pointer">
-                    <span class="material-symbols-outlined text-slate-500 dark:text-[#6F767E]">close</span>
-                </button>
-            </div>
-
-            <div class="space-y-4">
-                <div class="grid grid-cols-3 gap-2.5">
-                    <!-- Pending Option -->
-                    <button type="button" @click="selectedStatus = 'pending'"
-                        :class="selectedStatus === 'pending'
-                            ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 ring-2 ring-amber-500/20 font-bold'
-                            : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
-                        class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-xl mb-1.5">hourglass_empty</span>
-                        <span class="text-xs">Pending</span>
-                    </button>
-
-                    <!-- Approve Option -->
-                    <button type="button" @click="selectedStatus = 'confirmed'"
-                        :class="selectedStatus === 'confirmed'
-                            ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-500/20 font-bold'
-                            : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
-                        class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-xl mb-1.5">check_circle</span>
-                        <span class="text-xs">Approve</span>
-                    </button>
-
-                    <!-- Reject Option -->
-                    <button type="button" @click="selectedStatus = 'cancelled'"
-                        :class="selectedStatus === 'cancelled'
-                            ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 ring-2 ring-rose-500/20 font-bold'
-                            : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
-                        class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-xl mb-1.5">cancel</span>
-                        <span class="text-xs">Reject</span>
+            <!-- Modal Content (Forms) -->
+            <div x-show="!success" class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-[#FCFCFC]">Update Attendee Status</h3>
+                        <p class="text-xs text-slate-400 dark:text-[#6F767E] mt-0.5">Select a new status and specify reasons if required.</p>
+                    </div>
+                    <button @click="open = false" :disabled="saving" class="p-1.5 hover:bg-slate-100 dark:hover:bg-[#272B30] rounded-xl transition-colors cursor-pointer disabled:opacity-50">
+                        <span class="material-symbols-outlined text-slate-500 dark:text-[#6F767E]">close</span>
                     </button>
                 </div>
 
-                {{-- Approval Type Options --}}
-                <div x-show="selectedStatus === 'confirmed'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Approval Type <span class="text-rose-500">*</span></label>
-                        <select x-model="approvalTypeId"
-                            class="w-full h-10 rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
-                            <option value="">— Select approval type —</option>
-                            @foreach($approvalTypes['approved'] ?? [] as $type)
-                                <option value="{{ $type['id'] }}">{{ $type['type_name'] }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Note (optional)</label>
-                        <textarea x-model="note" rows="2"
-                            class="w-full rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 py-2.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none transition-all"
-                            placeholder="Add reference notes..."></textarea>
-                    </div>
-                </div>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-3 gap-2.5">
+                        <!-- Pending Option -->
+                        <button type="button" @click="selectedStatus = 'pending'; validationError = ''; errorMsg = '';" :disabled="saving"
+                            :class="selectedStatus === 'pending'
+                                ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 ring-2 ring-amber-500/20 font-bold'
+                                : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
+                            class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer disabled:opacity-50">
+                            <span class="material-symbols-outlined text-xl mb-1.5">hourglass_empty</span>
+                            <span class="text-xs">Pending</span>
+                        </button>
 
-                {{-- Reject Reason Options --}}
-                <div x-show="selectedStatus === 'cancelled'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Rejection Reason <span class="text-rose-500">*</span></label>
-                        <select x-model="approvalTypeId"
-                            class="w-full h-10 rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
-                            <option value="">— Select rejection reason —</option>
-                            @foreach($approvalTypes['rejected'] ?? [] as $type)
-                                <option value="{{ $type['id'] }}">{{ $type['type_name'] }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Note (optional)</label>
-                        <textarea x-model="note" rows="2"
-                            class="w-full rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 py-2.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent resize-none transition-all"
-                            placeholder="Add reference notes..."></textarea>
-                    </div>
-                </div>
+                        <!-- Approve Option -->
+                        <button type="button" @click="selectedStatus = 'confirmed'; validationError = ''; errorMsg = '';" :disabled="saving"
+                            :class="selectedStatus === 'confirmed'
+                                ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-500/20 font-bold'
+                                : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
+                            class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer disabled:opacity-50">
+                            <span class="material-symbols-outlined text-xl mb-1.5">check_circle</span>
+                            <span class="text-xs">Approve</span>
+                        </button>
 
-                {{-- Warning Alert --}}
-                <template x-if="selectedStatus !== currentStatus && (currentStatus === 'confirmed' || currentStatus === 'cancelled')">
-                    <div class="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
-                        <span class="material-symbols-outlined text-base mt-0.5 select-none">warning</span>
-                        <div class="leading-relaxed">
-                            <strong>Note:</strong> Since this attendee has already been processed (Approved/Rejected), switching their status may trigger another email notification and generate double confirmations.
+                        <!-- Reject Option -->
+                        <button type="button" @click="selectedStatus = 'cancelled'; validationError = ''; errorMsg = '';" :disabled="saving"
+                            :class="selectedStatus === 'cancelled'
+                                ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 ring-2 ring-rose-500/20 font-bold'
+                                : 'border-slate-200 dark:border-[#272B30] text-slate-500 dark:text-[#6F767E] hover:bg-slate-50 dark:hover:bg-[#272B30]'"
+                            class="flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer disabled:opacity-50">
+                            <span class="material-symbols-outlined text-xl mb-1.5">cancel</span>
+                            <span class="text-xs">Reject</span>
+                        </button>
+                    </div>
+
+                    {{-- Approval Type Options --}}
+                    <div x-show="selectedStatus === 'confirmed'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Approval Type <span class="text-rose-500">*</span></label>
+                            <select x-model="approvalTypeId" @change="validationError = ''" :disabled="saving"
+                                class="w-full h-10 rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:opacity-50">
+                                <option value="">— Select approval type —</option>
+                                @foreach($approvalTypes['approved'] ?? [] as $type)
+                                    <option value="{{ $type['id'] }}">{{ $type['type_name'] }}</option>
+                                @endforeach
+                            </select>
+                            <template x-if="validationError">
+                                <span class="text-rose-500 text-xs mt-1.5 block font-semibold" x-text="validationError"></span>
+                            </template>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Note (optional)</label>
+                            <textarea x-model="note" rows="2" :disabled="saving"
+                                class="w-full rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 py-2.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none transition-all disabled:opacity-50"
+                                placeholder="Add reference notes..."></textarea>
                         </div>
                     </div>
-                </template>
+
+                    {{-- Reject Reason Options --}}
+                    <div x-show="selectedStatus === 'cancelled'" class="space-y-4 pt-2 border-t border-slate-100 dark:border-[#272B30]" x-cloak>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Rejection Reason <span class="text-rose-500">*</span></label>
+                            <select x-model="approvalTypeId" @change="validationError = ''" :disabled="saving"
+                                class="w-full h-10 rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all disabled:opacity-50">
+                                <option value="">— Select rejection reason —</option>
+                                @foreach($approvalTypes['rejected'] ?? [] as $type)
+                                    <option value="{{ $type['id'] }}">{{ $type['type_name'] }}</option>
+                                @endforeach
+                            </select>
+                            <template x-if="validationError">
+                                <span class="text-rose-500 text-xs mt-1.5 block font-semibold" x-text="validationError"></span>
+                            </template>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 dark:text-[#6F767E] uppercase tracking-widest mb-1.5">Note (optional)</label>
+                            <textarea x-model="note" rows="2" :disabled="saving"
+                                class="w-full rounded-xl border border-slate-200 dark:border-[#272B30] bg-slate-50/50 dark:bg-[#0B0B0B] px-3.5 py-2.5 text-sm text-slate-800 dark:text-[#FCFCFC] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent resize-none transition-all disabled:opacity-50"
+                                placeholder="Add reference notes..."></textarea>
+                        </div>
+                    </div>
+
+                    {{-- Warning Alert --}}
+                    <template x-if="selectedStatus !== currentStatus && (currentStatus === 'confirmed' || currentStatus === 'cancelled')">
+                        <div class="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-base mt-0.5 select-none">warning</span>
+                            <div class="leading-relaxed">
+                                <strong>Note:</strong> Since this attendee has already been processed (Approved/Rejected), switching their status may trigger another email notification and generate double confirmations.
+                            </div>
+                        </div>
+                    </template>
+
+                    {{-- Error Msg Alert --}}
+                    <div x-show="errorMsg" class="p-4 rounded-2xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/30 text-xs text-rose-800 dark:text-rose-400 flex items-start gap-2.5" x-cloak>
+                        <span class="material-symbols-outlined text-base mt-0.5 select-none text-rose-500">error</span>
+                        <div class="leading-relaxed font-semibold" x-text="errorMsg"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-[#272B30]">
+                    <button @click="open = false" type="button" :disabled="saving"
+                        class="px-4.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-50 dark:text-[#6F767E] dark:hover:bg-[#272B30] transition-all cursor-pointer disabled:opacity-50">
+                        Cancel
+                    </button>
+                    <button @click="submit" type="button" :disabled="saving"
+                        class="px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-[#111827] dark:hover:bg-[#1F1F1F] shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50">
+                        <template x-if="saving">
+                            <span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+                        </template>
+                        <span x-text="saving ? 'Saving...' : 'Save Status'"></span>
+                    </button>
+                </div>
             </div>
 
-            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-[#272B30]">
-                <button @click="open = false" type="button"
-                    class="px-4.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-50 dark:text-[#6F767E] dark:hover:bg-[#272B30] transition-all cursor-pointer">
-                    Cancel
-                </button>
-                <button @click="submit" type="button"
-                    class="px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-[#111827] dark:hover:bg-[#1F1F1F] shadow-md hover:shadow-lg transition-all cursor-pointer">
-                    Save Status
-                </button>
+            <!-- Success Overlay View -->
+            <div x-show="success" class="flex flex-col items-center justify-center py-12 space-y-4" x-transition x-cloak>
+                <div class="h-20 w-20 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-500 relative">
+                    <span class="material-symbols-outlined text-5xl animate-bounce">check_circle</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-[#FCFCFC]">Status Updated!</h3>
+                <p class="text-sm text-slate-500 dark:text-[#6F767E] text-center px-6">The attendee status has been successfully updated and saved.</p>
             </div>
         </div>
     </div>
@@ -942,32 +969,54 @@ function changeStatusModal() {
         selectedStatus: '',
         approvalTypeId: '',
         note: '',
+        saving: false,
+        success: false,
+        validationError: '',
+        errorMsg: '',
         openWith(id, currentStatus) {
             this.registrationId = id;
             this.currentStatus = currentStatus;
             this.selectedStatus = currentStatus;
             this.approvalTypeId = '';
             this.note = '';
+            this.saving = false;
+            this.success = false;
+            this.validationError = '';
+            this.errorMsg = '';
             this.open = true;
         },
         submit() {
+            this.validationError = '';
+            this.errorMsg = '';
+            
             if (this.selectedStatus === 'confirmed' || this.selectedStatus === 'cancelled') {
                 if (!this.approvalTypeId) {
-                    alert('Please select a reason/approval type.');
+                    this.validationError = 'Please select a reason/approval type.';
                     return;
                 }
             }
             
-            // Dispatch a visual toast
-            window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'info', message: 'Saving status...' } }));
+            this.saving = true;
             
             this.$wire.updateStatus(
                 this.registrationId, 
                 this.selectedStatus, 
                 this.approvalTypeId ? parseInt(this.approvalTypeId) : null, 
                 this.note
-            ).then(() => {
-                this.open = false;
+            ).then((res) => {
+                if (res && res.success === false) {
+                    this.saving = false;
+                    this.errorMsg = res.message || 'An error occurred while saving.';
+                } else {
+                    this.success = true;
+                    this.saving = false;
+                    setTimeout(() => {
+                        this.open = false;
+                    }, 1500);
+                }
+            }).catch((err) => {
+                this.saving = false;
+                this.errorMsg = err.message || 'A network error occurred. Please try again.';
             });
         }
     }
