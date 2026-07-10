@@ -3,6 +3,7 @@
 namespace Plugins\Events\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Models\DoorprizeSession;
@@ -15,7 +16,7 @@ use Carbon\Carbon;
 
 class EventConsoleDoorprize extends Component
 {
-    use WithFileUploads;
+    use WithPagination, WithFileUploads;
     // ─── Core ───
     public Event $event;
     public string $activeSubTab = 'sessions'; // sessions | winners
@@ -31,6 +32,20 @@ class EventConsoleDoorprize extends Component
     public bool $defaultRequireCheckin = true;
     public bool $defaultRequireFeedback = false;
     public string $globalBanSearch = '';
+    public string $eligibleSearch = '';
+    protected $paginationTheme = 'tailwind';
+
+    public function updatingEligibleSearch()
+    {
+        $this->resetPage('eligiblePage');
+    }
+
+    public function updatedActiveSubTab()
+    {
+        if ($this->activeSubTab === 'eligible') {
+            $this->resetPage('eligiblePage');
+        }
+    }
 
     // ─── Prize CRUD ───
     public bool $showPrizeModal = false;
@@ -500,6 +515,34 @@ class EventConsoleDoorprize extends Component
         $this->event->update(['settings' => $settings]);
         
         $this->dispatch('notify', type: 'success', message: 'Participant re-included globally');
+    }
+
+    public function getEligibleUsersProperty()
+    {
+        $query = EventRegistration::where('event_id', $this->event->id)
+            ->where('status', 'approved');
+
+        if ($this->defaultRequireCheckin) {
+            $query->where('check_in', true);
+        }
+
+        if ($this->defaultRequireFeedback) {
+            $query->where('feedback_submitted', true);
+        }
+
+        $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
+        if (!empty($globalBannedIds)) {
+            $query->whereNotIn('id', $globalBannedIds);
+        }
+
+        if ($this->eligibleSearch) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', "%{$this->eligibleSearch}%")
+                  ->orWhere('email', 'like', "%{$this->eligibleSearch}%");
+            });
+        }
+
+        return $query->paginate(10, pageName: 'eligiblePage');
     }
 
     // ═══════════════════════════════════════════════════════

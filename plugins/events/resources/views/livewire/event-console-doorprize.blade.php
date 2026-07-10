@@ -2,7 +2,7 @@
         {{-- Sub-tab Navigation --}}
         <div class="flex items-center justify-between mb-6">
             <div class="flex gap-2">
-                @foreach(['sessions' => 'Sessions & Prizes', 'winners' => 'All Winners'] as $key => $label)
+                @foreach(['sessions' => 'Sessions & Prizes', 'eligible' => 'Eligible Users', 'winners' => 'All Winners'] as $key => $label)
                     <button wire:click="$set('activeSubTab', '{{ $key }}')"
                         class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border
                             {{ $activeSubTab === $key
@@ -191,32 +191,6 @@
                         </div>
                     </div>
 
-                    {{-- Global Defaults --}}
-                    <div class="glass-panel rounded-2xl p-5 space-y-4">
-                        <div>
-                            <h4 class="text-sm font-bold text-text-primary">Global Session Defaults</h4>
-                            <p class="text-[10px] text-text-secondary">Default settings for new raffle sessions</p>
-                        </div>
-
-                        <div class="space-y-3 pt-3 border-t border-dark-border/50">
-                            <label class="flex items-start gap-3 cursor-pointer group">
-                                <input type="checkbox" wire:model.live="defaultRequireCheckin" class="custom-checkbox shrink-0 mt-0.5" />
-                                <div>
-                                    <span class="text-xs font-bold text-text-primary group-hover:text-white transition-colors">Require Check-In</span>
-                                    <p class="text-[10px] text-text-secondary">Only checked-in attendees are eligible by default.</p>
-                                </div>
-                            </label>
-
-                            <label class="flex items-start gap-3 cursor-pointer group mt-3">
-                                <input type="checkbox" wire:model.live="defaultRequireFeedback" class="custom-checkbox shrink-0 mt-0.5" />
-                                <div>
-                                    <span class="text-xs font-bold text-text-primary group-hover:text-white transition-colors">Require Feedback</span>
-                                    <p class="text-[10px] text-text-secondary">Only attendees who submitted feedback are eligible by default.</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
                     {{-- Display Background Settings --}}
                     <div class="glass-panel rounded-2xl p-5 space-y-4">
                         <div>
@@ -243,102 +217,242 @@
                             @error('backgroundUpload') <span class="text-red-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
-
-                    {{-- Global Exclusions --}}
-                    <div class="glass-panel rounded-2xl p-5 space-y-4">
-                        <div>
-                            <h4 class="text-sm font-bold text-text-primary">Global Exclusions</h4>
-                            <p class="text-[10px] text-text-secondary">Exclude specific participants from all drawings</p>
-                        </div>
-
-                        <div class="pt-3 border-t border-dark-border/50 space-y-3">
-                            {{-- Search Input --}}
-                            <div class="relative">
-                                <span class="material-symbols-outlined absolute left-3 top-2.5 text-text-secondary text-sm">search</span>
-                                <input type="text" wire:model.live="globalBanSearch" placeholder="Search name or email..." class="w-full h-9 rounded-xl border border-dark-border bg-console-input pl-9 pr-4 text-xs text-text-primary outline-none focus:border-[#2563EB]/50 transition-all"/>
-                            </div>
-
-                            {{-- Search Results --}}
-                            @if($globalBanSearch)
-                                @if($this->globalBanCandidates->isEmpty())
-                                    <p class="text-[10px] text-text-secondary text-center py-2">No matching participants found</p>
-                                @else
-                                    <div class="rounded-xl border border-dark-border bg-dark-surface p-2 space-y-1.5 max-h-40 overflow-y-auto no-scrollbar">
-                                        @foreach($this->globalBanCandidates as $reg)
-                                            <div class="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-dark-surface-lighter transition-colors">
-                                                <div class="min-w-0">
-                                                    <p class="text-[10px] font-bold text-text-primary truncate">{{ $reg->name ?? $reg->full_name }}</p>
-                                                    <p class="text-[9px] text-text-secondary truncate">{{ $reg->email }}</p>
-                                                </div>
-                                                <button wire:click="banRegistrationGlobally({{ $reg->id }})" class="p-1 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-colors shrink-0" title="Exclude">
-                                                    <span class="material-symbols-outlined text-xs">add</span>
-                                                </button>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            @endif
-
-                            {{-- Current Banned List --}}
-                            @if($this->globalBans->isNotEmpty())
-                                <div class="pt-2">
-                                    <label class="block text-[9px] font-bold text-text-secondary uppercase tracking-wider mb-2">Excluded Participants ({{ $this->globalBans->count() }})</label>
-                                    <div class="space-y-1.5 max-h-48 overflow-y-auto no-scrollbar">
-                                        @foreach($this->globalBans as $ban)
-                                            <div class="flex items-center justify-between gap-2 bg-dark-surface-lighter px-2.5 py-1.5 rounded-lg border border-dark-border">
-                                                <div class="min-w-0">
-                                                    <p class="text-[10px] font-bold text-text-primary truncate">{{ $ban->name ?? $ban->full_name }}</p>
-                                                    <p class="text-[9px] text-text-secondary truncate">{{ $ban->email }}</p>
-                                                </div>
-                                                <button wire:click="unbanGlobally({{ $ban->id }})" class="p-1 rounded-lg text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-all shrink-0" title="Include back">
-                                                    <span class="material-symbols-outlined text-xs">close</span>
-                                                </button>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @else
-                                <p class="text-[10px] text-text-secondary text-center py-4 bg-dark-surface/30 rounded-xl border border-dashed border-dark-border/50">No global exclusions set</p>
-                            @endif
-                        </div>
-                    </div>
                 </div>
             </div>
         @endif
 
+    {{-- ═══ ELIGIBLE USERS TAB ═══ --}}
+    @if($activeSubTab === 'eligible')
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {{-- Left/Main Column: Eligible Users Table & Exclusions --}}
+            <div class="lg:col-span-2 space-y-6">
+                {{-- Table Card --}}
+                <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] shadow-sm border border-gray-200 dark:border-[#272B30] p-6 space-y-4">
+                    <div class="flex items-center justify-between gap-4 flex-wrap">
+                        <div>
+                            <h3 class="text-base font-bold text-[#111827] dark:text-[#FCFCFC]">Eligible Users ({{ $this->eligibleUsers->total() }})</h3>
+                            <p class="text-xs text-[#6F767E]">Currently eligible to win doorprizes based on global default requirements.</p>
+                        </div>
+                        <div class="relative w-full sm:w-64">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6F767E] text-lg">search</span>
+                            <input type="text" wire:model.live="eligibleSearch" placeholder="Search name or email..." class="h-11 w-full rounded-xl border-none bg-gray-50/50 dark:bg-[#0B0B0B]/20 pl-12 pr-4 text-sm font-medium text-[#111827] dark:text-[#FCFCFC] ring-1 ring-gray-200 dark:ring-[#272B30] focus:ring-2 focus:ring-[#2563EB] transition-all placeholder:text-[#6F767E]"/>
+                        </div>
+                    </div>
+
+                    @if($this->eligibleUsers->isEmpty())
+                        <div class="text-center py-12 rounded-2xl bg-gray-50/10 dark:bg-[#0B0B0B]/10 border border-dashed border-gray-200 dark:border-[#272B30]">
+                            <span class="material-symbols-outlined text-4xl text-[#6F767E] mb-2">group</span>
+                            <p class="text-sm font-semibold text-[#111827] dark:text-[#FCFCFC]">No eligible participants found</p>
+                            <p class="text-xs text-[#6F767E] mt-1">Check settings or search query</p>
+                        </div>
+                    @else
+                        <div class="rounded-2xl border border-gray-200 dark:border-[#272B30] overflow-hidden bg-white dark:bg-[#1A1A1A]">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50/50 dark:bg-[#0B0B0B]/20 border-b border-gray-100 dark:border-[#272B30]">
+                                        <th class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Participant</th>
+                                        <th class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Check-In</th>
+                                        <th class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Feedback</th>
+                                        <th class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 dark:divide-[#272B30]/30">
+                                    @foreach($this->eligibleUsers as $user)
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors">
+                                            <td class="px-6 py-4 min-w-0">
+                                                <div class="text-sm font-bold text-[#111827] dark:text-[#FCFCFC] truncate">{{ $user->name ?? $user->full_name }}</div>
+                                                <div class="text-xs text-[#6F767E] truncate mt-0.5">{{ $user->email }}</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                @if($user->check_in)
+                                                    <span class="inline-flex items-center rounded-lg bg-[#3F8C5826] text-[#83BF6E] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Checked In</span>
+                                                @else
+                                                    <span class="inline-flex items-center rounded-lg bg-gray-100 dark:bg-[#272B30] text-[#6F767E] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">No</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                @if($user->feedback_submitted)
+                                                    <span class="inline-flex items-center rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Submitted</span>
+                                                @else
+                                                    <span class="inline-flex items-center rounded-lg bg-gray-100 dark:bg-[#272B30] text-[#6F767E] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">No</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <button wire:click="banRegistrationGlobally({{ $user->id }})" class="px-3 py-1.5 rounded-lg text-xs font-bold text-[#FF6A55] hover:bg-[#FF6A55]/10 transition-colors inline-flex items-center gap-1" title="Exclude from all sessions">
+                                                    <span class="material-symbols-outlined text-sm">person_off</span> Exclude
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pt-4 flex items-center justify-between">
+                            <p class="text-sm font-medium text-[#6F767E]">
+                                Showing {{ $this->eligibleUsers->firstItem() }} to {{ $this->eligibleUsers->lastItem() }} of {{ $this->eligibleUsers->total() }} participants
+                            </p>
+                            <div class="flex items-center gap-2">
+                                @if($this->eligibleUsers->onFirstPage())
+                                <button disabled class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] opacity-50 cursor-not-allowed">
+                                    <span class="material-symbols-outlined text-xl">chevron_left</span>
+                                </button>
+                                @else
+                                <button wire:click="previousPage('eligiblePage')" class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] hover:bg-gray-100 dark:hover:bg-[#272B30] transition-all">
+                                    <span class="material-symbols-outlined text-xl">chevron_left</span>
+                                </button>
+                                @endif
+
+                                @foreach($this->eligibleUsers->getUrlRange(max(1, $this->eligibleUsers->currentPage() - 2), min($this->eligibleUsers->lastPage(), $this->eligibleUsers->currentPage() + 2)) as $page => $url)
+                                    @if($page == $this->eligibleUsers->currentPage())
+                                    <button class="h-10 w-10 rounded-xl bg-[#2563EB] text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-blue-500/20">{{ $page }}</button>
+                                    @else
+                                    <button wire:click="gotoPage({{ $page }}, 'eligiblePage')" class="h-10 w-10 rounded-xl bg-white dark:bg-[#1A1A1A] flex items-center justify-center text-sm font-bold text-[#6F767E] hover:bg-gray-50 dark:hover:bg-[#272B30] transition-all">{{ $page }}</button>
+                                    @endif
+                                @endforeach
+
+                                @if($this->eligibleUsers->hasMorePages())
+                                <button wire:click="nextPage('eligiblePage')" class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] hover:bg-gray-100 dark:hover:bg-[#272B30] transition-all">
+                                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                                </button>
+                                @else
+                                <button disabled class="h-10 w-10 rounded-xl bg-gray-50 dark:bg-[#0B0B0B] flex items-center justify-center text-[#6F767E] opacity-50 cursor-not-allowed">
+                                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                                </button>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Excluded List Card (Separate, below the table) --}}
+                <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] shadow-sm border border-gray-200 dark:border-[#272B30] p-6 space-y-4">
+                    <div>
+                        <h3 class="text-base font-bold text-[#111827] dark:text-[#FCFCFC]">Globally Excluded Participants ({{ $this->globalBans->count() }})</h3>
+                        <p class="text-xs text-[#6F767E]">These users will be skipped in all drawing sessions.</p>
+                    </div>
+
+                    @if($this->globalBans->isEmpty())
+                        <div class="text-center py-8 rounded-2xl bg-gray-50/10 dark:bg-[#0B0B0B]/10 border border-dashed border-gray-200 dark:border-[#272B30]">
+                            <p class="text-xs text-[#6F767E]">No participants are currently excluded.</p>
+                        </div>
+                    @else
+                        <div class="rounded-2xl border border-gray-200 dark:border-[#272B30] overflow-hidden bg-white dark:bg-[#1A1A1A]">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50/50 dark:bg-[#0B0B0B]/20 border-b border-gray-100 dark:border-[#272B30]">
+                                        <th class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Participant</th>
+                                        <th class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Email</th>
+                                        <th class="px-6 py-4 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 dark:divide-[#272B30]/30">
+                                    @foreach($this->globalBans as $ban)
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors">
+                                            <td class="px-6 py-4 font-bold text-[#111827] dark:text-[#FCFCFC]">{{ $ban->name ?? $ban->full_name }}</td>
+                                            <td class="px-6 py-4 text-sm text-[#6F767E]">{{ $ban->email }}</td>
+                                            <td class="px-6 py-4 text-right">
+                                                <button wire:click="unbanGlobally({{ $ban->id }})" class="px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-500 hover:bg-emerald-500/10 transition-colors inline-flex items-center gap-1" title="Include back in drawings">
+                                                    <span class="material-symbols-outlined text-sm">check</span> Include
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Right Column: Global Session Defaults Settings --}}
+            <div class="space-y-6">
+                {{-- Session Defaults Card --}}
+                <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] shadow-sm border border-gray-200 dark:border-[#272B30] p-6 space-y-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-[#111827] dark:text-[#FCFCFC]">Global Session Defaults</h4>
+                        <p class="text-xs text-[#6F767E]">Default settings for new raffle sessions</p>
+                    </div>
+
+                    <div class="space-y-4 pt-4 border-t border-gray-100 dark:border-[#272B30]">
+                        <label class="flex items-start gap-3 cursor-pointer group">
+                            <input type="checkbox" wire:model.live="defaultRequireCheckin" class="custom-checkbox shrink-0 mt-0.5" />
+                            <div>
+                                <span class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC] group-hover:text-[#2563EB] transition-colors">Require Check-In</span>
+                                <p class="text-[10px] text-[#6F767E]">Only checked-in attendees are eligible by default.</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 cursor-pointer group">
+                            <input type="checkbox" wire:model.live="defaultRequireFeedback" class="custom-checkbox shrink-0 mt-0.5" />
+                            <div>
+                                <span class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC] group-hover:text-[#2563EB] transition-colors">Require Feedback</span>
+                                <p class="text-[10px] text-[#6F767E]">Only attendees who submitted feedback are eligible by default.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Status Summary Card --}}
+                <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] shadow-sm border border-gray-200 dark:border-[#272B30] p-6 space-y-3">
+                    <h4 class="text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Doorprize Pool Stats</h4>
+                    <div class="space-y-2.5 pt-3 border-t border-gray-100 dark:border-[#272B30]">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-[#6F767E]">Approved Attendees</span>
+                            <span class="font-bold text-[#111827] dark:text-[#FCFCFC]">{{ $event->approved_count }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-[#6F767E]">Checked In Guests</span>
+                            <span class="font-bold text-[#111827] dark:text-[#FCFCFC]">{{ $event->checkedin_count }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs pt-2 border-t border-dashed border-gray-100 dark:border-[#272B30]">
+                            <span class="text-[#6F767E] font-semibold">Eligible Pool</span>
+                            <span class="font-bold text-emerald-500">{{ $this->eligibleUsers->total() }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- ═══ ALL WINNERS TAB ═══ --}}
     @if($activeSubTab === 'winners')
-        <div class="glass-panel rounded-2xl p-6">
-            <h3 class="text-base font-bold text-text-primary mb-4">All Winners ({{ $this->allWinners->count() }})</h3>
+        <div class="space-y-4">
+            <div>
+                <h3 class="text-base font-bold text-[#111827] dark:text-[#FCFCFC]">All Winners ({{ $this->allWinners->count() }})</h3>
+                <p class="text-xs text-[#6F767E]">List of all participants who have won doorprizes.</p>
+            </div>
+
             @if($this->allWinners->isEmpty())
-                <div class="text-center py-12">
-                    <span class="material-symbols-outlined text-4xl text-text-secondary mb-2">trophy</span>
-                    <p class="text-sm font-semibold text-text-primary">No winners drawn yet</p>
+                <div class="text-center py-12 rounded-3xl bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#272B30]">
+                    <span class="material-symbols-outlined text-4xl text-[#6F767E] mb-2">trophy</span>
+                    <p class="text-sm font-semibold text-[#111827] dark:text-[#FCFCFC]">No winners drawn yet</p>
                 </div>
             @else
-                <div class="overflow-x-auto rounded-xl border border-dark-border">
-                    <table class="w-full text-sm text-text-primary border-collapse">
-                        <thead>
-                            <tr class="border-b border-dark-border bg-dark-surface-lighter">
-                                <th class="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase">Winner</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase">Email</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase">Prize</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase">Session</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase">Won At</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-dark-border">
-                            @foreach($this->allWinners as $w)
-                                <tr class="hover:bg-dark-surface-lighter transition-colors">
-                                    <td class="px-4 py-3 font-medium">{{ $w->registration->name ?? $w->registration->full_name ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-text-secondary">{{ $w->registration->email ?? '-' }}</td>
-                                    <td class="px-4 py-3">{{ $w->prize->name ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-text-secondary">{{ $w->prize->session->name ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-text-secondary text-xs">{{ $w->won_at?->format('d M Y H:i') }}</td>
+                <div class="rounded-3xl bg-white dark:bg-[#1A1A1A] shadow-sm border border-gray-200 dark:border-[#272B30] overflow-hidden relative">
+                    <div class="overflow-x-auto no-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50/50 dark:bg-[#0B0B0B]/20 border-b border-gray-100 dark:border-[#272B30]">
+                                    <th class="px-8 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Winner</th>
+                                    <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Email</th>
+                                    <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Prize</th>
+                                    <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Session</th>
+                                    <th class="px-8 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-right">Won At</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50 dark:divide-[#272B30]/30">
+                                @foreach($this->allWinners as $w)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors">
+                                        <td class="px-8 py-4 text-sm font-bold text-[#111827] dark:text-[#FCFCFC]">{{ $w->registration->name ?? $w->registration->full_name ?? '-' }}</td>
+                                        <td class="px-6 py-4 text-sm text-[#6F767E]">{{ $w->registration->email ?? '-' }}</td>
+                                        <td class="px-6 py-4 text-sm text-[#111827] dark:text-[#FCFCFC]">{{ $w->prize->name ?? '-' }}</td>
+                                        <td class="px-6 py-4 text-sm text-[#6F767E]">{{ $w->prize->session->name ?? '-' }}</td>
+                                        <td class="px-8 py-4 text-sm text-[#6F767E] text-right">{{ $w->won_at?->format('d M Y H:i') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             @endif
         </div>
