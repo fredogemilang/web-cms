@@ -161,6 +161,123 @@ class DoorprizeDisplayController extends Controller
     }
 
     /**
+     * AJAX: Draw winners for all available slots in the given session.
+     */
+    public function drawSession(Request $request, string $slug)
+    {
+        $event = Event::where('slug', $slug)->firstOrFail();
+
+        $request->validate([
+            'session_id' => 'required|integer',
+        ]);
+
+        $session = DoorprizeSession::where('event_id', $event->id)
+            ->where('id', $request->session_id)
+            ->with(['prizes.winners', 'bans'])
+            ->first();
+
+        if (!$session) {
+            return response()->json(['error' => 'Session not found'], 404);
+        }
+
+        // Build eligible pool
+        $query = EventRegistration::where('event_id', $event->id)
+            ->where('status', 'approved');
+
+        if ($session->require_checkin) {
+            $query->where('check_in', true);
+        }
+
+        if ($session->require_feedback) {
+            $query->where('feedback_submitted', true);
+        }
+
+        // Exclude already won in this event (doorprize winners)
+        $allWinnersQuery = DoorprizeWinner::whereHas('prize.session', function($q) use ($event) {
+            $q->where('event_id', $event->id);
+        });
+        $alreadyWonIds = $allWinnersQuery->pluck('registration_id')->toArray();
+
+        if (!empty($alreadyWonIds)) {
+            $query->whereNotIn('id', $alreadyWonIds);
+        }
+
+        // Exclude banned
+        $bannedIds = $session->bans->pluck('registration_id')->toArray();
+        if (!empty($bannedIds)) {
+            $query->whereNotIn('id', $bannedIds);
+        }
+
+        $eligiblePool = $query->get();
+
+        if ($eligiblePool->isEmpty()) {
+            return response()->json(['error' => 'No eligible participants remaining'], 400);
+        }
+
+        $newWinners = [];
+        \DB::beginTransaction();
+        try {
+            foreach ($session->prizes as $prize) {
+                $remaining = $prize->getRemainingSlots();
+                for ($i = 0; $i < $remaining; $i++) {
+                    if ($eligiblePool->isEmpty()) {
+                        break;
+                    }
+                    $winner = $eligiblePool->random();
+                    // Remove from pool to prevent double winner in this run
+                    $eligiblePool = $eligiblePool->reject(fn($item) => $item->id === $winner->id);
+
+                    // Record winner
+                    DoorprizeWinner::create([
+                        'prize_id' => $prize->id,
+                        'registration_id' => $winner->id,
+                        'won_at' => Carbon::now(),
+                    ]);
+
+                    $newWinners[] = [
+                        'name' => $winner->name ?? $winner->full_name,
+                        'email' => $winner->email,
+                        'organization' => $winner->organization ?? $winner->company_name ?? '',
+                        'prize_id' => $prize->id,
+                        'prize_name' => $prize->name,
+                    ];
+                }
+            }
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json(['error' => 'Error recording winners: ' . $e->getMessage()], 500);
+        }
+
+        if (empty($newWinners)) {
+            return response()->json(['error' => 'No winners could be drawn'], 400);
+        }
+
+        // Refresh eligible names (excluding new winners)
+        $eligibleNames = $this->getEligibleNames($event);
+
+        // Refresh session data
+        $session->load(['prizes.winners.registration', 'bans']);
+        $prizesData = $session->prizes->map(function ($prize) {
+            return [
+                'id' => $prize->id,
+                'name' => $prize->name,
+                'max_winners' => $prize->max_winners,
+                'winners_count' => $prize->winners->count(),
+                'remaining' => $prize->getRemainingSlots(),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'winners' => $newWinners,
+            'prizes' => $prizesData,
+            'eligibleNames' => $eligibleNames,
+            'poolSize' => $eligiblePool->count(),
+        ]);
+    }
+
+    /**
      * Get all eligible participant names for the rolling animation.
      */
     private function getEligibleNames(Event $event): array

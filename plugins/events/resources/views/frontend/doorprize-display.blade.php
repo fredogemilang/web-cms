@@ -74,6 +74,109 @@
 
         /* No-slots badge */
         .no-slots { padding:12px 24px; border-radius:12px; background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2); color:#f87171; font-size:14px; font-weight:700; }
+
+        /* Grid of slots */
+        .grid-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        /* Slot card style */
+        .slot-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .slot-card.rolling {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+            background: rgba(99, 102, 241, 0.02);
+        }
+
+        .slot-card.winner-drawn {
+            border-color: rgba(251, 191, 36, 0.4);
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.2);
+            background: rgba(251, 191, 36, 0.05);
+            transform: scale(1.05);
+        }
+
+        .slot-card .prize-tag {
+            font-size: 11px;
+            font-weight: 800;
+            color: #fbbf24;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .slot-card .winner-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 6px;
+            transition: color 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .slot-card .winner-company {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .slot-card.winner-drawn .winner-name {
+            color: #fff;
+            font-size: 26px;
+            background: linear-gradient(135deg, #fff, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slot-card.winner-drawn .winner-company {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .slot-card .trophy-icon {
+            font-size: 40px;
+            color: #fbbf24;
+            margin-bottom: 12px;
+            display: none;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3));
+        }
+
+        .slot-card.winner-drawn .trophy-icon {
+            display: block;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -112,7 +215,7 @@
             {{-- Idle --}}
             <div id="idleState" class="idle-msg pulse">
                 <span class="material-symbols-outlined">casino</span>
-                Select a session and prize to begin
+                Select a session to begin
             </div>
 
             {{-- Roller --}}
@@ -128,6 +231,11 @@
                 <div class="wname" id="winnerName"></div>
                 <div class="worg" id="winnerOrg"></div>
                 <div class="wprize" id="winnerPrize"></div>
+            </div>
+
+            {{-- Multi Mode Stage --}}
+            <div id="multiModeStage" style="display:none; width:100%;">
+                <div id="slotsGrid" class="grid-slots"></div>
             </div>
         </div>
 
@@ -152,6 +260,7 @@
 <script>
 // ─── Data ───
 const DRAW_URL = @json(route('events.doorprize.draw', $event->slug));
+const DRAW_SESSION_URL = @json(route('events.doorprize.draw-session', $event->slug));
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 let sessions = {!! $sessionsJson !!};
 let eligibleNames = {!! $eligibleNamesJson !!};
@@ -160,6 +269,7 @@ let selectedSessionId = null;
 let selectedPrizeId = null;
 let currentPrize = null;
 let currentSession = null;
+let isMultiMode = false;
 
 // ─── States ───
 let state = 'idle'; // idle | rolling | stopping | revealed | cooldown
@@ -167,6 +277,7 @@ let rollerAnim = null;
 let rollerPos = 0;
 let rollerSpeed = 0;
 const ITEM_H = 72;
+let multiModeIntervals = [];
 let cooldownTimer = null;
 let recentWinnersList = [];
 
@@ -192,6 +303,13 @@ let recentWinnersList = [];
     renderRecentWinners();
 })();
 
+function checkIsMultiMode(session) {
+    if (!session) return false;
+    if (session.prizes.length > 1) return true;
+    if (session.prizes.length === 1 && session.prizes[0].max_winners > 2) return true;
+    return false;
+}
+
 function onSessionChange() {
     const sel = document.getElementById('sessionSelect');
     selectedSessionId = sel.value ? parseInt(sel.value) : null;
@@ -199,15 +317,26 @@ function onSessionChange() {
 
     const pSel = document.getElementById('prizeSelect');
     pSel.innerHTML = '<option value="">— Select Prize —</option>';
+    
     if (currentSession) {
-        currentSession.prizes.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p.id;
-            opt.textContent = p.name + (p.remaining <= 0 ? ' (FULL)' : ` (${p.remaining} left)`);
-            if (p.remaining <= 0) opt.disabled = true;
-            pSel.appendChild(opt);
-        });
+        isMultiMode = checkIsMultiMode(currentSession);
+        if (isMultiMode) {
+            pSel.style.display = 'none';
+        } else {
+            pSel.style.display = '';
+            currentSession.prizes.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name + (p.remaining <= 0 ? ' (FULL)' : ` (${p.remaining} left)`);
+                if (p.remaining <= 0) opt.disabled = true;
+                pSel.appendChild(opt);
+            });
+        }
+    } else {
+        pSel.style.display = '';
+        isMultiMode = false;
     }
+    
     selectedPrizeId = null;
     currentPrize = null;
     updateUI();
@@ -226,37 +355,62 @@ function updateUI() {
     const reveal = document.getElementById('winnerReveal');
     const btn = document.getElementById('drawBtn');
     const info = document.getElementById('prizeInfo');
+    const multiStage = document.getElementById('multiModeStage');
 
-    if (!currentPrize || !currentSession) {
+    // Reset visibility states
+    idle.style.display = 'none';
+    roller.style.display = 'none';
+    reveal.classList.remove('visible');
+    info.style.display = 'none';
+    multiStage.style.display = 'none';
+    btn.disabled = true;
+
+    if (!currentSession) {
         idle.style.display = '';
-        roller.style.display = 'none';
-        reveal.classList.remove('visible');
-        info.style.display = 'none';
-        btn.disabled = true;
         state = 'idle';
         return;
     }
 
-    document.getElementById('prizeNameDisplay').textContent = currentPrize.name;
-    document.getElementById('prizeRemaining').textContent = currentPrize.remaining;
-    document.getElementById('prizeTotal').textContent = currentPrize.max_winners;
-    info.style.display = '';
-
-    if (currentPrize.remaining <= 0) {
-        idle.style.display = 'none';
-        roller.style.display = 'none';
-        reveal.classList.remove('visible');
-        btn.disabled = true;
-        document.getElementById('btnLabel').textContent = 'No Slots';
+    if (isMultiMode) {
+        // Multi Mode
+        const totalRemaining = currentSession.prizes.reduce((sum, p) => sum + p.remaining, 0);
+        if (totalRemaining <= 0) {
+            btn.disabled = true;
+            document.getElementById('btnLabel').textContent = 'No Slots';
+            state = 'idle';
+        } else {
+            multiStage.style.display = '';
+            btn.disabled = false;
+            btn.className = 'draw-btn start';
+            document.getElementById('btnLabel').textContent = 'Start';
+            state = 'ready';
+            buildMultiModeSlots();
+        }
     } else {
-        idle.style.display = 'none';
-        roller.style.display = '';
-        reveal.classList.remove('visible');
-        btn.disabled = false;
-        btn.className = 'draw-btn start';
-        document.getElementById('btnLabel').textContent = 'Start';
-        state = 'ready';
-        buildRoller();
+        // Single Mode
+        if (!currentPrize) {
+            idle.style.display = '';
+            state = 'idle';
+            return;
+        }
+
+        document.getElementById('prizeNameDisplay').textContent = currentPrize.name;
+        document.getElementById('prizeRemaining').textContent = currentPrize.remaining;
+        document.getElementById('prizeTotal').textContent = currentPrize.max_winners;
+        info.style.display = '';
+
+        if (currentPrize.remaining <= 0) {
+            btn.disabled = true;
+            document.getElementById('btnLabel').textContent = 'No Slots';
+            state = 'idle';
+        } else {
+            roller.style.display = '';
+            btn.disabled = false;
+            btn.className = 'draw-btn start';
+            document.getElementById('btnLabel').textContent = 'Start';
+            state = 'ready';
+            buildRoller();
+        }
     }
     updateEligibleCount();
 }
@@ -266,13 +420,12 @@ function updateEligibleCount() {
         `Eligible pool: ${eligibleNames.length} participants`;
 }
 
-// ─── Roller ───
+// ─── Roller (Single Mode) ───
 function buildRoller() {
     const track = document.getElementById('rollerTrack');
     track.innerHTML = '';
     if (eligibleNames.length === 0) return;
 
-    // Build enough items to fill viewport + buffer (repeat names)
     const needed = Math.max(80, eligibleNames.length * 3);
     for (let i = 0; i < needed; i++) {
         const data = eligibleNames[i % eligibleNames.length];
@@ -302,12 +455,154 @@ function highlightCenter() {
     }
 }
 
-// ─── Draw Button ───
+// ─── Slots (Multi Mode) ───
+function buildMultiModeSlots() {
+    const grid = document.getElementById('slotsGrid');
+    grid.innerHTML = '';
+    if (eligibleNames.length === 0) return;
+
+    currentSession.prizes.forEach(p => {
+        for (let i = 0; i < p.remaining; i++) {
+            const card = document.createElement('div');
+            card.className = 'slot-card';
+            card.innerHTML = `
+                <div class="prize-tag">🎁 ${escHtml(p.name)}</div>
+                <span class="material-symbols-outlined trophy-icon">emoji_events</span>
+                <div class="winner-name">???</div>
+                <div class="winner-company">Ready to draw</div>
+            `;
+            grid.appendChild(card);
+        }
+    });
+}
+
+function startMultiModeRolling() {
+    state = 'rolling';
+    const btn = document.getElementById('drawBtn');
+    btn.className = 'draw-btn stop';
+    document.getElementById('btnLabel').textContent = 'Stop';
+
+    const cards = document.querySelectorAll('.slot-card');
+    cards.forEach(card => {
+        card.classList.remove('winner-drawn');
+        card.classList.add('rolling');
+    });
+
+    multiModeIntervals = [];
+    cards.forEach((card, index) => {
+        const nameEl = card.querySelector('.winner-name');
+        const companyEl = card.querySelector('.winner-company');
+
+        const intervalId = setInterval(() => {
+            if (eligibleNames.length > 0) {
+                const randomUser = eligibleNames[Math.floor(Math.random() * eligibleNames.length)];
+                nameEl.textContent = randomUser.name;
+                companyEl.textContent = randomUser.organization || '';
+            }
+        }, 60 + (index * 10)); // visually offsets the roll of different cards
+        multiModeIntervals.push(intervalId);
+    });
+}
+
+async function stopMultiModeRolling() {
+    state = 'stopping';
+    const btn = document.getElementById('drawBtn');
+    btn.disabled = true;
+    document.getElementById('btnLabel').textContent = '...';
+
+    let result;
+    try {
+        const resp = await fetch(DRAW_SESSION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+            body: JSON.stringify({ session_id: selectedSessionId }),
+        });
+        result = await resp.json();
+        if (result.error) { alert(result.error); resetToReady(); return; }
+    } catch (e) { alert('Network error'); resetToReady(); return; }
+
+    // Clear shuffle intervals
+    multiModeIntervals.forEach(id => clearInterval(id));
+    multiModeIntervals = [];
+
+    const cards = document.querySelectorAll('.slot-card');
+    const winners = result.winners;
+
+    // Sequential reveal animation of the winners
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const winner = winners[i];
+
+        if (winner) {
+            await new Promise(resolve => setTimeout(resolve, 400)); // 400ms delay per card reveal
+
+            card.classList.remove('rolling');
+            card.classList.add('winner-drawn');
+            card.querySelector('.winner-name').textContent = winner.name;
+            card.querySelector('.winner-company').textContent = winner.organization || '';
+
+            // Confetti burst targeted to card location
+            const rect = card.getBoundingClientRect();
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: {
+                    x: (rect.left + rect.width / 2) / window.innerWidth,
+                    y: (rect.top + rect.height / 2) / window.innerHeight
+                }
+            });
+
+            recentWinnersList.unshift({ name: winner.name, prize: winner.prize_name });
+        } else {
+            card.classList.remove('rolling');
+            card.querySelector('.winner-name').textContent = 'Empty';
+            card.querySelector('.winner-company').textContent = 'No eligible participants left';
+        }
+    }
+
+    // Grand final confetti
+    setTimeout(() => {
+        confetti({
+            particleCount: 150,
+            spread: 120,
+            origin: { y: 0.6 }
+        });
+    }, 200);
+
+    eligibleNames = result.eligibleNames;
+    
+    // Update currentSession prizes remaining counters
+    if (currentSession) {
+        currentSession.prizes.forEach(p => {
+            const updatedP = result.prizes.find(up => up.id === p.id);
+            if (updatedP) {
+                p.remaining = updatedP.remaining;
+                p.winners_count = updatedP.winners_count;
+            }
+        });
+    }
+
+    renderRecentWinners();
+    updateEligibleCount();
+
+    state = 'revealed';
+    startCooldown(5);
+}
+
+// ─── Draw Controls ───
 function handleDrawBtn() {
     if (state === 'ready' || state === 'idle') {
-        startRolling();
+        if (isMultiMode) {
+            startMultiModeRolling();
+        } else {
+            startRolling();
+        }
     } else if (state === 'rolling') {
-        stopRolling();
+        if (isMultiMode) {
+            stopMultiModeRolling();
+        } else {
+            stopRolling();
+        }
     }
 }
 
@@ -320,7 +615,7 @@ function startRolling() {
     document.getElementById('winnerReveal').classList.remove('visible');
     document.getElementById('rollerContainer').style.display = '';
 
-    rollerSpeed = 18; // pixels per frame
+    rollerSpeed = 18;
     rollerPos = 0;
 
     function animate() {
@@ -329,7 +624,7 @@ function startRolling() {
         const totalH = track.children.length * ITEM_H;
 
         rollerPos -= rollerSpeed;
-        if (Math.abs(rollerPos) >= totalH / 2) rollerPos = 0; // loop
+        if (Math.abs(rollerPos) >= totalH / 2) rollerPos = 0;
 
         track.style.transform = `translateY(${rollerPos}px)`;
         highlightCenter();
@@ -344,7 +639,6 @@ async function stopRolling() {
     btn.disabled = true;
     document.getElementById('btnLabel').textContent = '...';
 
-    // POST to server to pick winner
     let result;
     try {
         const resp = await fetch(DRAW_URL, {
@@ -356,10 +650,8 @@ async function stopRolling() {
         if (result.error) { alert(result.error); resetToReady(); return; }
     } catch (e) { alert('Network error'); resetToReady(); return; }
 
-    // Decelerate animation
     await decelerate(result.winner.name);
 
-    // Update data
     eligibleNames = result.eligibleNames;
     if (currentPrize) {
         currentPrize.remaining = result.prize.remaining;
@@ -367,7 +659,6 @@ async function stopRolling() {
         document.getElementById('prizeRemaining').textContent = result.prize.remaining;
     }
 
-    // Show winner
     cancelAnimationFrame(rollerAnim);
     document.getElementById('rollerContainer').style.display = 'none';
     showWinner(result.winner, result.prize.name);
@@ -376,7 +667,6 @@ async function stopRolling() {
     renderRecentWinners();
     updateEligibleCount();
 
-    // Cooldown
     state = 'revealed';
     startCooldown(5);
 }
@@ -412,7 +702,6 @@ function showWinner(winner, prizeName) {
     document.getElementById('winnerPrize').textContent = '🎁 ' + prizeName;
     document.getElementById('winnerReveal').classList.add('visible');
 
-    // Confetti
     const count = 200;
     const defaults = { origin: { y: 0.6 }, zIndex: 9999 };
     function fire(particleRatio, opts) {
@@ -445,25 +734,45 @@ function startCooldown(seconds) {
 
 function resetToReady() {
     cancelAnimationFrame(rollerAnim);
+    multiModeIntervals.forEach(id => clearInterval(id));
+    multiModeIntervals = [];
+
     const btn = document.getElementById('drawBtn');
 
-    if (currentPrize && currentPrize.remaining <= 0) {
-        btn.disabled = true;
+    if (isMultiMode) {
+        const totalRemaining = currentSession ? currentSession.prizes.reduce((sum, p) => sum + p.remaining, 0) : 0;
+        if (totalRemaining <= 0) {
+            btn.disabled = true;
+            btn.className = 'draw-btn start';
+            document.getElementById('btnLabel').textContent = 'No Slots';
+            state = 'idle';
+            return;
+        }
+
+        btn.disabled = false;
         btn.className = 'draw-btn start';
-        document.getElementById('btnLabel').textContent = 'No Slots';
-        state = 'idle';
-        document.getElementById('rollerContainer').style.display = 'none';
-        return;
+        document.getElementById('btnLabel').textContent = 'Start';
+        state = 'ready';
+        buildMultiModeSlots();
+    } else {
+        if (currentPrize && currentPrize.remaining <= 0) {
+            btn.disabled = true;
+            btn.className = 'draw-btn start';
+            document.getElementById('btnLabel').textContent = 'No Slots';
+            state = 'idle';
+            document.getElementById('rollerContainer').style.display = 'none';
+            return;
+        }
+
+        btn.disabled = false;
+        btn.className = 'draw-btn start';
+        document.getElementById('btnLabel').textContent = 'Start';
+        state = 'ready';
+
+        document.getElementById('winnerReveal').classList.remove('visible');
+        document.getElementById('rollerContainer').style.display = '';
+        buildRoller();
     }
-
-    btn.disabled = false;
-    btn.className = 'draw-btn start';
-    document.getElementById('btnLabel').textContent = 'Start';
-    state = 'ready';
-
-    document.getElementById('winnerReveal').classList.remove('visible');
-    document.getElementById('rollerContainer').style.display = '';
-    buildRoller();
 }
 
 function renderRecentWinners() {

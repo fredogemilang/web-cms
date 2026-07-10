@@ -206,4 +206,5 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
     // Doorprize display (public — for projector/big screen)
     Route::get('/{slug}/doorprize/display', [DoorprizeDisplayController::class, 'show'])->name('doorprize.display');
     Route::post('/{slug}/doorprize/draw', [DoorprizeDisplayController::class, 'draw'])->name('doorprize.draw');
+    Route::post('/{slug}/doorprize/draw-session', [DoorprizeDisplayController::class, 'drawSession'])->name('doorprize.draw-session');
 });
