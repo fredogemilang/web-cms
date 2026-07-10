@@ -23,7 +23,7 @@ class DoorprizeDisplayController extends Controller
         $event = Event::where('slug', $slug)->firstOrFail();
 
         $sessions = DoorprizeSession::where('event_id', $event->id)
-            ->with(['prizes.winners.registration', 'bans'])
+            ->with(['prizes.winners.registration', 'prizes.activeWinners', 'bans'])
             ->orderBy('order')
             ->get();
 
@@ -41,13 +41,14 @@ class DoorprizeDisplayController extends Controller
                         'name' => $prize->name,
                         'gift_description' => $prize->gift_description,
                         'max_winners' => $prize->max_winners,
-                        'winners_count' => $prize->winners->count(),
+                        'winners_count' => $prize->activeWinners->count(),
                         'remaining' => $prize->getRemainingSlots(),
                         'winners' => $prize->winners->map(fn($w) => [
                             'id' => $w->id,
                             'name' => $w->registration->name ?? $w->registration->full_name ?? 'Unknown',
                             'email' => $w->registration->email ?? '',
                             'organization' => $w->registration->organization ?? $w->registration->company_name ?? '',
+                            'status' => $w->status,
                             'won_at' => $w->won_at?->format('H:i'),
                         ]),
                     ];
@@ -110,11 +111,11 @@ class DoorprizeDisplayController extends Controller
             $query->where('feedback_submitted', true);
         }
 
-        // Exclude already won in this session
-        $sessionPrizeIds = $session->prizes->pluck('id');
-        $alreadyWonIds = DoorprizeWinner::whereIn('prize_id', $sessionPrizeIds)
-            ->pluck('registration_id')
-            ->toArray();
+        // Exclude already won in this event (doorprize winners)
+        $allWinnersQuery = DoorprizeWinner::whereHas('prize.session', function($q) use ($event) {
+            $q->where('event_id', $event->id);
+        });
+        $alreadyWonIds = $allWinnersQuery->pluck('registration_id')->toArray();
 
         if (!empty($alreadyWonIds)) {
             $query->whereNotIn('id', $alreadyWonIds);
@@ -146,7 +147,7 @@ class DoorprizeDisplayController extends Controller
         $eligibleNames = $this->getEligibleNames($event);
 
         // Refresh session data
-        $session->load(['prizes.winners.registration', 'bans']);
+        $session->load(['prizes.winners.registration', 'prizes.activeWinners', 'bans']);
         $updatedPrize = $session->prizes->firstWhere('id', $prize->id);
 
         return response()->json([
@@ -160,7 +161,7 @@ class DoorprizeDisplayController extends Controller
             'prize' => [
                 'name' => $prize->name,
                 'remaining' => $updatedPrize->getRemainingSlots(),
-                'winners_count' => $updatedPrize->winners->count(),
+                'winners_count' => $updatedPrize->activeWinners->count(),
             ],
             'eligibleNames' => $eligibleNames,
             'poolSize' => $eligible->count(),
@@ -264,13 +265,13 @@ class DoorprizeDisplayController extends Controller
         $eligibleNames = $this->getEligibleNames($event);
 
         // Refresh session data
-        $session->load(['prizes.winners.registration', 'bans']);
+        $session->load(['prizes.winners.registration', 'prizes.activeWinners', 'bans']);
         $prizesData = $session->prizes->map(function ($prize) {
             return [
                 'id' => $prize->id,
                 'name' => $prize->name,
                 'max_winners' => $prize->max_winners,
-                'winners_count' => $prize->winners->count(),
+                'winners_count' => $prize->activeWinners->count(),
                 'remaining' => $prize->getRemainingSlots(),
             ];
         });

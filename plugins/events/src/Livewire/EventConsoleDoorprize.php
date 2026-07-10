@@ -304,11 +304,10 @@ class EventConsoleDoorprize extends Component
             $query->where('feedback_submitted', true);
         }
 
-        // Exclude already won in this session (any prize)
-        $sessionPrizeIds = $session->prizes->pluck('id');
-        $alreadyWonIds = DoorprizeWinner::whereIn('prize_id', $sessionPrizeIds)
-            ->pluck('registration_id')
-            ->toArray();
+        // Exclude already won in this event (doorprize winners)
+        $alreadyWonIds = DoorprizeWinner::whereHas('prize.session', function($q) {
+            $q->where('event_id', $this->event->id);
+        })->pluck('registration_id')->toArray();
 
         if (!empty($alreadyWonIds)) {
             $query->whereNotIn('id', $alreadyWonIds);
@@ -403,6 +402,16 @@ class EventConsoleDoorprize extends Component
     {
         DoorprizeWinner::destroy($winnerId);
         $this->dispatch('notify', type: 'success', message: 'Winner removed');
+    }
+
+    public function markAsRedraw(int $winnerId)
+    {
+        $winner = DoorprizeWinner::find($winnerId);
+        if ($winner) {
+            $status = $winner->status === 'redraw' ? 'active' : 'redraw';
+            $winner->update(['status' => $status]);
+            $this->dispatch('notify', type: 'success', message: 'Winner status updated to ' . $status);
+        }
     }
 
     // ═══════════════════════════════════════════════════════
@@ -533,6 +542,14 @@ class EventConsoleDoorprize extends Component
         $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
         if (!empty($globalBannedIds)) {
             $query->whereNotIn('id', $globalBannedIds);
+        }
+
+        $alreadyWonIds = DoorprizeWinner::whereHas('prize.session', function($q) {
+            $q->where('event_id', $this->event->id);
+        })->pluck('registration_id')->toArray();
+
+        if (!empty($alreadyWonIds)) {
+            $query->whereNotIn('id', $alreadyWonIds);
         }
 
         if ($this->eligibleSearch) {

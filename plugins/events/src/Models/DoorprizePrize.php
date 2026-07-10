@@ -34,12 +34,17 @@ class DoorprizePrize extends Model
         return $this->hasMany(DoorprizeWinner::class, 'prize_id');
     }
 
+    public function activeWinners(): HasMany
+    {
+        return $this->hasMany(DoorprizeWinner::class, 'prize_id')->where('status', 'active');
+    }
+
     /**
      * Check if this prize still has available winner slots.
      */
     public function getHasAvailableSlotsAttribute(): bool
     {
-        return $this->winners()->count() < $this->max_winners;
+        return $this->activeWinners()->count() < $this->max_winners;
     }
 
     /**
@@ -47,6 +52,6 @@ class DoorprizePrize extends Model
      */
     public function getRemainingSlots(): int
     {
-        return max(0, $this->max_winners - $this->winners()->count());
+        return max(0, $this->max_winners - $this->activeWinners()->count());
     }
 }

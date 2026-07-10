@@ -12,6 +12,7 @@ class DoorprizeWinner extends Model
     protected $fillable = [
         'prize_id',
         'registration_id',
+        'status',
         'won_at',
     ];
 

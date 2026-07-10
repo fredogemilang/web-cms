@@ -121,15 +121,23 @@
                                                         <p class="text-[10px] font-bold text-text-secondary uppercase tracking-wider mb-2">Winners</p>
                                                         <div class="space-y-1.5 max-h-36 overflow-y-auto no-scrollbar">
                                                             @foreach($prize->winners as $winner)
-                                                                <div class="flex items-center justify-between text-xs bg-dark-surface-lighter px-2.5 py-1.5 rounded-lg transition-colors border border-dark-border">
-                                                                    <span class="text-emerald-500 flex items-center gap-1.5 min-w-0">
-                                                                        <span class="material-symbols-outlined text-xs shrink-0">trophy</span>
+                                                                <div class="flex items-center justify-between text-xs bg-dark-surface-lighter px-2.5 py-1.5 rounded-lg transition-colors border border-dark-border group {{ $winner->status === 'redraw' ? 'opacity-50' : '' }}">
+                                                                    <span class="{{ $winner->status === 'redraw' ? 'text-text-secondary line-through' : 'text-emerald-500' }} flex items-center gap-1.5 min-w-0">
+                                                                        <span class="material-symbols-outlined text-xs shrink-0">{{ $winner->status === 'redraw' ? 'refresh' : 'trophy' }}</span>
                                                                         <span class="truncate font-semibold">{{ $winner->registration->name ?? $winner->registration->full_name ?? 'Unknown' }}</span>
+                                                                        @if($winner->status === 'redraw')
+                                                                            <span class="text-[9px] text-red-500 font-bold uppercase shrink-0">(Redrawn)</span>
+                                                                        @endif
                                                                         <span class="text-text-secondary truncate text-[10px]">({{ $winner->registration->email ?? '' }})</span>
                                                                     </span>
-                                                                    <button wire:click="removeWinner({{ $winner->id }})" wire:confirm="Remove this winner?" class="text-text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 shrink-0" title="Remove Winner">
-                                                                        <span class="material-symbols-outlined text-xs">close</span>
-                                                                    </button>
+                                                                    <div class="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 shrink-0">
+                                                                        <button wire:click="markAsRedraw({{ $winner->id }})" class="text-text-secondary hover:text-yellow-500 transition-colors" title="{{ $winner->status === 'redraw' ? 'Re-activate Winner' : 'Mark as Absent (Redraw)' }}">
+                                                                            <span class="material-symbols-outlined text-xs">autorenew</span>
+                                                                        </button>
+                                                                        <button wire:click="removeWinner({{ $winner->id }})" wire:confirm="Remove this winner?" class="text-text-secondary hover:text-red-500 transition-colors" title="Remove Winner">
+                                                                            <span class="material-symbols-outlined text-xs">close</span>
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             @endforeach
                                                         </div>
@@ -437,16 +445,24 @@
                                     <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Email</th>
                                     <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Prize</th>
                                     <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Session</th>
+                                    <th class="px-6 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">Status</th>
                                     <th class="px-8 py-5 text-[11px] font-bold text-[#6F767E] uppercase tracking-widest text-right">Won At</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 dark:divide-[#272B30]/30">
                                 @foreach($this->allWinners as $w)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors">
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-[#272B30] transition-colors {{ $w->status === 'redraw' ? 'opacity-60 line-through' : '' }}">
                                         <td class="px-8 py-4 text-sm font-bold text-[#111827] dark:text-[#FCFCFC]">{{ $w->registration->name ?? $w->registration->full_name ?? '-' }}</td>
                                         <td class="px-6 py-4 text-sm text-[#6F767E]">{{ $w->registration->email ?? '-' }}</td>
                                         <td class="px-6 py-4 text-sm text-[#111827] dark:text-[#FCFCFC]">{{ $w->prize->name ?? '-' }}</td>
                                         <td class="px-6 py-4 text-sm text-[#6F767E]">{{ $w->prize->session->name ?? '-' }}</td>
+                                        <td class="px-6 py-4 text-sm">
+                                            @if($w->status === 'redraw')
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">REDRAWN</span>
+                                            @else
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">ACTIVE</span>
+                                            @endif
+                                        </td>
                                         <td class="px-8 py-4 text-sm text-[#6F767E] text-right">{{ $w->won_at?->format('d M Y H:i') }}</td>
                                     </tr>
                                 @endforeach
