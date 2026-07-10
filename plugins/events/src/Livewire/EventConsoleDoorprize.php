@@ -27,6 +27,11 @@ class EventConsoleDoorprize extends Component
     public bool $sessionRequireCheckin = true;
     public bool $sessionRequireFeedback = false;
 
+    // ─── Global Settings & Exclusions ───
+    public bool $defaultRequireCheckin = true;
+    public bool $defaultRequireFeedback = false;
+    public string $globalBanSearch = '';
+
     // ─── Prize CRUD ───
     public bool $showPrizeModal = false;
     public ?int $activePrizeSessionId = null;
@@ -60,6 +65,9 @@ class EventConsoleDoorprize extends Component
     public function mount(Event $event)
     {
         $this->event = $event;
+        $settings = $event->settings ?? [];
+        $this->defaultRequireCheckin = $settings['doorprize_default_require_checkin'] ?? true;
+        $this->defaultRequireFeedback = $settings['doorprize_default_require_feedback'] ?? false;
     }
 
     // ═══════════════════════════════════════════════════════
@@ -90,6 +98,8 @@ class EventConsoleDoorprize extends Component
     public function openAddSession()
     {
         $this->resetSessionForm();
+        $this->sessionRequireCheckin = $this->defaultRequireCheckin;
+        $this->sessionRequireFeedback = $this->defaultRequireFeedback;
         $this->showSessionModal = true;
     }
 
@@ -289,10 +299,14 @@ class EventConsoleDoorprize extends Component
             $query->whereNotIn('id', $alreadyWonIds);
         }
 
-        // Exclude banned
+        // Exclude banned from this session
         $bannedIds = $session->bans->pluck('registration_id')->toArray();
-        if (!empty($bannedIds)) {
-            $query->whereNotIn('id', $bannedIds);
+        // Exclude globally banned
+        $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
+        $allBannedIds = array_unique(array_merge($bannedIds, $globalBannedIds));
+        
+        if (!empty($allBannedIds)) {
+            $query->whereNotIn('id', $allBannedIds);
         }
 
         $eligible = $query->get();
@@ -407,6 +421,85 @@ class EventConsoleDoorprize extends Component
     public function getDisplayUrlProperty(): string
     {
         return route('events.doorprize.display', $this->event->slug);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // GLOBAL SETTINGS & EXCLUSIONS
+    // ═══════════════════════════════════════════════════════
+
+    public function updatedDefaultRequireCheckin($value)
+    {
+        $this->saveGlobalSettings();
+    }
+
+    public function updatedDefaultRequireFeedback($value)
+    {
+        $this->saveGlobalSettings();
+    }
+
+    public function saveGlobalSettings()
+    {
+        $settings = $this->event->settings ?? [];
+        $settings['doorprize_default_require_checkin'] = $this->defaultRequireCheckin;
+        $settings['doorprize_default_require_feedback'] = $this->defaultRequireFeedback;
+        $this->event->update(['settings' => $settings]);
+        $this->dispatch('notify', type: 'success', message: 'Global defaults updated');
+    }
+
+    public function getGlobalBansProperty()
+    {
+        $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
+        if (empty($globalBannedIds)) return collect();
+        
+        return EventRegistration::whereIn('id', $globalBannedIds)
+            ->where('event_id', $this->event->id)
+            ->get();
+    }
+
+    public function getGlobalBanCandidatesProperty()
+    {
+        if (!$this->globalBanSearch || strlen($this->globalBanSearch) < 2) return collect();
+        
+        $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
+        
+        return EventRegistration::where('event_id', $this->event->id)
+            ->where('status', 'approved')
+            ->whereNotIn('id', $globalBannedIds)
+            ->where(function ($q) {
+                $q->where('name', 'like', "%{$this->globalBanSearch}%")
+                  ->orWhere('email', 'like', "%{$this->globalBanSearch}%");
+            })
+            ->limit(5)
+            ->get();
+    }
+
+    public function banRegistrationGlobally(int $registrationId)
+    {
+        $settings = $this->event->settings ?? [];
+        $globalBannedIds = $settings['doorprize_global_banned_ids'] ?? [];
+        
+        if (!in_array($registrationId, $globalBannedIds)) {
+            $globalBannedIds[] = $registrationId;
+        }
+        
+        $settings['doorprize_global_banned_ids'] = $globalBannedIds;
+        $this->event->update(['settings' => $settings]);
+        
+        $this->globalBanSearch = '';
+        $this->dispatch('notify', type: 'success', message: 'Participant excluded globally');
+    }
+
+    public function unbanGlobally(int $registrationId)
+    {
+        $settings = $this->event->settings ?? [];
+        $globalBannedIds = $settings['doorprize_global_banned_ids'] ?? [];
+        
+        $globalBannedIds = array_values(array_filter($globalBannedIds, fn($id) => $id !== $registrationId));
+        
+        $settings['doorprize_global_banned_ids'] = $globalBannedIds;
+        $this->event->update(['settings' => $settings]);
+        
+        $this->dispatch('notify', type: 'success', message: 'Participant re-included globally');
     }
 
     // ═══════════════════════════════════════════════════════

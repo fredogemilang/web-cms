@@ -1,51 +1,38 @@
 <div>
-    {{-- Display Link + Background --}}
-    <div class="glass-panel rounded-2xl p-4 mb-6 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <span class="material-symbols-outlined text-emerald-500">cast</span>
+        {{-- Sub-tab Navigation --}}
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex gap-2">
+                @foreach(['sessions' => 'Sessions & Prizes', 'winners' => 'All Winners'] as $key => $label)
+                    <button wire:click="$set('activeSubTab', '{{ $key }}')"
+                        class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border
+                            {{ $activeSubTab === $key
+                                ? 'border-[#2563EB] text-text-primary bg-[#2563EB]/10'
+                                : 'border-dark-border text-text-secondary hover:text-text-primary bg-dark-surface' }}">
+                        {{ $label }}
+                    </button>
+                @endforeach
             </div>
-            <div>
-                <h4 class="text-sm font-bold text-text-primary">Live Display</h4>
-                <p class="text-[10px] text-text-secondary">Open on projector/big screen for live drawing</p>
-            </div>
-        </div>
-        <a href="{{ $this->displayUrl }}" target="_blank" class="px-4 py-2 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm">open_in_new</span> Open Display
-        </a>
-    </div>
-
-    {{-- Sub-tab Navigation --}}
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex gap-2">
-            @foreach(['sessions' => 'Sessions & Prizes', 'winners' => 'All Winners', 'settings' => 'Settings'] as $key => $label)
-                <button wire:click="$set('activeSubTab', '{{ $key }}')"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border
-                        {{ $activeSubTab === $key
-                            ? 'border-[#2563EB] text-text-primary bg-[#2563EB]/10'
-                            : 'border-dark-border text-text-secondary hover:text-text-primary bg-dark-surface' }}">
-                    {{ $label }}
+            @if($activeSubTab === 'sessions')
+                <button wire:click="openAddSession" class="px-4 py-2 rounded-xl text-sm font-bold text-white bg-[#2563EB] hover:bg-blue-600 transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">add</span> Add Session
                 </button>
-            @endforeach
+            @endif
         </div>
-        @if($activeSubTab === 'sessions')
-            <button wire:click="openAddSession" class="px-4 py-2 rounded-xl text-sm font-bold text-white bg-[#2563EB] hover:bg-blue-600 transition-all flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm">add</span> Add Session
-            </button>
-        @endif
-    </div>
 
-    {{-- ═══ SESSIONS TAB ═══ --}}
-    @if($activeSubTab === 'sessions')
-        @if($this->sessions->isEmpty())
-            <div class="glass-panel rounded-2xl p-12 text-center">
-                <span class="material-symbols-outlined text-4xl text-text-secondary mb-2">redeem</span>
-                <p class="text-sm font-semibold text-text-primary">No raffle sessions yet</p>
-                <p class="text-xs text-text-secondary mt-1">Create a session to start managing doorprize raffles</p>
-            </div>
-        @else
-            <div class="space-y-4">
-                @foreach($this->sessions as $session)
+        {{-- ═══ SESSIONS TAB ═══ --}}
+        @if($activeSubTab === 'sessions')
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                {{-- Left/Main Column: Sessions & Prizes --}}
+                <div class="lg:col-span-2">
+                    @if($this->sessions->isEmpty())
+                        <div class="glass-panel rounded-2xl p-12 text-center">
+                            <span class="material-symbols-outlined text-4xl text-text-secondary mb-2">redeem</span>
+                            <p class="text-sm font-semibold text-text-primary">No raffle sessions yet</p>
+                            <p class="text-xs text-text-secondary mt-1">Create a session to start managing doorprize raffles</p>
+                        </div>
+                    @else
+                        <div class="space-y-4">
+                            @foreach($this->sessions as $session)
                     <div class="glass-panel rounded-2xl overflow-hidden">
                         {{-- Session Header --}}
                         <div class="p-5 flex items-center justify-between border-b border-dark-border">
@@ -82,74 +69,245 @@
                         {{-- Prizes --}}
                         <div class="p-5">
                             @if($session->prizes->isEmpty())
-                                <p class="text-xs text-text-secondary text-center py-4">No prizes in this session</p>
+                                <div class="text-center py-8">
+                                    <p class="text-xs text-text-secondary mb-3">No prizes in this session yet.</p>
+                                    <button wire:click="openAddPrize({{ $session->id }})" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-600 transition-all inline-flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-sm">add</span> Add Prize
+                                    </button>
+                                </div>
                             @else
-                                <div class="space-y-3">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                     @foreach($session->prizes as $prize)
-                                        <div class="flex items-center gap-4 p-4 rounded-xl bg-dark-surface border border-dark-border group hover:border-[#2563EB]/30 transition-all">
-                                            <div class="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
-                                                <span class="material-symbols-outlined text-amber-500">emoji_events</span>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <h4 class="text-sm font-bold text-text-primary">{{ $prize->name }}</h4>
-                                                @if($prize->gift_description)
-                                                    <p class="text-xs text-text-secondary truncate">{{ $prize->gift_description }}</p>
-                                                @endif
-                                                <div class="flex items-center gap-3 mt-1">
-                                                    <span class="text-[10px] text-text-secondary">Winners: {{ $prize->winners->count() }} / {{ $prize->max_winners }}</span>
+                                        <div class="flex flex-col justify-between p-5 rounded-2xl bg-dark-surface border border-dark-border group hover:border-[#2563EB]/30 transition-all duration-300">
+                                            <div>
+                                                {{-- Card Header --}}
+                                                <div class="flex items-start justify-between gap-3 mb-3">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                                                            <span class="material-symbols-outlined text-amber-500">emoji_events</span>
+                                                        </div>
+                                                        <div class="min-w-0">
+                                                            <h4 class="text-sm font-bold text-text-primary truncate">{{ $prize->name }}</h4>
+                                                            @if($prize->gift_description)
+                                                                <p class="text-xs text-text-secondary truncate mt-0.5">{{ $prize->gift_description }}</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                        <button wire:click="openEditPrize({{ $prize->id }})" class="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-dark-surface-lighter transition-all" title="Edit Prize">
+                                                            <span class="material-symbols-outlined text-sm">edit</span>
+                                                        </button>
+                                                        <button wire:click="confirmDelete('prize', {{ $prize->id }})" class="p-1.5 rounded-lg text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-all" title="Delete Prize">
+                                                            <span class="material-symbols-outlined text-sm">delete</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Status & Info Badges --}}
+                                                <div class="flex flex-wrap items-center gap-2 mb-4">
+                                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-dark-surface-lighter text-text-secondary border border-dark-border">
+                                                        Winners: {{ $prize->winners->count() }} / {{ $prize->max_winners }}
+                                                    </span>
                                                     @if($prize->has_available_slots)
-                                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500">SLOTS AVAILABLE</span>
+                                                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/10">SLOTS AVAILABLE</span>
                                                     @else
-                                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500">FULL</span>
+                                                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/10">FULL</span>
                                                     @endif
                                                 </div>
-                                                {{-- Winners list --}}
+
+                                                {{-- Winners List --}}
                                                 @if($prize->winners->isNotEmpty())
-                                                    <div class="mt-2 space-y-1">
-                                                        @foreach($prize->winners as $winner)
-                                                            <div class="flex items-center justify-between text-xs">
-                                                                <span class="text-emerald-500 flex items-center gap-1">
-                                                                    <span class="material-symbols-outlined text-xs">trophy</span>
-                                                                    {{ $winner->registration->name ?? $winner->registration->full_name ?? 'Unknown' }}
-                                                                    <span class="text-text-secondary">({{ $winner->registration->email ?? '' }})</span>
-                                                                </span>
-                                                                <button wire:click="removeWinner({{ $winner->id }})" wire:confirm="Remove this winner?" class="text-text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                                                                    <span class="material-symbols-outlined text-xs">close</span>
-                                                                </button>
-                                                            </div>
-                                                        @endforeach
+                                                    <div class="mt-4 pt-3 border-t border-dark-border/50">
+                                                        <p class="text-[10px] font-bold text-text-secondary uppercase tracking-wider mb-2">Winners</p>
+                                                        <div class="space-y-1.5 max-h-36 overflow-y-auto no-scrollbar">
+                                                            @foreach($prize->winners as $winner)
+                                                                <div class="flex items-center justify-between text-xs bg-dark-surface-lighter px-2.5 py-1.5 rounded-lg transition-colors border border-dark-border">
+                                                                    <span class="text-emerald-500 flex items-center gap-1.5 min-w-0">
+                                                                        <span class="material-symbols-outlined text-xs shrink-0">trophy</span>
+                                                                        <span class="truncate font-semibold">{{ $winner->registration->name ?? $winner->registration->full_name ?? 'Unknown' }}</span>
+                                                                        <span class="text-text-secondary truncate text-[10px]">({{ $winner->registration->email ?? '' }})</span>
+                                                                    </span>
+                                                                    <button wire:click="removeWinner({{ $winner->id }})" wire:confirm="Remove this winner?" class="text-text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 shrink-0" title="Remove Winner">
+                                                                        <span class="material-symbols-outlined text-xs">close</span>
+                                                                    </button>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
                                                     </div>
                                                 @endif
                                             </div>
-                                            <div class="flex items-center gap-1 shrink-0">
-                                                @if($prize->has_available_slots)
-                                                    <button wire:click="openRaffle({{ $session->id }}, {{ $prize->id }})" class="px-3 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center gap-1">
-                                                        <span class="material-symbols-outlined text-sm">casino</span> Draw
+
+                                            {{-- Footer Action --}}
+                                            @if($prize->has_available_slots)
+                                                <div class="mt-5 pt-4 border-t border-dark-border/50">
+                                                    <button wire:click="openRaffle({{ $session->id }}, {{ $prize->id }})" class="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                                        <span class="material-symbols-outlined text-sm">casino</span> Draw Winner
                                                     </button>
-                                                @endif
-                                                <button wire:click="openEditPrize({{ $prize->id }})" class="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-dark-surface-lighter transition-all opacity-0 group-hover:opacity-100">
-                                                    <span class="material-symbols-outlined text-sm">edit</span>
-                                                </button>
-                                                <button wire:click="confirmDelete('prize', {{ $prize->id }})" class="p-2 rounded-lg text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100">
-                                                    <span class="material-symbols-outlined text-sm">delete</span>
-                                                </button>
-                                            </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
+
+                                    {{-- Add Prize Card inside Grid --}}
+                                    <button wire:click="openAddPrize({{ $session->id }})" class="flex flex-col items-center justify-center p-5 rounded-2xl border border-dashed border-dark-border hover:border-[#2563EB]/40 text-text-secondary hover:text-[#2563EB] bg-transparent hover:bg-[#2563EB]/5 transition-all duration-300 min-h-[180px]">
+                                        <span class="material-symbols-outlined text-2xl mb-1.5">add_circle</span>
+                                        <span class="text-xs font-bold">Add Prize</span>
+                                    </button>
                                 </div>
                             @endif
-
-                            <button wire:click="openAddPrize({{ $session->id }})" class="mt-3 w-full py-2 rounded-xl text-xs font-semibold text-text-secondary hover:text-text-primary border border-dashed border-dark-border hover:border-[#2563EB]/30 transition-all flex items-center justify-center gap-1">
-                                <span class="material-symbols-outlined text-sm">add</span> Add Prize
-                            </button>
                         </div>
                     </div>
                 @endforeach
             </div>
         @endif
+    </div>
+
+                {{-- Right Column: Sidebar Settings --}}
+                <div class="space-y-6">
+                    {{-- Live Display Card --}}
+                    <div class="glass-panel rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-emerald-500">cast</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-text-primary">Live Display</h4>
+                                <p class="text-[10px] text-text-secondary">Open on projector/big screen</p>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ $this->displayUrl }}" target="_blank" class="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">open_in_new</span> Open Display
+                        </a>
+
+                        <div class="pt-3 border-t border-dark-border/50">
+                            <label class="block text-[10px] font-bold text-text-secondary uppercase tracking-wider mb-2">Display Link</label>
+                            <div class="flex items-center gap-2">
+                                <input type="text" value="{{ $this->displayUrl }}" readonly class="flex-1 h-9 rounded-xl border border-dark-border bg-console-input px-3 text-[10px] text-text-secondary font-mono"/>
+                                <button onclick="navigator.clipboard.writeText('{{ $this->displayUrl }}')" class="p-2 rounded-xl text-text-secondary hover:text-text-primary border border-dark-border hover:border-[#2563EB]/30 transition-all flex items-center justify-center shrink-0" title="Copy Link">
+                                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Global Defaults --}}
+                    <div class="glass-panel rounded-2xl p-5 space-y-4">
+                        <div>
+                            <h4 class="text-sm font-bold text-text-primary">Global Session Defaults</h4>
+                            <p class="text-[10px] text-text-secondary">Default settings for new raffle sessions</p>
+                        </div>
+
+                        <div class="space-y-3 pt-3 border-t border-dark-border/50">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" wire:model.live="defaultRequireCheckin" class="custom-checkbox shrink-0 mt-0.5" />
+                                <div>
+                                    <span class="text-xs font-bold text-text-primary group-hover:text-white transition-colors">Require Check-In</span>
+                                    <p class="text-[10px] text-text-secondary">Only checked-in attendees are eligible by default.</p>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 cursor-pointer group mt-3">
+                                <input type="checkbox" wire:model.live="defaultRequireFeedback" class="custom-checkbox shrink-0 mt-0.5" />
+                                <div>
+                                    <span class="text-xs font-bold text-text-primary group-hover:text-white transition-colors">Require Feedback</span>
+                                    <p class="text-[10px] text-text-secondary">Only attendees who submitted feedback are eligible by default.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- Display Background Settings --}}
+                    <div class="glass-panel rounded-2xl p-5 space-y-4">
+                        <div>
+                            <h4 class="text-sm font-bold text-text-primary">Live Display Background</h4>
+                            <p class="text-[10px] text-text-secondary">Customize the background image of projector display</p>
+                        </div>
+
+                        <div class="pt-3 border-t border-dark-border/50 space-y-3">
+                            @if($event->doorprize_background)
+                                <div class="relative rounded-xl overflow-hidden border border-dark-border">
+                                    <img src="{{ asset('storage/' . $event->doorprize_background) }}" class="w-full h-24 object-cover"/>
+                                    <button wire:click="removeBackground" wire:confirm="Remove background image?" class="absolute top-2 right-2 p-1.5 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all">
+                                        <span class="material-symbols-outlined text-xs">delete</span>
+                                    </button>
+                                </div>
+                            @endif
+
+                            <div class="flex flex-col gap-2">
+                                <input type="file" wire:model="backgroundUpload" accept="image/*" class="text-xs text-text-secondary file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-[#2563EB]/10 file:text-[#2563EB] hover:file:bg-[#2563EB]/20 file:cursor-pointer"/>
+                                @if($backgroundUpload)
+                                    <button wire:click="uploadBackground" class="w-full py-1.5 rounded-lg text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-600 transition-all">Upload Background</button>
+                                @endif
+                            </div>
+                            @error('backgroundUpload') <span class="text-red-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    {{-- Global Exclusions --}}
+                    <div class="glass-panel rounded-2xl p-5 space-y-4">
+                        <div>
+                            <h4 class="text-sm font-bold text-text-primary">Global Exclusions</h4>
+                            <p class="text-[10px] text-text-secondary">Exclude specific participants from all drawings</p>
+                        </div>
+
+                        <div class="pt-3 border-t border-dark-border/50 space-y-3">
+                            {{-- Search Input --}}
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-2.5 text-text-secondary text-sm">search</span>
+                                <input type="text" wire:model.live="globalBanSearch" placeholder="Search name or email..." class="w-full h-9 rounded-xl border border-dark-border bg-console-input pl-9 pr-4 text-xs text-text-primary outline-none focus:border-[#2563EB]/50 transition-all"/>
+                            </div>
+
+                            {{-- Search Results --}}
+                            @if($globalBanSearch)
+                                @if($this->globalBanCandidates->isEmpty())
+                                    <p class="text-[10px] text-text-secondary text-center py-2">No matching participants found</p>
+                                @else
+                                    <div class="rounded-xl border border-dark-border bg-dark-surface p-2 space-y-1.5 max-h-40 overflow-y-auto no-scrollbar">
+                                        @foreach($this->globalBanCandidates as $reg)
+                                            <div class="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-dark-surface-lighter transition-colors">
+                                                <div class="min-w-0">
+                                                    <p class="text-[10px] font-bold text-text-primary truncate">{{ $reg->name ?? $reg->full_name }}</p>
+                                                    <p class="text-[9px] text-text-secondary truncate">{{ $reg->email }}</p>
+                                                </div>
+                                                <button wire:click="banRegistrationGlobally({{ $reg->id }})" class="p-1 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-colors shrink-0" title="Exclude">
+                                                    <span class="material-symbols-outlined text-xs">add</span>
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @endif
+
+                            {{-- Current Banned List --}}
+                            @if($this->globalBans->isNotEmpty())
+                                <div class="pt-2">
+                                    <label class="block text-[9px] font-bold text-text-secondary uppercase tracking-wider mb-2">Excluded Participants ({{ $this->globalBans->count() }})</label>
+                                    <div class="space-y-1.5 max-h-48 overflow-y-auto no-scrollbar">
+                                        @foreach($this->globalBans as $ban)
+                                            <div class="flex items-center justify-between gap-2 bg-dark-surface-lighter px-2.5 py-1.5 rounded-lg border border-dark-border">
+                                                <div class="min-w-0">
+                                                    <p class="text-[10px] font-bold text-text-primary truncate">{{ $ban->name ?? $ban->full_name }}</p>
+                                                    <p class="text-[9px] text-text-secondary truncate">{{ $ban->email }}</p>
+                                                </div>
+                                                <button wire:click="unbanGlobally({{ $ban->id }})" class="p-1 rounded-lg text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-all shrink-0" title="Include back">
+                                                    <span class="material-symbols-outlined text-xs">close</span>
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @else
+                                <p class="text-[10px] text-text-secondary text-center py-4 bg-dark-surface/30 rounded-xl border border-dashed border-dark-border/50">No global exclusions set</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
     {{-- ═══ ALL WINNERS TAB ═══ --}}
-    @elseif($activeSubTab === 'winners')
+    @if($activeSubTab === 'winners')
         <div class="glass-panel rounded-2xl p-6">
             <h3 class="text-base font-bold text-text-primary mb-4">All Winners ({{ $this->allWinners->count() }})</h3>
             @if($this->allWinners->isEmpty())
@@ -183,49 +341,6 @@
                     </table>
                 </div>
             @endif
-        </div>
-    @endif
-
-    {{-- ═══ SETTINGS TAB ═══ --}}
-    @if($activeSubTab === 'settings')
-        <div class="glass-panel rounded-2xl p-6">
-            <h3 class="text-base font-bold text-text-primary mb-4">Display Settings</h3>
-            <div class="space-y-6">
-                {{-- Background Image --}}
-                <div>
-                    <label class="block text-sm font-bold text-text-primary mb-1.5">Display Background Image</label>
-                    <p class="text-xs text-text-secondary mb-3">This image will be shown as the background on the fullscreen doorprize display page.</p>
-
-                    @if($event->doorprize_background)
-                        <div class="relative rounded-xl overflow-hidden border border-dark-border mb-3" style="max-width:400px">
-                            <img src="{{ asset('storage/' . $event->doorprize_background) }}" class="w-full h-40 object-cover"/>
-                            <button wire:click="removeBackground" wire:confirm="Remove background image?" class="absolute top-2 right-2 p-1.5 rounded-lg bg-red-600/90 text-white hover:bg-red-700 transition-all">
-                                <span class="material-symbols-outlined text-sm">delete</span>
-                            </button>
-                        </div>
-                    @endif
-
-                    <div class="flex items-center gap-3">
-                        <input type="file" wire:model="backgroundUpload" accept="image/*" class="text-sm text-text-secondary file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[#2563EB]/10 file:text-[#2563EB] hover:file:bg-[#2563EB]/20 file:cursor-pointer"/>
-                        @if($backgroundUpload)
-                            <button wire:click="uploadBackground" class="px-4 py-2 rounded-xl text-sm font-bold text-white bg-[#2563EB] hover:bg-blue-600 transition-all">Upload</button>
-                        @endif
-                    </div>
-                    @error('backgroundUpload') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                {{-- Display URL --}}
-                <div>
-                    <label class="block text-sm font-bold text-text-primary mb-1.5">Display URL</label>
-                    <p class="text-xs text-text-secondary mb-2">Share this link to open the doorprize display on a projector or big screen.</p>
-                    <div class="flex items-center gap-2">
-                        <input type="text" value="{{ $this->displayUrl }}" readonly class="flex-1 h-10 rounded-xl border border-dark-border bg-console-input px-4 text-xs text-text-secondary font-mono"/>
-                        <button onclick="navigator.clipboard.writeText('{{ $this->displayUrl }}')" class="px-3 py-2 rounded-xl text-xs font-bold text-text-secondary hover:text-text-primary border border-dark-border hover:border-[#2563EB]/30 transition-all flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">content_copy</span> Copy
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     @endif
 
