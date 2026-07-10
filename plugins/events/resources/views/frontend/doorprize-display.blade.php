@@ -306,7 +306,7 @@ let recentWinnersList = [];
 function checkIsMultiMode(session) {
     if (!session) return false;
     if (session.prizes.length > 1) return true;
-    if (session.prizes.length === 1 && session.prizes[0].max_winners > 2) return true;
+    if (session.prizes.length === 1 && session.prizes[0].max_winners > 1) return true;
     return false;
 }
 
