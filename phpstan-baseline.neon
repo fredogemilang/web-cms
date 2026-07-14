@@ -1,18 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property Plugins\\Events\\Models\\Event\:\:\$end_date\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Console/Commands/CompleteExpiredEvents.php
-
-		-
-			message: '#^Access to an undefined property Plugins\\Events\\Models\\Event\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Console/Commands/CompleteExpiredEvents.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1

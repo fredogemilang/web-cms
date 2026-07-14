@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 
 class CompleteExpiredEvents extends Command
 {
@@ -50,7 +51,8 @@ class CompleteExpiredEvents extends Command
 
         foreach ($expiredEvents as $event) {
             $event->update(['status' => 'completed']);
-            $this->line("✓ Completed: {$event->title} (ended on {$event->end_date->format('Y-m-d H:i')})");
+            $endDate = Carbon::parse($event->getAttribute('end_date'));
+            $this->line('✓ Completed: '.(string) $event->getAttribute('title').' (ended on '.$endDate->format('Y-m-d H:i').')');
         }
 
         $this->newLine();
