@@ -159,16 +159,16 @@
                                 @if($registration->status === 'pending')
                                 <button 
                                     wire:click="updateStatus({{ $registration->id }}, 'approved')"
-                                    class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#83BF6E] transition-colors"
-                                    title="Approve">
+                                    class="w-9 h-9 p-2 rounded-xl text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 flex items-center justify-center transition-colors"
+                                    data-tooltip="Approve">
                                     <span class="material-symbols-outlined text-[20px]">check_circle</span>
                                 </button>
                                 @endif
                                 
                                 <button 
                                     wire:click="updateStatus({{ $registration->id }}, 'rejected')"
-                                    class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] transition-colors"
-                                    title="Reject">
+                                    class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
+                                    data-tooltip="Reject">
                                     <span class="material-symbols-outlined text-[20px]">cancel</span>
                                 </button>
                             </div>

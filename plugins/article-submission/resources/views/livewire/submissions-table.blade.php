@@ -186,27 +186,29 @@
                                 @if($statusFilter === 'trashed')
                                     <button 
                                         wire:click="restore({{ $submission->id }})"
-                                        class="relative group/restore w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] transition-colors"
-                                        title="Restore">
+                                        class="w-9 h-9 p-2 rounded-xl text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 flex items-center justify-center transition-colors"
+                                        data-tooltip="Restore">
                                         <span class="material-symbols-outlined text-[20px]">restore_from_trash</span>
                                     </button>
                                     
                                     <button 
                                         x-data
                                         @click="$dispatch('open-force-delete-modal', { id: {{ $submission->id }}, name: '{{ addslashes($submission->name) }}' })"
-                                        class="relative group/delete w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] transition-colors"
-                                        title="Delete Permanently">
+                                        class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
+                                        data-tooltip="Delete Permanently">
                                         <span class="material-symbols-outlined text-[20px]">delete_forever</span>
                                     </button>
                                 @else
                                     <a href="{{ route('admin.article-submissions.show', $submission->id) }}" wire:navigate
-                                        class="relative group/view w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] transition-colors">
+                                        class="w-9 h-9 p-2 rounded-xl text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/20 flex items-center justify-center transition-colors"
+                                        data-tooltip="View Details">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </a>
                                     
                                     @if($submission->article_file)
                                     <a href="{{ route('admin.article-submissions.download', $submission->id) }}"
-                                        class="relative group/download w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-emerald-500 transition-colors">
+                                        class="w-9 h-9 p-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 flex items-center justify-center transition-colors"
+                                        data-tooltip="Download File">
                                         <span class="material-symbols-outlined text-[20px]">download</span>
                                     </a>
                                     @endif
@@ -214,7 +216,8 @@
                                     <button 
                                         x-data
                                         @click="$dispatch('open-delete-modal', { id: {{ $submission->id }}, name: '{{ addslashes($submission->name) }}' })"
-                                        class="relative group/delete w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] transition-colors">
+                                        class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
+                                        data-tooltip="Move to Trash">
                                         <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>
                                 @endif

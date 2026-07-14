@@ -240,13 +240,13 @@
                         <td class="px-8 py-5 text-right">
                             <div class="flex gap-2 items-center justify-end">
                                 <button wire:click="editGuest({{ $reg->id }})" type="button"
-                                    class="relative group/edit w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] transition-colors cursor-pointer"
-                                    title="Edit Guest">
+                                    class="w-9 h-9 p-2 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 flex items-center justify-center transition-colors cursor-pointer"
+                                    data-tooltip="Edit Guest">
                                     <span class="material-symbols-outlined text-[20px]">edit</span>
                                 </button>
                                 <button wire:click="deleteGuest({{ $reg->id }})" wire:confirm="Are you sure you want to delete this attendee?" type="button"
-                                    class="relative group/delete w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] transition-colors cursor-pointer"
-                                    title="Delete Guest">
+                                    class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors cursor-pointer"
+                                    data-tooltip="Delete Guest">
                                     <span class="material-symbols-outlined text-[20px]">delete</span>
                                 </button>
                             </div>

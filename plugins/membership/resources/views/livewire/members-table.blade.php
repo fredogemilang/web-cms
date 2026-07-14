@@ -170,29 +170,29 @@
                                     <div class="flex gap-1 items-center justify-end">
                                         @if($membership->status !== 'active')
                                         <button wire:click="approveMember({{ $membership->id }})" wire:confirm="Approve this member?"
-                                            class="w-9 h-9 p-2 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors"
-                                            title="Approve">
+                                            class="w-9 h-9 p-2 rounded-xl text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 flex items-center justify-center transition-colors"
+                                            data-tooltip="Approve">
                                             <span class="material-symbols-outlined text-[20px]">check_circle</span>
                                         </button>
                                         @endif
 
                                         @if($membership->status !== 'rejected')
                                         <button wire:click="rejectMember({{ $membership->id }})" wire:confirm="Reject this member?"
-                                            class="w-9 h-9 p-2 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/30 text-orange-600 dark:text-orange-400 transition-colors"
-                                            title="Reject">
+                                            class="w-9 h-9 p-2 rounded-xl text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 flex items-center justify-center transition-colors"
+                                            data-tooltip="Reject">
                                             <span class="material-symbols-outlined text-[20px]">block</span>
                                         </button>
                                         @endif
 
                                         <a href="{{ route('admin.membership.show', $membership->id) }}"
-                                            class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] transition-colors"
-                                            title="View Details">
+                                            class="w-9 h-9 p-2 rounded-xl text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/20 flex items-center justify-center transition-colors"
+                                            data-tooltip="View Details">
                                             <span class="material-symbols-outlined text-[20px]">visibility</span>
                                         </a>
 
                                         <button wire:click="deleteMember({{ $membership->id }})" wire:confirm="Are you sure you want to delete this member? This action cannot be undone."
-                                            class="w-9 h-9 p-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
-                                            title="Delete">
+                                            class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
+                                            data-tooltip="Delete Member">
                                             <span class="material-symbols-outlined text-[20px]">delete</span>
                                         </button>
                                     </div>
