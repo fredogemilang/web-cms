@@ -267,7 +267,7 @@
 
         .icon-btn:active {
             transform: translateY(0);
-        } }
+        }
 
         /* Modal Style */
         .modal-overlay {
@@ -276,7 +276,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(15, 23, 42, 0.45);
             backdrop-filter: blur(15px);
             display: flex;
             align-items: center;
@@ -286,13 +286,14 @@
         }
 
         .modal-content {
-            background: rgba(20, 20, 25, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 28px;
             width: 90%;
             max-width: 500px;
             padding: 32px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
             animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -301,21 +302,21 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             padding-bottom: 16px;
         }
 
         .modal-header h2 {
             font-size: 20px;
             font-weight: 800;
-            color: #fff;
+            color: #1e293b;
             margin: 0;
         }
 
         .modal-close-btn {
             background: transparent;
             border: none;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(30, 41, 59, 0.5);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -324,7 +325,7 @@
         }
 
         .modal-close-btn:hover {
-            color: #fff;
+            color: #1e293b;
         }
 
         .modal-body {
@@ -340,13 +341,13 @@
             width: 6px;
         }
         .modal-body::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.08);
             border-radius: 3px;
         }
 
         .session-modal-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             border-radius: 16px;
             padding: 16px 20px;
             cursor: pointer;
@@ -364,7 +365,7 @@
         }
 
         .session-modal-item.active {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(99, 102, 241, 0.12);
             border-color: #6366f1;
         }
 
@@ -377,12 +378,12 @@
         .session-modal-item .session-name {
             font-size: 16px;
             font-weight: 700;
-            color: #fff;
+            color: #1e293b;
         }
 
         .session-modal-item .session-meta {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.4);
+            color: #64748b;
             font-weight: 600;
         }
 
@@ -390,7 +391,7 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
         }
 
