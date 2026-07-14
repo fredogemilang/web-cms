@@ -192,6 +192,74 @@
                         <p class="text-red-500 text-sm">{{ $message }}</p>
                     @enderror
                 </div>
+
+                {{-- SEO & Open Graph Settings --}}
+                <div x-data="{ seoOpen: false, activeTab: 'seo' }" class="bg-white dark:bg-[#1A1A1A] rounded-3xl border border-gray-200 dark:border-[#272B30] overflow-hidden">
+                    <button type="button" @click="seoOpen = !seoOpen" class="w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50/50 dark:hover:bg-[#272B30]/30 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-xl">search</span>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-sm font-bold text-[#111827] dark:text-[#FCFCFC]">SEO & Open Graph</h3>
+                                <p class="text-[11px] text-[#6F767E] mt-0.5">Search engine optimization and social sharing</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-[#6F767E] transition-transform duration-200" :class="seoOpen ? 'rotate-180' : ''">expand_more</span>
+                    </button>
+
+                    <div x-show="seoOpen" x-collapse x-cloak>
+                        {{-- Tabs --}}
+                        <div class="flex border-t border-b border-gray-200 dark:border-[#272B30] bg-gray-50/50 dark:bg-[#0B0B0B]/20">
+                            <button type="button" @click="activeTab = 'seo'"
+                                :class="activeTab === 'seo' ? 'text-blue-600 border-b-2 border-blue-600 bg-white dark:bg-[#1A1A1A]' : 'text-[#6F767E] hover:text-[#111827] dark:hover:text-white border-b-2 border-transparent'"
+                                class="px-6 py-3 text-xs font-bold uppercase tracking-widest transition-all">
+                                SEO Settings
+                            </button>
+                            <button type="button" @click="activeTab = 'og'"
+                                :class="activeTab === 'og' ? 'text-blue-600 border-b-2 border-blue-600 bg-white dark:bg-[#1A1A1A]' : 'text-[#6F767E] hover:text-[#111827] dark:hover:text-white border-b-2 border-transparent'"
+                                class="px-6 py-3 text-xs font-bold uppercase tracking-widest transition-all">
+                                Open Graph
+                            </button>
+                        </div>
+
+                        {{-- SEO Tab --}}
+                        <div x-show="activeTab === 'seo'" class="p-6 space-y-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">Meta Title</label>
+                                <input wire:model="metaTitle" type="text"
+                                    class="w-full h-10 rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary"
+                                    placeholder="Enter meta title..." />
+                                <p class="text-[10px] text-[#6F767E]">Recommended: 50-60 characters</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">Meta Description</label>
+                                <textarea wire:model="metaDescription" rows="3"
+                                    class="w-full rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary p-3 resize-none"
+                                    placeholder="Enter meta description..."></textarea>
+                                <p class="text-[10px] text-[#6F767E]">Recommended: 150-160 characters</p>
+                            </div>
+                        </div>
+
+                        {{-- Open Graph Tab --}}
+                        <div x-show="activeTab === 'og'" style="display: none;" class="p-6 space-y-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">OG Title</label>
+                                <input wire:model="ogTitle" type="text"
+                                    class="w-full h-10 rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary"
+                                    placeholder="Open Graph title..." />
+                                <p class="text-[10px] text-[#6F767E]">Title shown when shared on social media</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">OG Description</label>
+                                <textarea wire:model="ogDescription" rows="2"
+                                    class="w-full rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary p-3 resize-none"
+                                    placeholder="Open Graph description..."></textarea>
+                                <p class="text-[10px] text-[#6F767E]">Description shown when shared on social media</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -280,42 +348,7 @@
                     @endif
                 </div>
 
-                {{-- SEO Settings --}}
-                <div class="space-y-4">
-                    <button wire:click="toggleSeoSettings" class="w-full flex items-center justify-between group">
-                        <h4 class="text-[11px] font-bold text-[#6F767E] uppercase tracking-widest">SEO Settings</h4>
-                        <span class="material-symbols-outlined text-[#6F767E] group-hover:text-[#FCFCFC] transition-colors transform {{ $showSeoSettings ? 'rotate-180' : '' }}">expand_more</span>
-                    </button>
 
-                    @if($showSeoSettings)
-                    <div class="space-y-4 animate-in slide-in-from-top-2">
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">Meta Title</label>
-                            <input wire:model="metaTitle" type="text"
-                                class="w-full h-10 rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary"
-                                placeholder="Enter meta title..." />
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">Meta Description</label>
-                            <textarea wire:model="metaDescription" rows="3"
-                                class="w-full rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary p-3 resize-none"
-                                placeholder="Enter meta description..."></textarea>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">OG Title</label>
-                            <input wire:model="ogTitle" type="text"
-                                class="w-full h-10 rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary"
-                                placeholder="Open Graph title..." />
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-[#111827] dark:text-[#FCFCFC]">OG Description</label>
-                            <textarea wire:model="ogDescription" rows="2"
-                                class="w-full rounded-lg bg-[#F4F5F6] dark:bg-[#0B0B0B] border-none text-sm font-medium text-[#111827] dark:text-[#FCFCFC] focus:ring-2 focus:ring-primary p-3 resize-none"
-                                placeholder="Open Graph description..."></textarea>
-                        </div>
-                    </div>
-                    @endif
-                </div>
             </div>
         </aside>
     </div>
