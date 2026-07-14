@@ -18,6 +18,7 @@ class ApiCors
         }
 
         $response = $next($request);
+
         return $this->cors($response, $origin, $allowed);
     }
 
@@ -31,13 +32,17 @@ class ApiCors
             $response->headers->set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Requested-With');
             $response->headers->set('Access-Control-Max-Age', '86400');
         }
+
         return $response;
     }
 
     protected function allowedOrigins(): array
     {
         $raw = (string) setting('api_cors_origins', '');
-        if ($raw === '' || $raw === '*') return ['*'];
+        if ($raw === '' || $raw === '*') {
+            return ['*'];
+        }
+
         return array_filter(array_map('trim', explode(',', $raw)));
     }
 }

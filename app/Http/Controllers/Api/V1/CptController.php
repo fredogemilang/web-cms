@@ -33,6 +33,7 @@ class CptController extends Controller
             ->where('status', 'published')
             ->where('slug', $slug)
             ->firstOrFail();
+
         return (new CptEntryResource($entry->load('postType')))->response();
     }
 }

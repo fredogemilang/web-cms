@@ -14,6 +14,7 @@ class CptEntryObserver extends LogsActivity
     protected function subjectLabel(Model $model): string
     {
         $type = $model->postType?->singular_label ?? 'entry';
-        return "{$type}: " . ($model->title ?? '(untitled)');
+
+        return "{$type}: ".($model->title ?? '(untitled)');
     }
 }

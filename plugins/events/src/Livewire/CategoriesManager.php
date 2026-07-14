@@ -2,25 +2,30 @@
 
 namespace Plugins\Events\Livewire;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\WithFileUploads;
-use Plugins\Events\Models\EventCategory;
-use Illuminate\Support\Str;
 use App\Models\Media;
+use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
+use Plugins\Events\Models\EventCategory;
 
 class CategoriesManager extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     // Form Fields
     public $name = '';
+
     public $slug = '';
+
     public $description = '';
+
     public $color = '#2563EB';
+
     public $image;
+
     public $existingImageId = null;
-    
+
     // Edit Mode
     public $editingCategory = null;
 
@@ -35,7 +40,7 @@ class CategoriesManager extends Component
 
     public function updatedName($value)
     {
-        if (!$this->editingCategory) {
+        if (! $this->editingCategory) {
             $this->slug = Str::slug($value);
         }
     }
@@ -93,7 +98,7 @@ class CategoriesManager extends Component
     {
         $this->validate([
             'name' => 'required|min:2',
-            'slug' => 'required|unique:event_categories,slug,' . $this->editingCategory->id,
+            'slug' => 'required|unique:event_categories,slug,'.$this->editingCategory->id,
             'description' => 'nullable|string',
             'color' => 'required|string',
             'image' => 'nullable|image|max:2048',
@@ -142,7 +147,7 @@ class CategoriesManager extends Component
         foreach ($categories as $index => $categoryId) {
             EventCategory::where('id', $categoryId)->update(['order' => $index]);
         }
-        
+
         session()->flash('success', 'Category order updated successfully.');
     }
 }

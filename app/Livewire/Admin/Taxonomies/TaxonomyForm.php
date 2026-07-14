@@ -4,25 +4,33 @@ namespace App\Livewire\Admin\Taxonomies;
 
 use App\Models\CustomPostType;
 use App\Models\CustomTaxonomy;
-use Livewire\Component;
+use App\Models\TaxonomyTerm;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Component;
 
 class TaxonomyForm extends Component
 {
     public ?int $taxonomyId = null;
+
     public bool $isEdit = false;
 
     // General Tab
     public string $name = '';
+
     public string $singularLabel = '';
+
     public string $pluralLabel = '';
+
     public string $slug = '';
 
     // Settings Tab
     public bool $isHierarchical = true;
+
     public bool $showInMenu = true;
+
     public bool $showInRest = true;
+
     public array $postTypes = [];
 
     // UI State
@@ -64,7 +72,7 @@ class TaxonomyForm extends Component
     protected function loadTaxonomy()
     {
         $taxonomy = CustomTaxonomy::findOrFail($this->taxonomyId);
-        
+
         $this->name = $taxonomy->name;
         $this->singularLabel = $taxonomy->singular_label;
         $this->pluralLabel = $taxonomy->plural_label;
@@ -96,11 +104,10 @@ class TaxonomyForm extends Component
         }
     }
 
-
     public function togglePostType(string $slug)
     {
         if (in_array($slug, $this->postTypes)) {
-            $this->postTypes = array_values(array_filter($this->postTypes, fn($s) => $s !== $slug));
+            $this->postTypes = array_values(array_filter($this->postTypes, fn ($s) => $s !== $slug));
         } else {
             $this->postTypes[] = $slug;
         }
@@ -121,13 +128,14 @@ class TaxonomyForm extends Component
             'post_types' => $this->postTypes,
         ];
 
-        if ($this->isEdit && !$this->isHierarchical) {
-            $hasRelationships = \App\Models\TaxonomyTerm::where('taxonomy_id', $this->taxonomyId)
+        if ($this->isEdit && ! $this->isHierarchical) {
+            $hasRelationships = TaxonomyTerm::where('taxonomy_id', $this->taxonomyId)
                 ->whereNotNull('parent_id')
                 ->exists();
 
             if ($hasRelationships) {
                 $this->addError('isHierarchical', 'Cannot change to Flat because this taxonomy contains hierarchical terms (parent/child relationships). Please remove relationships first.');
+
                 return;
             }
         }
@@ -141,7 +149,7 @@ class TaxonomyForm extends Component
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => $this->isEdit 
+            'message' => $this->isEdit
                 ? "Taxonomy '{$this->pluralLabel}' updated successfully."
                 : "Taxonomy '{$this->pluralLabel}' created successfully.",
         ]);

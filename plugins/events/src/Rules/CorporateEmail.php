@@ -28,17 +28,19 @@ class CorporateEmail implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$value) return;
+        if (! $value) {
+            return;
+        }
 
         // Only enforce if event requires corporate email
         if ($this->eventId) {
             $event = Event::find($this->eventId);
-            if (!$event || !$event->requires_corporate_email) {
+            if (! $event || ! $event->requires_corporate_email) {
                 return; // Not required — allow any email
             }
         }
 
-        if (!$this->isCorporateEmail($value)) {
+        if (! $this->isCorporateEmail($value)) {
             $fail('Corporate email required. Free email providers (gmail.com, yahoo.com, etc.) are not allowed for this event.');
         }
     }
@@ -50,7 +52,9 @@ class CorporateEmail implements ValidationRule
     {
         $domain = strtolower(explode('@', $email)[1] ?? '');
 
-        if (empty($domain)) return false;
+        if (empty($domain)) {
+            return false;
+        }
 
         // Check database lookup first (managed list)
         try {
@@ -75,6 +79,6 @@ class CorporateEmail implements ValidationRule
             'tempmail.org', '10minutemail.com', 'guerrillamail.com',
         ];
 
-        return !in_array($domain, $freeDomains);
+        return ! in_array($domain, $freeDomains);
     }
 }

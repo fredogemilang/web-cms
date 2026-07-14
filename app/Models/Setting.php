@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\SettingsRegistry;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -29,7 +30,7 @@ class Setting extends Model
             // (skip system/cli bootstraps where no user context exists)
             if (auth()->check()) {
                 $changes = $s->getChanges();
-                if (!empty($changes['value'])) {
+                if (! empty($changes['value'])) {
                     $isEncrypted = static::isEncryptedKey($s->key);
                     $oldRaw = static::castFromStorage($s->getOriginal('value'), $s->type);
                     $newRaw = static::castFromStorage($s->value, $s->type);
@@ -40,10 +41,10 @@ class Setting extends Model
                         null,
                         "Setting '{$s->key}' updated",
                         [
-                            'key'   => $s->key,
+                            'key' => $s->key,
                             'group' => $s->group,
-                            'old'   => $isEncrypted ? '••• encrypted •••' : static::decryptIfNeeded($s->key, $oldRaw),
-                            'new'   => $isEncrypted ? '••• encrypted •••' : static::decryptIfNeeded($s->key, $newRaw),
+                            'old' => $isEncrypted ? '••• encrypted •••' : static::decryptIfNeeded($s->key, $oldRaw),
+                            'new' => $isEncrypted ? '••• encrypted •••' : static::decryptIfNeeded($s->key, $newRaw),
                         ],
                     );
                 }
@@ -65,10 +66,11 @@ class Setting extends Model
             } catch (\Throwable $e) {
                 return ['__missing' => true, 'default' => $default];
             }
-            if (!$row) {
+            if (! $row) {
                 return ['__missing' => true, 'default' => $default];
             }
             $cast = static::castFromStorage($row->value, $row->type);
+
             // Decrypt at the cache boundary so subsequent reads stay fast.
             return ['value' => static::decryptIfNeeded($key, $cast)];
         });
@@ -95,7 +97,7 @@ class Setting extends Model
             ['key' => $key],
             [
                 'group' => $group,
-                'type'  => $type,
+                'type' => $type,
                 'value' => ['v' => $storedValue],
             ]
         );
@@ -108,13 +110,16 @@ class Setting extends Model
     public static function forget(string $key): bool
     {
         unset(static::$memo[$key]);
+
         return (bool) static::query()->where('key', $key)->delete();
     }
 
     public static function forGroup(?string $group = null): array
     {
         $q = static::query();
-        if ($group) $q->where('group', $group);
+        if ($group) {
+            $q->where('group', $group);
+        }
 
         return $q->get()->mapWithKeys(fn ($r) => [
             $r->key => static::decryptIfNeeded($r->key, static::castFromStorage($r->value, $r->type)),
@@ -124,10 +129,10 @@ class Setting extends Model
     /** Decrypt a value if the key is marked encrypted; tolerate legacy plaintext data. */
     protected static function decryptIfNeeded(string $key, mixed $value): mixed
     {
-        if (!static::isEncryptedKey($key) || $value === null || $value === '') {
+        if (! static::isEncryptedKey($key) || $value === null || $value === '') {
             return $value;
         }
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             // We never encrypt non-string values, so non-string here means
             // legacy unencrypted data — return as-is.
             return $value;
@@ -146,12 +151,12 @@ class Setting extends Model
         if (static::$encryptedKeys === null) {
             static::$encryptedKeys = [];
             try {
-                $registry = app(\App\Services\SettingsRegistry::class);
+                $registry = app(SettingsRegistry::class);
                 foreach ($registry->groups() as $group) {
                     foreach (($group['fields'] ?? []) as $field) {
-                        $isSensitive = !empty($field['encrypted'])
+                        $isSensitive = ! empty($field['encrypted'])
                             || ($field['type'] ?? '') === 'password';
-                        if ($isSensitive && !empty($field['key'])) {
+                        if ($isSensitive && ! empty($field['key'])) {
                             static::$encryptedKeys[$field['key']] = true;
                         }
                     }
@@ -160,6 +165,7 @@ class Setting extends Model
                 // Container/registry not ready (early boot) — fall back to empty set.
             }
         }
+
         return isset(static::$encryptedKeys[$key]);
     }
 
@@ -183,20 +189,20 @@ class Setting extends Model
         return match ($type) {
             'boolean' => (bool) $raw,
             'integer' => $raw === null ? null : (int) $raw,
-            'float'   => $raw === null ? null : (float) $raw,
-            'array'   => is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []),
-            default   => $raw,
+            'float' => $raw === null ? null : (float) $raw,
+            'array' => is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []),
+            default => $raw,
         };
     }
 
     protected static function guessType(mixed $value): string
     {
         return match (true) {
-            is_bool($value)   => 'boolean',
-            is_int($value)    => 'integer',
-            is_float($value)  => 'float',
-            is_array($value)  => 'array',
-            default           => 'string',
+            is_bool($value) => 'boolean',
+            is_int($value) => 'integer',
+            is_float($value) => 'float',
+            is_array($value) => 'array',
+            default => 'string',
         };
     }
 

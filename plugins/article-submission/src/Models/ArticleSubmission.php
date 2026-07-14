@@ -12,8 +12,11 @@ class ArticleSubmission extends Model
     protected $table = 'article_submissions';
 
     const STATUS_PENDING = 'pending';
+
     const STATUS_REVIEWED = 'reviewed';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_REJECTED = 'rejected';
 
     protected $fillable = [

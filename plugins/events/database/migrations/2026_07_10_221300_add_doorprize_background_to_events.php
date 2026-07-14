@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('events', 'doorprize_background')) {
+        if (! Schema::hasColumn('events', 'doorprize_background')) {
             Schema::table('events', function (Blueprint $table) {
                 $table->string('doorprize_background')->nullable()->after('feedback_redirect_url');
             });

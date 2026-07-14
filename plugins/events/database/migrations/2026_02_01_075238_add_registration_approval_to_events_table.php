@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            if (!Schema::hasColumn('events', 'registration_requires_approval')) {
+            if (! Schema::hasColumn('events', 'registration_requires_approval')) {
                 $table->boolean('registration_requires_approval')->default(false)->after('requires_registration');
             }
         });

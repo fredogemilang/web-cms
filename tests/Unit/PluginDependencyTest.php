@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Exceptions\PluginDependencyException;
 use App\Models\Plugin;
 use App\Services\PluginManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class PluginDependencyTest extends TestCase
 {
@@ -140,7 +140,7 @@ class PluginDependencyTest extends TestCase
     protected function createPluginJson(string $slug, array $extra = []): void
     {
         $path = base_path("plugins/{$slug}");
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             mkdir($path, 0755, true);
         }
 
@@ -148,7 +148,7 @@ class PluginDependencyTest extends TestCase
             'name' => ucfirst($slug),
             'slug' => $slug,
             'version' => '1.0.0',
-            'provider' => "Plugins\\" . str_replace(' ', '', ucwords(str_replace('-', ' ', $slug))) . "\\Providers\\" . str_replace(' ', '', ucwords(str_replace('-', ' ', $slug))) . "ServiceProvider",
+            'provider' => 'Plugins\\'.str_replace(' ', '', ucwords(str_replace('-', ' ', $slug))).'\\Providers\\'.str_replace(' ', '', ucwords(str_replace('-', ' ', $slug))).'ServiceProvider',
         ], $extra);
 
         file_put_contents("{$path}/plugin.json", json_encode($manifest, JSON_PRETTY_PRINT));
@@ -168,7 +168,9 @@ class PluginDependencyTest extends TestCase
 
     protected function deleteDirectory(string $dir): void
     {
-        if (!is_dir($dir)) return;
+        if (! is_dir($dir)) {
+            return;
+        }
         $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             $path = "$dir/$file";

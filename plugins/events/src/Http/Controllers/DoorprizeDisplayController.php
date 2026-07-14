@@ -3,15 +3,13 @@
 namespace Plugins\Events\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Plugins\Events\Models\Event;
-use Plugins\Events\Models\DoorprizeSession;
-use Plugins\Events\Models\DoorprizePrize;
-use Plugins\Events\Models\DoorprizeWinner;
-use Plugins\Events\Models\DoorprizeBan;
-use Plugins\Events\Models\EventRegistration;
-use Plugins\Events\Models\EventFeedbackResponse;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Plugins\Events\Models\DoorprizePrize;
+use Plugins\Events\Models\DoorprizeSession;
+use Plugins\Events\Models\DoorprizeWinner;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventRegistration;
 
 class DoorprizeDisplayController extends Controller
 {
@@ -28,7 +26,7 @@ class DoorprizeDisplayController extends Controller
             ->get();
 
         // Build sessions data as JSON for the JS frontend
-        $sessionsData = $sessions->map(function ($session) use ($event) {
+        $sessionsData = $sessions->map(function ($session) {
             return [
                 'id' => $session->id,
                 'name' => $session->name,
@@ -43,7 +41,7 @@ class DoorprizeDisplayController extends Controller
                         'max_winners' => $prize->max_winners,
                         'winners_count' => $prize->activeWinners->count(),
                         'remaining' => $prize->getRemainingSlots(),
-                        'winners' => $prize->winners->map(fn($w) => [
+                        'winners' => $prize->winners->map(fn ($w) => [
                             'id' => $w->id,
                             'name' => $w->registration->name ?? $w->registration->full_name ?? 'Unknown',
                             'email' => $w->registration->email ?? '',
@@ -91,11 +89,11 @@ class DoorprizeDisplayController extends Controller
             ->where('session_id', $session?->id)
             ->first();
 
-        if (!$session || !$prize) {
+        if (! $session || ! $prize) {
             return response()->json(['error' => 'Session or prize not found'], 404);
         }
 
-        if (!$prize->has_available_slots) {
+        if (! $prize->has_available_slots) {
             return response()->json(['error' => 'All winner slots have been filled for this prize'], 400);
         }
 
@@ -112,18 +110,18 @@ class DoorprizeDisplayController extends Controller
         }
 
         // Exclude already won in this event (doorprize winners)
-        $allWinnersQuery = DoorprizeWinner::whereHas('prize.session', function($q) use ($event) {
+        $allWinnersQuery = DoorprizeWinner::whereHas('prize.session', function ($q) use ($event) {
             $q->where('event_id', $event->id);
         });
         $alreadyWonIds = $allWinnersQuery->pluck('registration_id')->toArray();
 
-        if (!empty($alreadyWonIds)) {
+        if (! empty($alreadyWonIds)) {
             $query->whereNotIn('id', $alreadyWonIds);
         }
 
         // Exclude banned
         $bannedIds = $session->bans->pluck('registration_id')->toArray();
-        if (!empty($bannedIds)) {
+        if (! empty($bannedIds)) {
             $query->whereNotIn('id', $bannedIds);
         }
 
@@ -155,7 +153,7 @@ class DoorprizeDisplayController extends Controller
                 'max_winners' => $p->max_winners,
                 'winners_count' => $p->activeWinners->count(),
                 'remaining' => $p->getRemainingSlots(),
-                'winners' => $p->winners->map(fn($w) => [
+                'winners' => $p->winners->map(fn ($w) => [
                     'id' => $w->id,
                     'name' => $w->registration->name ?? $w->registration->full_name ?? 'Unknown',
                     'email' => $w->registration->email ?? '',
@@ -204,7 +202,7 @@ class DoorprizeDisplayController extends Controller
             ->with(['prizes.winners', 'bans'])
             ->first();
 
-        if (!$session) {
+        if (! $session) {
             return response()->json(['error' => 'Session not found'], 404);
         }
 
@@ -221,18 +219,18 @@ class DoorprizeDisplayController extends Controller
         }
 
         // Exclude already won in this event (doorprize winners)
-        $allWinnersQuery = DoorprizeWinner::whereHas('prize.session', function($q) use ($event) {
+        $allWinnersQuery = DoorprizeWinner::whereHas('prize.session', function ($q) use ($event) {
             $q->where('event_id', $event->id);
         });
         $alreadyWonIds = $allWinnersQuery->pluck('registration_id')->toArray();
 
-        if (!empty($alreadyWonIds)) {
+        if (! empty($alreadyWonIds)) {
             $query->whereNotIn('id', $alreadyWonIds);
         }
 
         // Exclude banned
         $bannedIds = $session->bans->pluck('registration_id')->toArray();
-        if (!empty($bannedIds)) {
+        if (! empty($bannedIds)) {
             $query->whereNotIn('id', $bannedIds);
         }
 
@@ -253,7 +251,7 @@ class DoorprizeDisplayController extends Controller
                     }
                     $winner = $eligiblePool->random();
                     // Remove from pool to prevent double winner in this run
-                    $eligiblePool = $eligiblePool->reject(fn($item) => $item->id === $winner->id);
+                    $eligiblePool = $eligiblePool->reject(fn ($item) => $item->id === $winner->id);
 
                     // Record winner
                     $wRecord = DoorprizeWinner::create([
@@ -276,7 +274,8 @@ class DoorprizeDisplayController extends Controller
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollBack();
-            return response()->json(['error' => 'Error recording winners: ' . $e->getMessage()], 500);
+
+            return response()->json(['error' => 'Error recording winners: '.$e->getMessage()], 500);
         }
 
         if (empty($newWinners)) {
@@ -295,7 +294,7 @@ class DoorprizeDisplayController extends Controller
                 'max_winners' => $prize->max_winners,
                 'winners_count' => $prize->activeWinners->count(),
                 'remaining' => $prize->getRemainingSlots(),
-                'winners' => $prize->winners->map(fn($w) => [
+                'winners' => $prize->winners->map(fn ($w) => [
                     'id' => $w->id,
                     'name' => $w->registration->name ?? $w->registration->full_name ?? 'Unknown',
                     'email' => $w->registration->email ?? '',
@@ -321,12 +320,12 @@ class DoorprizeDisplayController extends Controller
             ->where('status', 'approved')
             ->get(['id', 'name', 'full_name', 'organization', 'company_name', 'check_in', 'feedback_submitted']);
 
-        return $registrations->map(fn($r) => [
+        return $registrations->map(fn ($r) => [
             'id' => $r->id,
             'name' => $r->name ?? $r->full_name ?? 'Unknown',
             'organization' => $r->organization ?? $r->company_name ?? '',
-            'check_in' => (bool)$r->check_in,
-            'feedback_submitted' => (bool)$r->feedback_submitted,
+            'check_in' => (bool) $r->check_in,
+            'feedback_submitted' => (bool) $r->feedback_submitted,
         ])->values()->toArray();
     }
 
@@ -338,7 +337,7 @@ class DoorprizeDisplayController extends Controller
         $winnerId = $request->input('winner_id');
         $winner = DoorprizeWinner::find($winnerId);
 
-        if (!$winner) {
+        if (! $winner) {
             return response()->json(['error' => 'Winner record not found'], 404);
         }
 
@@ -356,7 +355,7 @@ class DoorprizeDisplayController extends Controller
                 'max_winners' => $prize->max_winners,
                 'winners_count' => $prize->activeWinners->count(),
                 'remaining' => $prize->getRemainingSlots(),
-                'winners' => $prize->winners->map(fn($w) => [
+                'winners' => $prize->winners->map(fn ($w) => [
                     'id' => $w->id,
                     'name' => $w->registration->name ?? $w->registration->full_name ?? 'Unknown',
                     'email' => $w->registration->email ?? '',

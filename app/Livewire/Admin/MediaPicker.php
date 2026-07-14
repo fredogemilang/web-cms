@@ -7,7 +7,6 @@ use App\Services\MediaService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use Livewire\Attributes\On;
 
 class MediaPicker extends Component
 {
@@ -15,25 +14,36 @@ class MediaPicker extends Component
 
     // Configuration
     public string $field = '';
+
     public ?string $value = null;
+
     public string $label = 'Select Media';
+
     public bool $multiple = false;
+
     public string $accept = 'image/*';
+
     public bool $shouldClearAfterSelection = false;
+
     public bool $compact = false;
-    
+
     // Modal state
     public bool $showModal = false;
+
     public string $activeTab = 'library'; // 'library' or 'upload'
-    
+
     // Library state
     public string $search = '';
+
     public string $filterType = 'images';
+
     public ?int $selectedMediaId = null;
+
     public ?array $selectedMedia = null;
-    
+
     // Upload state
     public $uploadFile = null;
+
     public bool $uploading = false;
 
     public function mount(string $field, ?string $value = null, string $label = 'Select Media', bool $multiple = false, string $accept = 'image/*', bool $shouldClearAfterSelection = false, bool $compact = false)
@@ -45,7 +55,7 @@ class MediaPicker extends Component
         $this->accept = $accept;
         $this->shouldClearAfterSelection = $shouldClearAfterSelection;
         $this->compact = $compact;
-        
+
         // Load existing media if value is set (check both path and webp_path)
         if ($this->value) {
             $media = Media::where('path', $this->value)
@@ -100,15 +110,15 @@ class MediaPicker extends Component
             // Prioritize WebP path if available
             $mediaPath = $this->selectedMedia['webp_path'] ?? $this->selectedMedia['path'];
             $mediaUrl = $this->selectedMedia['webp_url'] ?? $this->selectedMedia['url'];
-            
-            $this->dispatch('media-selected', 
+
+            $this->dispatch('media-selected',
                 field: $this->field,
                 mediaId: $this->selectedMedia['id'],
                 mediaPath: $mediaPath,
                 mediaUrl: $mediaUrl
             );
-            
-            if (!$this->shouldClearAfterSelection) {
+
+            if (! $this->shouldClearAfterSelection) {
                 $this->value = $mediaPath;
             } else {
                 $this->value = null;
@@ -129,13 +139,15 @@ class MediaPicker extends Component
 
     public function uploadAndSelect()
     {
-        if (!$this->uploadFile) {
+        if (! $this->uploadFile) {
             session()->flash('picker-error', 'Please select a file to upload.');
+
             return;
         }
 
-        if (!auth()->user()->can('media.upload')) {
+        if (! auth()->user()->can('media.upload')) {
             session()->flash('picker-error', 'You do not have permission to upload media.');
+
             return;
         }
 
@@ -163,11 +175,11 @@ class MediaPicker extends Component
             // Switch to library tab to show selection
             $this->activeTab = 'library';
             $this->reset(['uploadFile', 'uploading']);
-            
+
             session()->flash('picker-success', 'File uploaded successfully.');
         } catch (\Exception $e) {
-            \Log::error('Media picker upload error: ' . $e->getMessage());
-            session()->flash('picker-error', 'Upload failed: ' . $e->getMessage());
+            \Log::error('Media picker upload error: '.$e->getMessage());
+            session()->flash('picker-error', 'Upload failed: '.$e->getMessage());
             $this->uploading = false;
         }
     }
@@ -196,9 +208,9 @@ class MediaPicker extends Component
         // Apply search
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('original_filename', 'like', '%' . $this->search . '%')
-                  ->orWhere('title', 'like', '%' . $this->search . '%')
-                  ->orWhere('alt_text', 'like', '%' . $this->search . '%');
+                $q->where('original_filename', 'like', '%'.$this->search.'%')
+                    ->orWhere('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('alt_text', 'like', '%'.$this->search.'%');
             });
         }
 

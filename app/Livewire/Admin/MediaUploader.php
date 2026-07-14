@@ -12,8 +12,11 @@ class MediaUploader extends Component
     use WithFileUploads;
 
     public $isModal = true;
+
     public $files = [];
+
     public $uploading = false;
+
     public $uploadProgress = 0;
 
     public function mount($isModal = true)
@@ -26,11 +29,13 @@ class MediaUploader extends Component
         // Check if files exist
         if (empty($this->files)) {
             session()->flash('error', 'Please select files to upload.');
+
             return;
         }
 
-        if (!auth()->user()->can('media.upload')) {
+        if (! auth()->user()->can('media.upload')) {
             session()->flash('error', 'You do not have permission to upload media.');
+
             return;
         }
 
@@ -50,12 +55,12 @@ class MediaUploader extends Component
             }
 
             session()->flash('success', "{$uploadedCount} file(s) uploaded successfully.");
-            
+
             // Redirect to media page
             return $this->redirect(route('admin.media.index'), navigate: true);
         } catch (\Exception $e) {
-            \Log::error('Media upload error: ' . $e->getMessage());
-            session()->flash('error', 'Upload failed: ' . $e->getMessage());
+            \Log::error('Media upload error: '.$e->getMessage());
+            session()->flash('error', 'Upload failed: '.$e->getMessage());
             $this->uploading = false;
             $this->reset(['files', 'uploadProgress']);
         }

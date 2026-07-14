@@ -11,7 +11,7 @@ class NotificationsDropdown extends Component
 
     public function toggle(): void
     {
-        $this->open = !$this->open;
+        $this->open = ! $this->open;
     }
 
     public function markAsRead(string $id): void
@@ -39,7 +39,7 @@ class NotificationsDropdown extends Component
 
         return view('livewire.admin.header.notifications-dropdown', [
             'unreadCount' => $user?->unreadNotifications()->count() ?? 0,
-            'recent'      => $user?->notifications()->limit(8)->get() ?? collect(),
+            'recent' => $user?->notifications()->limit(8)->get() ?? collect(),
         ]);
     }
 }

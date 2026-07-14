@@ -24,7 +24,9 @@ class DeliverWebhook implements ShouldQueue
     public function handle(): void
     {
         $delivery = WebhookDelivery::with('webhook')->find($this->deliveryId);
-        if (! $delivery || ! $delivery->webhook || ! $delivery->webhook->is_active) return;
+        if (! $delivery || ! $delivery->webhook || ! $delivery->webhook->is_active) {
+            return;
+        }
 
         $webhook = $delivery->webhook;
         $body = json_encode($delivery->payload);
@@ -70,6 +72,7 @@ class DeliverWebhook implements ShouldQueue
         if ($idx < 0 || $idx >= count(self::BACKOFF)) {
             $delivery->status = 'failed';
             $delivery->next_retry_at = null;
+
             return;
         }
 

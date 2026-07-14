@@ -1,25 +1,28 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Plugins\Events\Http\Controllers\EventController;
-use Plugins\Events\Http\Controllers\EventConsoleController;
-use Plugins\Events\Http\Controllers\EventRegistrationController;
-use Plugins\Events\Http\Controllers\EventGuestController;
-use Plugins\Events\Http\Controllers\FeedbackFormController;
 use Plugins\Events\Http\Controllers\DoorprizeDisplayController;
+use Plugins\Events\Http\Controllers\EventConsoleController;
+use Plugins\Events\Http\Controllers\EventController;
+use Plugins\Events\Http\Controllers\EventGuestController;
+use Plugins\Events\Http\Controllers\EventRegistrationController;
+use Plugins\Events\Http\Controllers\FeedbackFormController;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventRegistration;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 // Admin Routes
 Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web', 'auth'])->group(function () {
-    
+
     Route::prefix('events')->name('events.')->middleware('permission:events.view')->group(function () {
         // Events CRUD
         Route::get('/', [EventController::class, 'index'])->name('index');
-        
+
         // WordPress Migration
         Route::get('/migration/wordpress', function () {
             return view('events::admin.migration');
         })->name('migration.wordpress');
-        
+
         Route::get('/migration/wordpress/speakers', function () {
             return view('events::admin.speaker-migration');
         })->name('migration.wordpress.speakers');
@@ -34,23 +37,23 @@ Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web',
         Route::get('/{event}/wizard', [EventController::class, 'wizard'])->name('wizard.edit')->middleware('permission:events.edit');
         Route::put('/{event}', [EventController::class, 'update'])->name('update')->middleware('permission:events.edit');
         Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy')->middleware('permission:events.delete');
-        
+
         // Categories
         Route::get('/categories', function () {
             return view('events::admin.categories.index');
         })->name('categories')->middleware('permission:event_categories.view');
-        
+
         Route::get('/{event}/registrations', [EventRegistrationController::class, 'index'])->name('registrations.event');
         Route::get('/{event}/registrations/export', [EventRegistrationController::class, 'export'])->name('registrations.export');
-        
+
         // Calendar View
         Route::get('/calendar', function () {
             return view('events::admin.calendar');
         })->name('calendar');
-        
+
         // Calendar Data API
         Route::get('/calendar/data', function () {
-            $events = \Plugins\Events\Models\Event::with('category')
+            $events = Event::with('category')
                 ->whereNotNull('start_date')
                 ->get()
                 ->map(function ($event) {
@@ -64,7 +67,7 @@ Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web',
                         'url' => route('admin.events.console.overview', $event->id),
                     ];
                 });
-            
+
             return response()->json($events);
         })->name('calendar.data');
 
@@ -90,7 +93,7 @@ Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web',
 
         // ── Event Console (multi-page dashboard) ─────────────────────────────
         Route::prefix('{event}/console')->name('console.')->middleware('permission:events.edit')->group(function () {
-            Route::get('/', fn(\Plugins\Events\Models\Event $event) => redirect()->route('admin.events.console.overview', $event))->name('index');
+            Route::get('/', fn (Event $event) => redirect()->route('admin.events.console.overview', $event))->name('index');
             Route::get('/overview', [EventConsoleController::class, 'overview'])->name('overview');
             Route::get('/general', [EventConsoleController::class, 'general'])->name('general');
             Route::get('/datetime', [EventConsoleController::class, 'datetime'])->name('datetime');
@@ -109,28 +112,28 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
     // Events listing
     Route::get('/', function () {
         // Fetch the nearest upcoming event
-        $upcoming = \Plugins\Events\Models\Event::published()
+        $upcoming = Event::published()
             ->upcoming()
             ->first();
 
         // Fetch other events, excluding the upcoming one if it exists
-        $query = \Plugins\Events\Models\Event::published();
-        
+        $query = Event::published();
+
         if ($upcoming) {
             $query->where('id', '!=', $upcoming->id);
         }
 
         // Apply filters
         if (request('category')) {
-            $query->whereHas('category', function($q) {
+            $query->whereHas('category', function ($q) {
                 $q->where('slug', request('category'));
             });
         }
-        
+
         if (request('type')) {
             $query->where('event_type', request('type'));
         }
-        
+
         // Handle time filter
         if (request('time') == 'upcoming') {
             $query->upcoming();
@@ -139,15 +142,15 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
         } elseif (request('time') == 'ongoing') {
             $query->ongoing();
         } else {
-             // Default sort if no specific time filter is applied, maybe strictly upcoming or just latest
-             // If we just want a general list, let's order by start_date desc to show latest additions or upcoming
-             $query->orderBy('start_date', 'desc');
+            // Default sort if no specific time filter is applied, maybe strictly upcoming or just latest
+            // If we just want a general list, let's order by start_date desc to show latest additions or upcoming
+            $query->orderBy('start_date', 'desc');
         }
-        
+
         $events = $query->paginate(12);
 
         // Gallery images: collect featured images from recent published events
-        $galleryImages = \Plugins\Events\Models\Event::published()
+        $galleryImages = Event::published()
             ->whereNotNull('featured_image_id')
             ->with('featuredImage')
             ->latest('start_date')
@@ -155,17 +158,18 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
             ->get()
             ->map(function ($event) {
                 $img = $event->featuredImage;
+
                 return [
-                    'url'   => $img ? $img->url : null,
+                    'url' => $img ? $img->url : null,
                     'title' => $event->title,
                 ];
             })
-            ->filter(fn ($item) => !empty($item['url']))
+            ->filter(fn ($item) => ! empty($item['url']))
             ->values();
 
         return view('iccom::events.index', compact('events', 'upcoming', 'galleryImages'));
     })->name('index');
-    
+
     // Event registration success page — accepts ?slug=&email= for detail card
     Route::get('/success', function () {
         return view('iccom::events.success');
@@ -173,8 +177,8 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
 
     // QR code image — on-the-fly via simplesoftwareio/simple-qrcode
     Route::get('/qr/{slug}/{uuid}', function (string $slug, string $uuid) {
-        $event = \Plugins\Events\Models\Event::where('slug', $slug)->firstOrFail();
-        $registration = \Plugins\Events\Models\EventRegistration::where('uuid', $uuid)
+        $event = Event::where('slug', $slug)->firstOrFail();
+        $registration = EventRegistration::where('uuid', $uuid)
             ->where('event_id', $event->id)
             ->firstOrFail();
 
@@ -182,11 +186,11 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
         // Fallback to event URL if checkin route not yet registered.
         try {
             $qrUrl = route('events.checkin.scan', ['slug' => $slug, 'uuid' => $uuid], true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $qrUrl = url("/event/{$slug}?uuid={$uuid}");
         }
 
-        $qrImage = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+        $qrImage = QrCode::format('png')
             ->size(300)
             ->errorCorrection('H')
             ->generate($qrUrl);
@@ -196,12 +200,13 @@ Route::prefix('event')->name('events.')->middleware(['web'])->group(function () 
 
     // Single event
     Route::get('/{slug}', function ($slug) {
-        $event = \Plugins\Events\Models\Event::where('slug', $slug)->published()->firstOrFail();
+        $event = Event::where('slug', $slug)->published()->firstOrFail();
 
         // Check if event is completed (past end date)
         if ($event->is_past) {
             return view('iccom::events.completed', compact('event'));
         }
+
         return view('iccom::events.single', compact('event'));
     })->name('show');
 

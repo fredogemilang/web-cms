@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,17 +12,22 @@ class UsersTable extends Component
     use WithPagination;
 
     public $search = '';
+
     public $roleFilter = '';
+
     public $statusFilter = '';
+
     public $perPage = 10;
-    
+
     // Sorting
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
-    
+
     public $selectedUsers = [];
+
     public $selectAll = false;
-    
+
     // Bulk change role
     public $bulkRoleId = '';
 
@@ -69,7 +74,7 @@ class UsersTable extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedUsers = $this->users->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selectedUsers = $this->users->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedUsers = [];
         }
@@ -81,8 +86,8 @@ class UsersTable extends Component
             ->with('roles')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->roleFilter, function ($query) {
@@ -123,12 +128,12 @@ class UsersTable extends Component
     public function deleteUser($userId)
     {
         $user = User::find($userId);
-        
+
         if ($user && $user->id !== auth()->id()) {
             $user->delete();
             session()->flash('success', 'User deleted successfully.');
         }
-        
+
         $this->selectedUsers = array_diff($this->selectedUsers, [(string) $userId]);
     }
 
@@ -137,14 +142,14 @@ class UsersTable extends Component
         $users = User::whereIn('id', $this->selectedUsers)
             ->where('id', '!=', auth()->id())
             ->get();
-        
+
         foreach ($users as $user) {
             $user->delete();
         }
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', count($users) . ' user(s) deleted successfully.');
+
+        session()->flash('success', count($users).' user(s) deleted successfully.');
     }
 
     public function changeRoleSelected($roleId)
@@ -154,22 +159,22 @@ class UsersTable extends Component
         }
 
         $role = Role::find($roleId);
-        if (!$role) {
+        if (! $role) {
             return;
         }
 
         $users = User::whereIn('id', $this->selectedUsers)
             ->where('id', '!=', auth()->id())
             ->get();
-        
+
         foreach ($users as $user) {
             $user->roles()->sync([$roleId]);
         }
-        
+
         $this->clearSelection();
         $this->bulkRoleId = '';
-        
-        session()->flash('success', count($users) . ' user(s) role changed to "' . $role->name . '".');
+
+        session()->flash('success', count($users).' user(s) role changed to "'.$role->name.'".');
     }
 
     public function activateSelected()
@@ -177,10 +182,10 @@ class UsersTable extends Component
         $count = User::whereIn('id', $this->selectedUsers)
             ->where('id', '!=', auth()->id())
             ->update(['is_active' => true]);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' user(s) activated successfully.');
+
+        session()->flash('success', $count.' user(s) activated successfully.');
     }
 
     public function deactivateSelected()
@@ -188,10 +193,10 @@ class UsersTable extends Component
         $count = User::whereIn('id', $this->selectedUsers)
             ->where('id', '!=', auth()->id())
             ->update(['is_active' => false]);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' user(s) deactivated successfully.');
+
+        session()->flash('success', $count.' user(s) deactivated successfully.');
     }
 
     public function render()

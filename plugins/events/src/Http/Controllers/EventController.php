@@ -3,11 +3,13 @@
 namespace Plugins\Events\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Plugins\Events\Models\Event;
-use Plugins\Events\Models\EventCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventCategory;
 
 class EventController extends Controller
 {
@@ -22,7 +24,7 @@ class EventController extends Controller
             'request_path' => $request->path(),
             'request_url' => $request->fullUrl(),
         ]);
-        
+
         $query = Event::with(['category', 'author', 'featuredImage']);
 
         // Filtering
@@ -143,11 +145,11 @@ class EventController extends Controller
                 'data' => $event,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Event creation failed: ' . $e->getMessage());
-            
+            \Log::error('Event creation failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Event creation failed: ' . $e->getMessage(),
+                'message' => 'Event creation failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -158,6 +160,7 @@ class EventController extends Controller
     public function show(Event $event)
     {
         $event->load(['category', 'author', 'featuredImage', 'registrations']);
+
         return view('events::admin.events.show', compact('event'));
     }
 
@@ -167,6 +170,7 @@ class EventController extends Controller
     public function edit(Event $event)
     {
         $categories = EventCategory::orderBy('order')->get();
+
         return view('events::admin.events.edit', compact('event', 'categories'));
     }
 
@@ -177,7 +181,7 @@ class EventController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:events,slug,' . $event->id,
+            'slug' => 'nullable|string|max:255|unique:events,slug,'.$event->id,
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after:start_date',
             'event_type' => 'required|in:online,offline,hybrid',
@@ -215,7 +219,7 @@ class EventController extends Controller
                 'featured_image_id' => $request->featured_image_id,
                 'gallery_images' => $request->gallery_images,
                 'status' => $request->status,
-                'published_at' => $request->status === 'published' && !$event->published_at ? now() : $event->published_at,
+                'published_at' => $request->status === 'published' && ! $event->published_at ? now() : $event->published_at,
                 'meta_title' => $request->meta_title,
                 'meta_description' => $request->meta_description,
                 'meta_keywords' => $request->meta_keywords,
@@ -230,7 +234,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Event update failed: ' . $e->getMessage(),
+                'message' => 'Event update failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -250,7 +254,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Event deletion failed: ' . $e->getMessage(),
+                'message' => 'Event deletion failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -261,7 +265,7 @@ class EventController extends Controller
     public function exportRegistrations(Event $event)
     {
         $registrations = $event->registrations()->with('user')->get();
-        
+
         if ($registrations->isEmpty()) {
             return response()->json([
                 'success' => false,
@@ -269,9 +273,9 @@ class EventController extends Controller
             ], 404);
         }
 
-        $filename = Str::slug($event->title) . '-registrations-' . now()->format('Y-m-d') . '.xlsx';
+        $filename = Str::slug($event->title).'-registrations-'.now()->format('Y-m-d').'.xlsx';
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         $firstRegistration = $registrations->first();
@@ -285,12 +289,12 @@ class EventController extends Controller
             foreach ($headers as $header) {
                 $rowData[] = $exportArray[$header] ?? '';
             }
-            $sheet->fromArray($rowData, null, 'A' . $rowNumber);
+            $sheet->fromArray($rowData, null, 'A'.$rowNumber);
             $rowNumber++;
         }
 
-        return response()->streamDownload(function() use ($spreadsheet) {
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
         }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

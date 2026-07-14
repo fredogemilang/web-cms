@@ -17,6 +17,7 @@ class ForgotPasswordController extends Controller
     public function showForm()
     {
         abort_unless(setting('auth_password_reset_enabled', true), 404);
+
         return view('auth.forgot-password');
     }
 
@@ -26,7 +27,7 @@ class ForgotPasswordController extends Controller
 
         $request->validate(['email' => ['required', 'email']]);
 
-        $key = 'pw-reset|' . $request->ip();
+        $key = 'pw-reset|'.$request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $wait = RateLimiter::availableIn($key);
             throw ValidationException::withMessages([

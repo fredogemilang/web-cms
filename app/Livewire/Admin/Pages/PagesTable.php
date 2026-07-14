@@ -11,9 +11,13 @@ class PagesTable extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $status = '';
+
     public string $sortField = 'created_at';
+
     public string $sortDirection = 'desc';
+
     public int $perPage = 20;
 
     protected $queryString = [
@@ -24,10 +28,13 @@ class PagesTable extends Component
     ];
 
     public array $selectedPages = [];
+
     public bool $selectAll = false;
 
     public bool $showDeleteModal = false;
+
     public ?int $pageToDelete = null;
+
     public bool $showBulkDeleteModal = false;
 
     public function updatedSearch()
@@ -57,7 +64,7 @@ class PagesTable extends Component
 
     protected function getPageIds(): array
     {
-        return $this->buildQuery()->pluck('id')->map(fn($id) => (string) $id)->toArray();
+        return $this->buildQuery()->pluck('id')->map(fn ($id) => (string) $id)->toArray();
     }
 
     public function sortBy(string $field)
@@ -86,8 +93,8 @@ class PagesTable extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('title', 'like', '%' . $this->search . '%')
-                    ->orWhere('slug', 'like', '%' . $this->search . '%');
+                $q->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('slug', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -196,8 +203,8 @@ class PagesTable extends Component
         if ($page) {
             // Create duplicate page
             $newPage = $page->replicate();
-            $newPage->title = $page->title . ' (Copy)';
-            $newPage->slug = $page->slug . '-copy';
+            $newPage->title = $page->title.' (Copy)';
+            $newPage->slug = $page->slug.'-copy';
             $newPage->status = 'draft';
             $newPage->published_at = null;
             $newPage->save();

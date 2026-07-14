@@ -4,22 +4,27 @@ namespace App\Livewire\Admin\Themes;
 
 use App\Models\Theme;
 use App\Services\ThemeManager as ThemeManagerService;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Log;
 
 class ThemeManager extends Component
 {
     use WithFileUploads;
 
     public $themes;
+
     public $activeTheme;
+
     public $themeZip;
+
     public $uploading = false;
+
     public $uploadProgress = 0;
 
     // Confirmation modals
     public $showDeleteModal = false;
+
     public $themeToDelete = null;
 
     protected $listeners = ['refreshThemes' => '$refresh'];
@@ -51,8 +56,8 @@ class ThemeManager extends Component
             // Refresh page to apply new theme
             return redirect()->route('admin.themes.index');
         } catch (\Exception $e) {
-            Log::error("Theme activation failed: " . $e->getMessage());
-            $this->dispatch('notify', type: 'error', message: 'Failed to activate theme: ' . $e->getMessage());
+            Log::error('Theme activation failed: '.$e->getMessage());
+            $this->dispatch('notify', type: 'error', message: 'Failed to activate theme: '.$e->getMessage());
         }
     }
 
@@ -62,6 +67,7 @@ class ThemeManager extends Component
 
         if ($theme && $theme->is_active) {
             $this->dispatch('notify', type: 'error', message: 'Cannot delete the active theme. Please activate a different theme first.');
+
             return;
         }
 
@@ -72,7 +78,7 @@ class ThemeManager extends Component
     public function deleteTheme()
     {
         try {
-            if (!$this->themeToDelete) {
+            if (! $this->themeToDelete) {
                 throw new \Exception('No theme selected for deletion.');
             }
 
@@ -90,8 +96,8 @@ class ThemeManager extends Component
 
             $this->dispatch('notify', type: 'success', message: "Theme '{$themeName}' deleted successfully.");
         } catch (\Exception $e) {
-            Log::error("Theme deletion failed: " . $e->getMessage());
-            $this->dispatch('notify', type: 'error', message: 'Failed to delete theme: ' . $e->getMessage());
+            Log::error('Theme deletion failed: '.$e->getMessage());
+            $this->dispatch('notify', type: 'error', message: 'Failed to delete theme: '.$e->getMessage());
             $this->showDeleteModal = false;
         }
     }
@@ -119,9 +125,9 @@ class ThemeManager extends Component
 
             $this->dispatch('notify', type: 'success', message: "Theme '{$theme->name}' installed successfully!");
         } catch (\Exception $e) {
-            Log::error("Theme upload failed: " . $e->getMessage());
+            Log::error('Theme upload failed: '.$e->getMessage());
             $this->uploading = false;
-            $this->dispatch('notify', type: 'error', message: 'Failed to install theme: ' . $e->getMessage());
+            $this->dispatch('notify', type: 'error', message: 'Failed to install theme: '.$e->getMessage());
         }
     }
 

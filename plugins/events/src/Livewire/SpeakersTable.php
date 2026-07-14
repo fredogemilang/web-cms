@@ -11,8 +11,11 @@ class SpeakersTable extends Component
     use WithPagination;
 
     public $search = '';
+
     public $perPage = 10;
+
     public $sortField = 'name';
+
     public $sortDirection = 'asc';
 
     protected $queryString = [
@@ -50,7 +53,7 @@ class SpeakersTable extends Component
     {
         $speaker = Speaker::find($id);
         if ($speaker) {
-            $speaker->is_active = !$speaker->is_active;
+            $speaker->is_active = ! $speaker->is_active;
             $speaker->save();
         }
     }
@@ -59,15 +62,15 @@ class SpeakersTable extends Component
     {
         $speakers = Speaker::with('photo')
             ->where(function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('email', 'like', '%' . $this->search . '%')
-                    ->orWhere('company', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('email', 'like', '%'.$this->search.'%')
+                    ->orWhere('company', 'like', '%'.$this->search.'%');
             })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
         return view('events::livewire.speakers-table', [
-            'speakers' => $speakers
+            'speakers' => $speakers,
         ]);
     }
 }

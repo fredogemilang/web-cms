@@ -20,20 +20,23 @@ class ActivityPrune extends Command
         }
         if ($days < 1) {
             $this->error("Retention days must be >= 1 (got {$days}).");
+
             return self::FAILURE;
         }
 
         $cutoff = now()->subDays($days);
-        $query  = Activity::where('created_at', '<', $cutoff);
-        $count  = $query->count();
+        $query = Activity::where('created_at', '<', $cutoff);
+        $count = $query->count();
 
         if ($count === 0) {
             $this->info("No activities older than {$days} days. Nothing to prune.");
+
             return self::SUCCESS;
         }
 
         if ($this->option('dry-run')) {
             $this->info("Would delete {$count} activities older than {$cutoff->toDateString()} ({$days} days).");
+
             return self::SUCCESS;
         }
 

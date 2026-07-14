@@ -21,7 +21,9 @@ trait FindsByLocalizedSlug
         $base = static::baseLocalizedSlugQuery();
 
         $row = (clone $base)->where('slug', $slug)->first();
-        if ($row) return $row;
+        if ($row) {
+            return $row;
+        }
 
         $defaultLocale = static::defaultLocale();
         $locales = array_filter(available_locales(), fn ($l) => $l !== $defaultLocale);
@@ -32,6 +34,7 @@ trait FindsByLocalizedSlug
                 ->first();
             if ($row) {
                 app()->setLocale($locale);
+
                 return $row;
             }
         }

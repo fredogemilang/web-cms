@@ -2,35 +2,45 @@
 
 namespace Plugins\Events\Livewire;
 
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\On;
-use Plugins\Events\Models\Event;
 use Plugins\Events\Models\ApprovalType;
+use Plugins\Events\Models\Event;
 
 class EventConsoleEmails extends Component
 {
     use WithFileUploads;
 
     public $eventId;
+
     public $event;
 
     // Sender Config
     public $sending_email = true;
+
     public $sender_name;
+
     public $sender_email;
+
     public $cc_to_email;
 
     // Direct Template Fields
     public $pending_subject;
+
     public $pending_body;
+
     public $approved_subject;
+
     public $approved_body;
+
     public $rejected_subject;
+
     public $rejected_body;
 
     // Banner Config
     public $email_banner;
+
     public $current_banner;
 
     // Active Email Tab (for UI only)
@@ -38,13 +48,19 @@ class EventConsoleEmails extends Component
 
     // Custom Approval / Rejection Types properties
     public $primaryTemplateIds = [];
+
     public $customTemplates = [];
 
     public $showTypeModal = false;
+
     public $typeId = null;
+
     public $typeName = '';
+
     public $typeCat = 'approved';
+
     public $typeSubject = '';
+
     public $typeBody = '';
 
     #[On('media-selected')]
@@ -88,13 +104,13 @@ class EventConsoleEmails extends Component
                 ['event_id' => $this->eventId, 'cat' => $cat],
                 [
                     'type_name' => $cat === 'approved' ? 'Regular' : ($cat === 'rejected' ? 'Not Eligible' : 'Pending Approval'),
-                    'email_subject' => "Registration " . ucfirst($cat) . ": {{event_title}}",
+                    'email_subject' => 'Registration '.ucfirst($cat).': {{event_title}}',
                     'email_body' => $this->buildDefaultBody($cat),
                 ]
             );
 
-            $this->{$cat . '_subject'} = $record->email_subject;
-            $this->{$cat . '_body'} = $record->email_body;
+            $this->{$cat.'_subject'} = $record->email_subject;
+            $this->{$cat.'_body'} = $record->email_body;
             $this->primaryTemplateIds[$cat] = $record->id;
 
             if ($record->email_banner) {
@@ -110,11 +126,12 @@ class EventConsoleEmails extends Component
     protected function buildDefaultBody(string $category): string
     {
         $messages = [
-            'pending'  => "Your registration for {{event_title}} is pending approval. We will notify you once confirmed.",
-            'approved' => "Your registration for {{event_title}} has been approved. See you there!",
-            'rejected' => "Unfortunately, your registration for {{event_title}} has been declined.",
+            'pending' => 'Your registration for {{event_title}} is pending approval. We will notify you once confirmed.',
+            'approved' => 'Your registration for {{event_title}} has been approved. See you there!',
+            'rejected' => 'Unfortunately, your registration for {{event_title}} has been declined.',
         ];
-        $message = $messages[$category] ?? "You have registered for {{event_title}}.";
+        $message = $messages[$category] ?? 'You have registered for {{event_title}}.';
+
         return "<p>Dear {{name}},</p><p>{$message}</p><p>If you have any questions, please contact the event organizer.</p>";
     }
 
@@ -159,8 +176,8 @@ class EventConsoleEmails extends Component
                 ['event_id' => $this->eventId, 'cat' => $cat],
                 [
                     'type_name' => $cat === 'approved' ? 'Regular' : ($cat === 'rejected' ? 'Not Eligible' : 'Pending Approval'),
-                    'email_subject' => $this->{$cat . '_subject'},
-                    'email_body' => $this->{$cat . '_body'},
+                    'email_subject' => $this->{$cat.'_subject'},
+                    'email_body' => $this->{$cat.'_body'},
                     'email_banner' => $bannerPath,
                 ]
             );
@@ -222,7 +239,7 @@ class EventConsoleEmails extends Component
             ->where('id', $id)
             ->first();
 
-        if ($record && !in_array($id, array_values($this->primaryTemplateIds))) {
+        if ($record && ! in_array($id, array_values($this->primaryTemplateIds))) {
             $record->delete();
             $this->loadTemplates();
             $this->dispatch('notify', message: 'Custom template deleted successfully.');

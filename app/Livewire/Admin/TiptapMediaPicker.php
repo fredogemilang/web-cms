@@ -11,24 +11,29 @@ use Livewire\WithPagination;
 class TiptapMediaPicker extends Component
 {
     use WithFileUploads, WithPagination;
-    
+
     // Modal state
     public bool $showModal = false;
+
     public string $activeTab = 'library';
-    
+
     // Library state
     public string $search = '';
+
     public string $filterType = 'images';
+
     public ?int $selectedMediaId = null;
+
     public ?array $selectedMedia = null;
-    
+
     // Upload state
     public $uploadFile = null;
+
     public bool $uploading = false;
 
     protected $listeners = [
         'openTiptapMediaPicker' => 'openModal',
-        'open-media-picker'     => 'openForField',
+        'open-media-picker' => 'openForField',
     ];
 
     /** Field name that requested the picker (for settings pages, etc.) */
@@ -97,13 +102,15 @@ class TiptapMediaPicker extends Component
 
     public function uploadAndSelect()
     {
-        if (!$this->uploadFile) {
+        if (! $this->uploadFile) {
             session()->flash('tiptap-picker-error', 'Please select a file to upload.');
+
             return;
         }
 
-        if (!auth()->user()->can('media.upload')) {
+        if (! auth()->user()->can('media.upload')) {
             session()->flash('tiptap-picker-error', 'You do not have permission to upload media.');
+
             return;
         }
 
@@ -132,11 +139,11 @@ class TiptapMediaPicker extends Component
             // Switch to library tab to show selection
             $this->activeTab = 'library';
             $this->reset(['uploadFile', 'uploading']);
-            
+
             session()->flash('tiptap-picker-success', 'File uploaded successfully.');
         } catch (\Exception $e) {
-            \Log::error('TipTap media picker upload error: ' . $e->getMessage());
-            session()->flash('tiptap-picker-error', 'Upload failed: ' . $e->getMessage());
+            \Log::error('TipTap media picker upload error: '.$e->getMessage());
+            session()->flash('tiptap-picker-error', 'Upload failed: '.$e->getMessage());
             $this->uploading = false;
         }
     }
@@ -161,9 +168,9 @@ class TiptapMediaPicker extends Component
         // Apply search
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('original_filename', 'like', '%' . $this->search . '%')
-                  ->orWhere('title', 'like', '%' . $this->search . '%')
-                  ->orWhere('alt_text', 'like', '%' . $this->search . '%');
+                $q->where('original_filename', 'like', '%'.$this->search.'%')
+                    ->orWhere('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('alt_text', 'like', '%'.$this->search.'%');
             });
         }
 

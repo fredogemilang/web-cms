@@ -2,11 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Http\Controllers\PageController;
+use App\Services\PermissionRegistry;
 use App\Services\PluginLoader;
 use App\Services\PluginManager;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PageController;
+use Illuminate\Support\ServiceProvider;
 
 class PluginServiceProvider extends ServiceProvider
 {
@@ -16,11 +17,11 @@ class PluginServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(PluginLoader::class, function ($app) {
-            return new PluginLoader();
+            return new PluginLoader;
         });
 
         $this->app->singleton(PluginManager::class, function ($app) {
-            return new PluginManager($app->make(\App\Services\PermissionRegistry::class));
+            return new PluginManager($app->make(PermissionRegistry::class));
         });
     }
 
@@ -37,7 +38,7 @@ class PluginServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             Route::middleware('web')->group(function () {
                 Route::get('/{slug}', [PageController::class, 'show'])
-                    ->where('slug', '(?!' . preg_quote(config('admin.path', 'admin'), '/') . ')[a-zA-Z0-9\-]+')
+                    ->where('slug', '(?!'.preg_quote(config('admin.path', 'admin'), '/').')[a-zA-Z0-9\-]+')
                     ->name('pages.show');
             });
         });

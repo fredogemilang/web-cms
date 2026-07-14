@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Settings;
 
 use App\Models\Setting;
 use App\Services\SettingsRegistry;
+use App\Settings\Contracts\SettingsAction;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -47,14 +48,16 @@ class SettingsPage extends Component
         $actions = $registry->group($this->group)['actions'] ?? [];
         $action = $actions[$index] ?? null;
 
-        if (!$action || empty($action['handler'])) {
+        if (! $action || empty($action['handler'])) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Unknown action.']);
+
             return;
         }
 
         $handler = app($action['handler']);
-        if (!$handler instanceof \App\Settings\Contracts\SettingsAction) {
+        if (! $handler instanceof SettingsAction) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Action handler is not a SettingsAction.']);
+
             return;
         }
 
@@ -86,10 +89,10 @@ class SettingsPage extends Component
     protected function fieldStorageType(string $uiType): string
     {
         return match ($uiType) {
-            'boolean'  => 'boolean',
-            'number'   => 'integer',
+            'boolean' => 'boolean',
+            'number' => 'integer',
             'multiselect', 'tags', 'array' => 'array',
-            default    => 'string',
+            default => 'string',
         };
     }
 
@@ -99,8 +102,8 @@ class SettingsPage extends Component
 
         return view('livewire.admin.settings.settings-page', [
             'currentGroup' => $registry->group($this->group),
-            'allGroups'    => $registry->groups(),
-            'fields'       => $registry->fields($this->group),
+            'allGroups' => $registry->groups(),
+            'fields' => $registry->fields($this->group),
         ]);
     }
 }

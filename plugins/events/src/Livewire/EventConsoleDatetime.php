@@ -2,39 +2,57 @@
 
 namespace Plugins\Events\Livewire;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use Plugins\Events\Models\Event;
-use Carbon\Carbon;
 
 class EventConsoleDatetime extends Component
 {
     public $eventId;
+
     public $event;
 
     // Date & Time
     public $start_date;
+
     public $start_time;
+
     public $end_date;
+
     public $end_time;
+
     public $is_all_day = false;
+
     public $timezone = 'Asia/Jakarta';
 
     // Registration Settings
     public $requires_registration = false;
+
     public $registration_requires_approval = false;
+
     public $requires_corporate_email = false;
+
     public $limit_by_quota = false;
+
     public $max_participants;
+
     public $registration_start_date;
+
     public $registration_start_time;
+
     public $registration_end_date;
+
     public $registration_end_time;
 
     // Success Page
     public $success_title;
+
     public $success_desc;
+
     public $success_button;
+
     public $success_link_type = 'event';
+
     public $success_link;
 
     public function mount($eventId)
@@ -86,7 +104,7 @@ class EventConsoleDatetime extends Component
 
     public function updatedRequiresRegistration($value)
     {
-        if (!$value) {
+        if (! $value) {
             $this->limit_by_quota = false;
             $this->max_participants = null;
         }
@@ -101,16 +119,16 @@ class EventConsoleDatetime extends Component
             'max_participants' => 'nullable|integer|min:1',
         ]);
 
-        $startDateTime = Carbon::parse($this->start_date . ' ' . ($this->start_time ?? '00:00'), $this->timezone);
+        $startDateTime = Carbon::parse($this->start_date.' '.($this->start_time ?? '00:00'), $this->timezone);
         $endDateTime = ($this->end_date && $this->end_time)
-            ? Carbon::parse($this->end_date . ' ' . $this->end_time, $this->timezone)
+            ? Carbon::parse($this->end_date.' '.$this->end_time, $this->timezone)
             : null;
 
         $regStart = ($this->registration_start_date && $this->registration_start_time)
-            ? Carbon::parse($this->registration_start_date . ' ' . $this->registration_start_time, $this->timezone)
+            ? Carbon::parse($this->registration_start_date.' '.$this->registration_start_time, $this->timezone)
             : null;
         $regEnd = ($this->registration_end_date && $this->registration_end_time)
-            ? Carbon::parse($this->registration_end_date . ' ' . $this->registration_end_time, $this->timezone)
+            ? Carbon::parse($this->registration_end_date.' '.$this->registration_end_time, $this->timezone)
             : null;
 
         $this->event->update([

@@ -24,6 +24,7 @@ class PageController extends Controller
     public function show(string $slug)
     {
         $page = Page::published()->where('slug', $slug)->firstOrFail();
+
         return (new PageResource($page->load('blocks')))->response();
     }
 }

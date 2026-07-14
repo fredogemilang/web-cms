@@ -83,7 +83,7 @@ class PageRevision extends Model
             ]);
 
             // Recursively restore children
-            if (!empty($children)) {
+            if (! empty($children)) {
                 $this->restoreBlocks($children, $block->id);
             }
         }

@@ -44,6 +44,6 @@ class DoorprizeSession extends Model
      */
     public function getTotalWinnersCountAttribute(): int
     {
-        return $this->prizes->sum(fn($prize) => $prize->winners()->count());
+        return $this->prizes->sum(fn ($prize) => $prize->winners()->count());
     }
 }

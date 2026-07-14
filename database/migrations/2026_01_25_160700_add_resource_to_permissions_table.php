@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::table('permissions', function (Blueprint $table) {
             $table->string('resource', 100)->nullable()->after('module');
-            
+
             $table->index('resource');
         });
-        
+
         // Populate resource column from existing module values
         // For existing permissions, resource = module
-        \DB::table('permissions')->whereNull('resource')->update([
-            'resource' => \DB::raw('module')
+        DB::table('permissions')->whereNull('resource')->update([
+            'resource' => DB::raw('module'),
         ]);
     }
 

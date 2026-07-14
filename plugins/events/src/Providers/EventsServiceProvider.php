@@ -2,11 +2,26 @@
 
 namespace Plugins\Events\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Route;
-use Livewire\Livewire;
 use App\Events\RenderAdminMenu;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use Plugins\Events\Livewire\CategoriesManager;
+use Plugins\Events\Livewire\EventConsoleDatetime;
+use Plugins\Events\Livewire\EventConsoleDoorprize;
+use Plugins\Events\Livewire\EventConsoleEmails;
+use Plugins\Events\Livewire\EventConsoleFeedback;
+use Plugins\Events\Livewire\EventConsoleGeneral;
+use Plugins\Events\Livewire\EventConsoleReferrals;
+use Plugins\Events\Livewire\EventForm;
+use Plugins\Events\Livewire\EventGuestsTable;
+use Plugins\Events\Livewire\EventRegistrationForm;
+use Plugins\Events\Livewire\EventsTable;
+use Plugins\Events\Livewire\EventWizard;
+use Plugins\Events\Livewire\QuestionsManager;
+use Plugins\Events\Livewire\RegistrationsTable;
+use Plugins\Events\Livewire\SpeakersTable;
+use Plugins\Events\Livewire\WalkInRegistration;
 use Plugins\Events\Models\Event as EventModel;
 use Plugins\Events\Observers\EventObserver;
 
@@ -20,33 +35,33 @@ class EventsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load Routes
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
 
         // Load Views
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'events');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'events');
 
         // Load Migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         // Register Livewire Components
-        Livewire::component('plugins.events-table', \Plugins\Events\Livewire\EventsTable::class);
-        Livewire::component('plugins.event-categories', \Plugins\Events\Livewire\CategoriesManager::class);
-        Livewire::component('plugins.event-registrations', \Plugins\Events\Livewire\RegistrationsTable::class);
-        Livewire::component('plugins.event-form', \Plugins\Events\Livewire\EventForm::class);
-        Livewire::component('plugins.event-wizard', \Plugins\Events\Livewire\EventWizard::class);
-        Livewire::component('plugins.event-registration-form', \Plugins\Events\Livewire\EventRegistrationForm::class);
-        Livewire::component('plugins.walk-in-registration', \Plugins\Events\Livewire\WalkInRegistration::class);
-        Livewire::component('plugins.speakers-table', \Plugins\Events\Livewire\SpeakersTable::class);
-        Livewire::component('plugins.events-questions-manager', \Plugins\Events\Livewire\QuestionsManager::class);
-        Livewire::component('plugins.event-guests-table', \Plugins\Events\Livewire\EventGuestsTable::class);
+        Livewire::component('plugins.events-table', EventsTable::class);
+        Livewire::component('plugins.event-categories', CategoriesManager::class);
+        Livewire::component('plugins.event-registrations', RegistrationsTable::class);
+        Livewire::component('plugins.event-form', EventForm::class);
+        Livewire::component('plugins.event-wizard', EventWizard::class);
+        Livewire::component('plugins.event-registration-form', EventRegistrationForm::class);
+        Livewire::component('plugins.walk-in-registration', WalkInRegistration::class);
+        Livewire::component('plugins.speakers-table', SpeakersTable::class);
+        Livewire::component('plugins.events-questions-manager', QuestionsManager::class);
+        Livewire::component('plugins.event-guests-table', EventGuestsTable::class);
 
         // Console Tab Components
-        Livewire::component('plugins.event-console-general', \Plugins\Events\Livewire\EventConsoleGeneral::class);
-        Livewire::component('plugins.event-console-datetime', \Plugins\Events\Livewire\EventConsoleDatetime::class);
-        Livewire::component('plugins.event-console-emails', \Plugins\Events\Livewire\EventConsoleEmails::class);
-        Livewire::component('plugins.event-console-feedback', \Plugins\Events\Livewire\EventConsoleFeedback::class);
-        Livewire::component('plugins.event-console-doorprize', \Plugins\Events\Livewire\EventConsoleDoorprize::class);
-        Livewire::component('plugins.event-console-referrals', \Plugins\Events\Livewire\EventConsoleReferrals::class);
+        Livewire::component('plugins.event-console-general', EventConsoleGeneral::class);
+        Livewire::component('plugins.event-console-datetime', EventConsoleDatetime::class);
+        Livewire::component('plugins.event-console-emails', EventConsoleEmails::class);
+        Livewire::component('plugins.event-console-feedback', EventConsoleFeedback::class);
+        Livewire::component('plugins.event-console-doorprize', EventConsoleDoorprize::class);
+        Livewire::component('plugins.event-console-referrals', EventConsoleReferrals::class);
 
         // Register model observer — fires after event create to seed email templates
         EventModel::observe(EventObserver::class);

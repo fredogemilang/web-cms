@@ -2,21 +2,27 @@
 
 namespace App\Livewire\Admin\Profile;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileForm extends Component
 {
     use WithFileUploads;
 
     public $name;
+
     public $username;
+
     public $email;
+
     public $bio;
+
     public $avatar;
+
     public $password;
+
     public $password_confirmation;
 
     public function mount()
@@ -45,12 +51,12 @@ class ProfileForm extends Component
 
             $this->dispatch('notify', [
                 'type' => 'success',
-                'message' => 'Password updated successfully'
+                'message' => 'Password updated successfully',
             ]);
         } catch (\Exception $e) {
             $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => 'Failed to update password'
+                'message' => 'Failed to update password',
             ]);
         }
     }
@@ -63,7 +69,7 @@ class ProfileForm extends Component
 
         try {
             $user = auth()->user();
-            
+
             // Delete old avatar if exists
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
@@ -71,25 +77,27 @@ class ProfileForm extends Component
 
             // Store new avatar
             $path = $this->avatar->store('avatars', 'public');
-            
+
             $user->avatar = $path;
             $user->save();
 
             $this->dispatch('notify', [
                 'type' => 'success',
-                'message' => 'Profile picture updated successfully'
+                'message' => 'Profile picture updated successfully',
             ]);
         } catch (\Exception $e) {
             $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => 'Failed to update profile picture'
+                'message' => 'Failed to update profile picture',
             ]);
         }
     }
 
     public function updated($propertyName)
     {
-        if ($propertyName === 'avatar') return;
+        if ($propertyName === 'avatar') {
+            return;
+        }
 
         $this->validateOnly($propertyName, [
             'name' => 'required|string|max:255',
@@ -105,12 +113,12 @@ class ProfileForm extends Component
 
             $this->dispatch('notify', [
                 'type' => 'success',
-                'message' => ucfirst($propertyName) . ' updated successfully'
+                'message' => ucfirst($propertyName).' updated successfully',
             ]);
         } catch (\Exception $e) {
             $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => 'Failed to update ' . $propertyName
+                'message' => 'Failed to update '.$propertyName,
             ]);
         }
     }

@@ -2,10 +2,11 @@
 
 namespace Plugins\Posts\Livewire;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Plugins\Posts\Models\Category;
-use Illuminate\Support\Str;
 
 class CategoriesManager extends Component
 {
@@ -13,10 +14,13 @@ class CategoriesManager extends Component
 
     // Form Fields
     public $name = '';
+
     public $slug = '';
+
     public $parent_id = null;
+
     public $description = '';
-    
+
     // Edit Mode
     public $editingCategory = null;
 
@@ -28,7 +32,7 @@ class CategoriesManager extends Component
         // Manual pagination
         $currentPage = $this->getPage();
         $perPage = 20;
-        $categories = new \Illuminate\Pagination\LengthAwarePaginator(
+        $categories = new LengthAwarePaginator(
             $hierarchicalCategories->forPage($currentPage, $perPage),
             $hierarchicalCategories->count(),
             $perPage,
@@ -60,7 +64,7 @@ class CategoriesManager extends Component
 
     public function updatedName($value)
     {
-        if (!$this->editingCategory) {
+        if (! $this->editingCategory) {
             $this->slug = Str::slug($value);
         }
     }
@@ -98,7 +102,7 @@ class CategoriesManager extends Component
     {
         $this->validate([
             'name' => 'required|min:2',
-            'slug' => 'required|unique:categories,slug,' . $this->editingCategory->id,
+            'slug' => 'required|unique:categories,slug,'.$this->editingCategory->id,
             'parent_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
         ]);

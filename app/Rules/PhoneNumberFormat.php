@@ -22,13 +22,16 @@ class PhoneNumberFormat implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$value) return;
+        if (! $value) {
+            return;
+        }
 
         $cleaned = preg_replace('/[^\d]/', '', (string) $value);
 
         // Must be 9-13 digits
         if (strlen($cleaned) < 9 || strlen($cleaned) > 13) {
             $fail('Phone number must be 9–13 digits including country code (e.g., +6281234567890).');
+
             return;
         }
 
@@ -41,7 +44,7 @@ class PhoneNumberFormat implements ValidationRule
             }
         }
 
-        if (!$startsWithValidCode) {
+        if (! $startsWithValidCode) {
             $fail('Phone number must use a valid country code (e.g., +62 for Indonesia).');
         }
     }

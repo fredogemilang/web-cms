@@ -15,10 +15,10 @@ class RedirectMiddlewareTest extends TestCase
     public function exact_path_match_returns_configured_status_code(): void
     {
         Redirect::create([
-            'from_path'   => '/old-about',
-            'to_url'      => '/about',
+            'from_path' => '/old-about',
+            'to_url' => '/about',
             'status_code' => 301,
-            'is_active'   => true,
+            'is_active' => true,
         ]);
 
         $this->get('/old-about')
@@ -30,11 +30,11 @@ class RedirectMiddlewareTest extends TestCase
     public function regex_path_with_capture_group_substitutes_into_target(): void
     {
         Redirect::create([
-            'from_path'   => '^/blog/(\d+)$',
-            'to_url'      => '/posts/$1',
+            'from_path' => '^/blog/(\d+)$',
+            'to_url' => '/posts/$1',
             'status_code' => 302,
-            'is_regex'    => true,
-            'is_active'   => true,
+            'is_regex' => true,
+            'is_active' => true,
         ]);
 
         $this->get('/blog/42')
@@ -46,10 +46,10 @@ class RedirectMiddlewareTest extends TestCase
     public function inactive_rules_are_not_applied(): void
     {
         Redirect::create([
-            'from_path'   => '/disabled-path',
-            'to_url'      => '/somewhere',
+            'from_path' => '/disabled-path',
+            'to_url' => '/somewhere',
             'status_code' => 301,
-            'is_active'   => false,
+            'is_active' => false,
         ]);
 
         // Without a matching rule and without a route, expect 404 (not redirect).
@@ -60,10 +60,10 @@ class RedirectMiddlewareTest extends TestCase
     public function admin_path_is_never_intercepted_even_when_a_rule_matches(): void
     {
         Redirect::create([
-            'from_path'   => '/ctrlpanel/login',
-            'to_url'      => '/somewhere',
+            'from_path' => '/ctrlpanel/login',
+            'to_url' => '/somewhere',
             'status_code' => 301,
-            'is_active'   => true,
+            'is_active' => true,
         ]);
 
         // /ctrlpanel/login is the admin login route — should reach Laravel's
@@ -76,10 +76,10 @@ class RedirectMiddlewareTest extends TestCase
     public function hit_counter_increments_after_redirect(): void
     {
         $rule = Redirect::create([
-            'from_path'   => '/counted',
-            'to_url'      => '/elsewhere',
+            'from_path' => '/counted',
+            'to_url' => '/elsewhere',
             'status_code' => 302,
-            'is_active'   => true,
+            'is_active' => true,
         ]);
 
         $this->get('/counted')->assertRedirect('/elsewhere');
@@ -93,10 +93,10 @@ class RedirectMiddlewareTest extends TestCase
     public function query_string_is_preserved_when_target_has_none(): void
     {
         Redirect::create([
-            'from_path'   => '/old',
-            'to_url'      => '/new',
+            'from_path' => '/old',
+            'to_url' => '/new',
             'status_code' => 301,
-            'is_active'   => true,
+            'is_active' => true,
         ]);
 
         // Symfony normalises (alphabetises) the query string — compare loosely.

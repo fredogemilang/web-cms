@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Models\Theme;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Log;
 
 class ThemeLoader
 {
@@ -14,15 +14,16 @@ class ThemeLoader
     public function boot(): void
     {
         // Check if themes table exists to avoid errors during initial migration
-        if (!Schema::hasTable('themes')) {
+        if (! Schema::hasTable('themes')) {
             return;
         }
 
         try {
             $this->activeTheme = Theme::active()->first();
 
-            if (!$this->activeTheme) {
-                Log::warning("No active theme found.");
+            if (! $this->activeTheme) {
+                Log::warning('No active theme found.');
+
                 return;
             }
 
@@ -34,7 +35,7 @@ class ThemeLoader
 
         } catch (\Exception $e) {
             // Log error but don't crash the app if something goes wrong with theme loading
-            Log::error("Failed to load theme: " . $e->getMessage());
+            Log::error('Failed to load theme: '.$e->getMessage());
         }
     }
 
@@ -45,8 +46,9 @@ class ThemeLoader
     {
         $themePath = base_path("themes/{$theme->slug}/views");
 
-        if (!is_dir($themePath)) {
+        if (! is_dir($themePath)) {
             Log::warning("Theme views directory not found: {$themePath}");
+
             return;
         }
 
@@ -93,11 +95,11 @@ class ThemeLoader
         $config = [];
         $configPath = base_path("themes/{$slug}/config");
 
-        if (!is_dir($configPath)) {
+        if (! is_dir($configPath)) {
             return $config;
         }
 
-        $files = glob($configPath . '/*.php');
+        $files = glob($configPath.'/*.php');
 
         foreach ($files as $file) {
             $key = basename($file, '.php');
@@ -120,7 +122,7 @@ class ThemeLoader
      */
     public function getAssetPath(string $path): string
     {
-        if (!$this->activeTheme) {
+        if (! $this->activeTheme) {
             return '';
         }
 

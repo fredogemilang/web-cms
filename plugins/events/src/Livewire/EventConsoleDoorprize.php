@@ -2,37 +2,47 @@
 
 namespace Plugins\Events\Livewire;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\WithFileUploads;
-use Plugins\Events\Models\Event;
-use Plugins\Events\Models\DoorprizeSession;
-use Plugins\Events\Models\DoorprizePrize;
-use Plugins\Events\Models\DoorprizeWinner;
-use Plugins\Events\Models\DoorprizeBan;
-use Plugins\Events\Models\EventRegistration;
-use Plugins\Events\Models\EventFeedbackResponse;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
+use Plugins\Events\Models\DoorprizeBan;
+use Plugins\Events\Models\DoorprizePrize;
+use Plugins\Events\Models\DoorprizeSession;
+use Plugins\Events\Models\DoorprizeWinner;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventRegistration;
 
 class EventConsoleDoorprize extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
+
     // ─── Core ───
     public Event $event;
+
     public string $activeSubTab = 'sessions'; // sessions | winners
 
     // ─── Session CRUD ───
     public bool $showSessionModal = false;
+
     public ?int $editingSessionId = null;
+
     public string $sessionName = '';
+
     public bool $sessionRequireCheckin = true;
+
     public bool $sessionRequireFeedback = false;
 
     // ─── Global Settings & Exclusions ───
     public bool $defaultRequireCheckin = true;
+
     public bool $defaultRequireFeedback = false;
+
     public string $globalBanSearch = '';
+
     public string $eligibleSearch = '';
+
     protected $paginationTheme = 'tailwind';
 
     public function updatingEligibleSearch()
@@ -49,22 +59,33 @@ class EventConsoleDoorprize extends Component
 
     // ─── Prize CRUD ───
     public bool $showPrizeModal = false;
+
     public ?int $activePrizeSessionId = null;
+
     public ?int $editingPrizeId = null;
+
     public string $prizeName = '';
+
     public string $prizeDescription = '';
+
     public int $prizeMaxWinners = 1;
 
     // ─── Raffle ───
     public bool $showRaffleModal = false;
+
     public ?int $raffleSessionId = null;
+
     public ?int $rafflePrizeId = null;
+
     public ?array $raffleResult = null;
+
     public bool $isRaffling = false;
 
     // ─── Delete ───
     public bool $showDeleteModal = false;
+
     public string $deleteType = ''; // session | prize
+
     public ?int $deletingId = null;
 
     // ─── Reset All ───
@@ -72,7 +93,9 @@ class EventConsoleDoorprize extends Component
 
     // ─── Ban ───
     public bool $showBanModal = false;
+
     public ?int $banSessionId = null;
+
     public string $banSearch = '';
 
     // ─── Background Upload ───
@@ -103,10 +126,10 @@ class EventConsoleDoorprize extends Component
     public function getAllWinnersProperty()
     {
         return DoorprizeWinner::whereHas('prize', function ($q) {
-            $q->whereHas('session', fn($s) => $s->where('event_id', $this->event->id));
+            $q->whereHas('session', fn ($s) => $s->where('event_id', $this->event->id));
         })->with(['prize.session', 'registration'])
-          ->orderByDesc('won_at')
-          ->get();
+            ->orderByDesc('won_at')
+            ->get();
     }
 
     // ═══════════════════════════════════════════════════════
@@ -124,7 +147,9 @@ class EventConsoleDoorprize extends Component
     public function openEditSession(int $id)
     {
         $session = DoorprizeSession::find($id);
-        if (!$session) return;
+        if (! $session) {
+            return;
+        }
 
         $this->editingSessionId = $session->id;
         $this->sessionName = $session->name;
@@ -181,7 +206,9 @@ class EventConsoleDoorprize extends Component
     public function openEditPrize(int $id)
     {
         $prize = DoorprizePrize::find($id);
-        if (!$prize) return;
+        if (! $prize) {
+            return;
+        }
 
         $this->editingPrizeId = $prize->id;
         $this->activePrizeSessionId = $prize->session_id;
@@ -261,7 +288,7 @@ class EventConsoleDoorprize extends Component
 
         $this->showDeleteModal = false;
         $this->deletingId = null;
-        $this->dispatch('notify', type: 'success', message: ucfirst($this->deleteType) . ' deleted');
+        $this->dispatch('notify', type: 'success', message: ucfirst($this->deleteType).' deleted');
     }
 
     // ═══════════════════════════════════════════════════════
@@ -282,14 +309,16 @@ class EventConsoleDoorprize extends Component
         $session = DoorprizeSession::find($this->raffleSessionId);
         $prize = DoorprizePrize::find($this->rafflePrizeId);
 
-        if (!$session || !$prize) {
+        if (! $session || ! $prize) {
             $this->raffleResult = ['error' => 'Session or prize not found'];
+
             return;
         }
 
         // Check remaining slots
-        if (!$prize->has_available_slots) {
+        if (! $prize->has_available_slots) {
             $this->raffleResult = ['error' => 'All winner slots have been filled for this prize'];
+
             return;
         }
 
@@ -308,11 +337,11 @@ class EventConsoleDoorprize extends Component
         }
 
         // Exclude already won in this event (doorprize winners)
-        $alreadyWonIds = DoorprizeWinner::whereHas('prize.session', function($q) {
+        $alreadyWonIds = DoorprizeWinner::whereHas('prize.session', function ($q) {
             $q->where('event_id', $this->event->id);
         })->pluck('registration_id')->toArray();
 
-        if (!empty($alreadyWonIds)) {
+        if (! empty($alreadyWonIds)) {
             $query->whereNotIn('id', $alreadyWonIds);
         }
 
@@ -321,8 +350,8 @@ class EventConsoleDoorprize extends Component
         // Exclude globally banned
         $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
         $allBannedIds = array_unique(array_merge($bannedIds, $globalBannedIds));
-        
-        if (!empty($allBannedIds)) {
+
+        if (! empty($allBannedIds)) {
             $query->whereNotIn('id', $allBannedIds);
         }
 
@@ -330,6 +359,7 @@ class EventConsoleDoorprize extends Component
 
         if ($eligible->isEmpty()) {
             $this->raffleResult = ['error' => 'No eligible participants remaining'];
+
             return;
         }
 
@@ -353,7 +383,7 @@ class EventConsoleDoorprize extends Component
             'poolSize' => $eligible->count(),
         ];
 
-        $this->dispatch('notify', type: 'success', message: 'Winner drawn: ' . ($winner->name ?? $winner->full_name));
+        $this->dispatch('notify', type: 'success', message: 'Winner drawn: '.($winner->name ?? $winner->full_name));
     }
 
     // ═══════════════════════════════════════════════════════
@@ -369,7 +399,9 @@ class EventConsoleDoorprize extends Component
 
     public function getBanCandidatesProperty()
     {
-        if (!$this->banSessionId || !$this->banSearch || strlen($this->banSearch) < 2) return collect();
+        if (! $this->banSessionId || ! $this->banSearch || strlen($this->banSearch) < 2) {
+            return collect();
+        }
 
         $bannedIds = DoorprizeBan::where('session_id', $this->banSessionId)
             ->pluck('registration_id');
@@ -379,7 +411,7 @@ class EventConsoleDoorprize extends Component
             ->whereNotIn('id', $bannedIds)
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->banSearch}%")
-                  ->orWhere('email', 'like', "%{$this->banSearch}%");
+                    ->orWhere('email', 'like', "%{$this->banSearch}%");
             })
             ->limit(10)
             ->get();
@@ -413,7 +445,7 @@ class EventConsoleDoorprize extends Component
         if ($winner) {
             $status = $winner->status === 'redraw' ? 'active' : 'redraw';
             $winner->update(['status' => $status]);
-            $this->dispatch('notify', type: 'success', message: 'Winner status updated to ' . $status);
+            $this->dispatch('notify', type: 'success', message: 'Winner status updated to '.$status);
         }
     }
 
@@ -446,7 +478,7 @@ class EventConsoleDoorprize extends Component
 
         // Delete old background
         if ($this->event->doorprize_background) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->event->doorprize_background);
+            Storage::disk('public')->delete($this->event->doorprize_background);
         }
 
         $path = $this->backgroundUpload->store('events/doorprize', 'public');
@@ -458,7 +490,7 @@ class EventConsoleDoorprize extends Component
     public function removeBackground()
     {
         if ($this->event->doorprize_background) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->event->doorprize_background);
+            Storage::disk('public')->delete($this->event->doorprize_background);
             $this->event->update(['doorprize_background' => null]);
         }
         $this->dispatch('notify', type: 'success', message: 'Background removed');
@@ -495,8 +527,10 @@ class EventConsoleDoorprize extends Component
     public function getGlobalBansProperty()
     {
         $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
-        if (empty($globalBannedIds)) return collect();
-        
+        if (empty($globalBannedIds)) {
+            return collect();
+        }
+
         return EventRegistration::whereIn('id', $globalBannedIds)
             ->where('event_id', $this->event->id)
             ->get();
@@ -504,16 +538,18 @@ class EventConsoleDoorprize extends Component
 
     public function getGlobalBanCandidatesProperty()
     {
-        if (!$this->globalBanSearch || strlen($this->globalBanSearch) < 2) return collect();
-        
+        if (! $this->globalBanSearch || strlen($this->globalBanSearch) < 2) {
+            return collect();
+        }
+
         $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
-        
+
         return EventRegistration::where('event_id', $this->event->id)
             ->where('status', 'approved')
             ->whereNotIn('id', $globalBannedIds)
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->globalBanSearch}%")
-                  ->orWhere('email', 'like', "%{$this->globalBanSearch}%");
+                    ->orWhere('email', 'like', "%{$this->globalBanSearch}%");
             })
             ->limit(5)
             ->get();
@@ -523,14 +559,14 @@ class EventConsoleDoorprize extends Component
     {
         $settings = $this->event->settings ?? [];
         $globalBannedIds = $settings['doorprize_global_banned_ids'] ?? [];
-        
-        if (!in_array($registrationId, $globalBannedIds)) {
+
+        if (! in_array($registrationId, $globalBannedIds)) {
             $globalBannedIds[] = $registrationId;
         }
-        
+
         $settings['doorprize_global_banned_ids'] = $globalBannedIds;
         $this->event->update(['settings' => $settings]);
-        
+
         $this->globalBanSearch = '';
         $this->dispatch('notify', type: 'success', message: 'Participant excluded globally');
     }
@@ -539,12 +575,12 @@ class EventConsoleDoorprize extends Component
     {
         $settings = $this->event->settings ?? [];
         $globalBannedIds = $settings['doorprize_global_banned_ids'] ?? [];
-        
-        $globalBannedIds = array_values(array_filter($globalBannedIds, fn($id) => $id !== $registrationId));
-        
+
+        $globalBannedIds = array_values(array_filter($globalBannedIds, fn ($id) => $id !== $registrationId));
+
         $settings['doorprize_global_banned_ids'] = $globalBannedIds;
         $this->event->update(['settings' => $settings]);
-        
+
         $this->dispatch('notify', type: 'success', message: 'Participant re-included globally');
     }
 
@@ -562,22 +598,22 @@ class EventConsoleDoorprize extends Component
         }
 
         $globalBannedIds = $this->event->settings['doorprize_global_banned_ids'] ?? [];
-        if (!empty($globalBannedIds)) {
+        if (! empty($globalBannedIds)) {
             $query->whereNotIn('id', $globalBannedIds);
         }
 
-        $alreadyWonIds = DoorprizeWinner::whereHas('prize.session', function($q) {
+        $alreadyWonIds = DoorprizeWinner::whereHas('prize.session', function ($q) {
             $q->where('event_id', $this->event->id);
         })->pluck('registration_id')->toArray();
 
-        if (!empty($alreadyWonIds)) {
+        if (! empty($alreadyWonIds)) {
             $query->whereNotIn('id', $alreadyWonIds);
         }
 
         if ($this->eligibleSearch) {
             $query->where(function ($q) {
                 $q->where('name', 'like', "%{$this->eligibleSearch}%")
-                  ->orWhere('email', 'like', "%{$this->eligibleSearch}%");
+                    ->orWhere('email', 'like', "%{$this->eligibleSearch}%");
             });
         }
 

@@ -17,15 +17,15 @@ class TemplateResolver
     /**
      * Resolve the template to use based on hierarchy.
      *
-     * @param string $type Template type (single, archive, page, home, etc.)
-     * @param array $context Additional context (post_type, slug, etc.)
+     * @param  string  $type  Template type (single, archive, page, home, etc.)
+     * @param  array  $context  Additional context (post_type, slug, etc.)
      * @return string View name to render
      */
     public function resolve(string $type, array $context = []): string
     {
         $theme = $this->themeLoader->getActiveTheme();
 
-        if (!$theme) {
+        if (! $theme) {
             return $this->getCoreTemplate($type);
         }
 
@@ -54,13 +54,11 @@ class TemplateResolver
     /**
      * Build template hierarchy based on type and context.
      *
-     * @param string $type
-     * @param array $context
      * @return array List of template names in priority order
      */
     protected function buildHierarchy(string $type, array $context): array
     {
-        return match($type) {
+        return match ($type) {
             'single' => $this->buildSingleHierarchy($context),
             'archive' => $this->buildArchiveHierarchy($context),
             'taxonomy' => $this->buildTaxonomyHierarchy($context),
@@ -214,7 +212,7 @@ class TemplateResolver
      */
     protected function getCoreTemplate(string $type): string
     {
-        return match($type) {
+        return match ($type) {
             'single' => 'layouts.single',
             'archive' => 'layouts.archive',
             'page' => 'layouts.page',

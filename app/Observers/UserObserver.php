@@ -13,6 +13,6 @@ class UserObserver extends LogsActivity
 
     protected function subjectLabel(Model $model): string
     {
-        return $model->name . ' <' . $model->email . '>';
+        return $model->name.' <'.$model->email.'>';
     }
 }

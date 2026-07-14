@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('page_blocks') && !Schema::hasColumn('page_blocks', 'translations')) {
+        if (Schema::hasTable('page_blocks') && ! Schema::hasColumn('page_blocks', 'translations')) {
             Schema::table('page_blocks', function (Blueprint $table) {
                 $table->json('translations')->nullable()->after('options');
             });

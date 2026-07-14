@@ -2,19 +2,19 @@
 
 namespace Plugins\Posts\Models;
 
+use App\Models\User;
 use App\Traits\FindsByLocalizedSlug;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\User;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
-    use SoftDeletes, HasTranslations, FindsByLocalizedSlug;
+    use FindsByLocalizedSlug, HasTranslations, SoftDeletes;
 
     protected static function baseLocalizedSlugQuery(): Builder
     {
@@ -54,7 +54,7 @@ class Post extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($post) {
             if (empty($post->slug)) {
                 $post->slug = Str::slug($post->title);
@@ -83,7 +83,7 @@ class Post extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                     ->where('published_at', '<=', now());
+            ->where('published_at', '<=', now());
     }
 
     public function scopeDraft($query)
@@ -98,7 +98,7 @@ class Post extends Model
 
     public function getStatusBadgeAttribute(): array
     {
-        return match($this->status) {
+        return match ($this->status) {
             'published' => ['color' => 'green', 'label' => 'Published'],
             'draft' => ['color' => 'gray', 'label' => 'Draft'],
             'scheduled' => ['color' => 'blue', 'label' => 'Scheduled'],

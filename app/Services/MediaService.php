@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\GenerateImageVariants;
 use App\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -11,16 +12,12 @@ class MediaService
 {
     /**
      * Upload a file and create media record.
-     *
-     * @param UploadedFile $file
-     * @param array|null $metadata
-     * @return Media
      */
     public function upload(UploadedFile $file, ?array $metadata = []): Media
     {
         // Generate unique filename
         $filename = $this->generateUniqueFilename($file);
-        $path = config('media.path') . '/' . $filename;
+        $path = config('media.path').'/'.$filename;
 
         // Store the file
         Storage::disk(config('media.disk'))->put($path, file_get_contents($file->getRealPath()));
@@ -59,7 +56,7 @@ class MediaService
 
         // Queue responsive variant generation for raster images.
         if ($this->isImage($mimeType) && $mimeType !== 'image/svg+xml') {
-            \App\Jobs\GenerateImageVariants::dispatch($media->id);
+            GenerateImageVariants::dispatch($media->id);
         }
 
         return $media;
@@ -67,26 +64,23 @@ class MediaService
 
     /**
      * Generate a unique filename for the uploaded file.
-     *
-     * @param UploadedFile $file
-     * @return string
      */
     protected function generateUniqueFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
         $basename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        
+
         // Sanitize filename
         $basename = Str::slug($basename);
-        
+
         // Add timestamp and random string to ensure uniqueness
-        return $basename . '-' . time() . '-' . Str::random(8) . '.' . $extension;
+        return $basename.'-'.time().'-'.Str::random(8).'.'.$extension;
     }
 
     /**
      * Convert an image to WebP format.
      *
-     * @param string $path Relative path to the image
+     * @param  string  $path  Relative path to the image
      * @return string|null Path to WebP version or null on failure
      */
     public function convertToWebp(string $path): ?string
@@ -95,7 +89,7 @@ class MediaService
             $disk = Storage::disk(config('media.disk'));
             $fullPath = $disk->path($path);
 
-            if (!file_exists($fullPath)) {
+            if (! file_exists($fullPath)) {
                 return null;
             }
 
@@ -110,7 +104,7 @@ class MediaService
                 default => null,
             };
 
-            if (!$image) {
+            if (! $image) {
                 return null;
             }
 
@@ -122,8 +116,8 @@ class MediaService
             }
 
             // Generate WebP filename
-            $webpFilename = pathinfo($path, PATHINFO_FILENAME) . '.webp';
-            $webpPath = config('media.path') . '/' . $webpFilename;
+            $webpFilename = pathinfo($path, PATHINFO_FILENAME).'.webp';
+            $webpPath = config('media.path').'/'.$webpFilename;
             $webpFullPath = $disk->path($webpPath);
 
             // Convert to WebP
@@ -135,16 +129,14 @@ class MediaService
 
             return $success ? $webpPath : null;
         } catch (\Exception $e) {
-            \Log::error('WebP conversion failed: ' . $e->getMessage());
+            \Log::error('WebP conversion failed: '.$e->getMessage());
+
             return null;
         }
     }
 
     /**
      * Delete a media file and its WebP version.
-     *
-     * @param Media $media
-     * @return bool
      */
     public function delete(Media $media): bool
     {
@@ -153,10 +145,6 @@ class MediaService
 
     /**
      * Update media metadata.
-     *
-     * @param Media $media
-     * @param array $data
-     * @return Media
      */
     public function updateMetadata(Media $media, array $data): Media
     {
@@ -172,13 +160,13 @@ class MediaService
     /**
      * Get image dimensions.
      *
-     * @param string $path Full path to the image
-     * @return array|null
+     * @param  string  $path  Full path to the image
      */
     protected function getImageDimensions(string $path): ?array
     {
         try {
             $imageInfo = getimagesize($path);
+
             return [
                 'width' => $imageInfo[0] ?? null,
                 'height' => $imageInfo[1] ?? null,
@@ -190,9 +178,6 @@ class MediaService
 
     /**
      * Check if the MIME type is an image.
-     *
-     * @param string $mimeType
-     * @return bool
      */
     protected function isImage(string $mimeType): bool
     {
@@ -201,24 +186,21 @@ class MediaService
 
     /**
      * Check if the image should be converted to WebP.
-     *
-     * @param string $mimeType
-     * @return bool
      */
     protected function shouldConvertToWebp(string $mimeType): bool
     {
-        if (!config('media.webp.enabled', true)) {
+        if (! config('media.webp.enabled', true)) {
             return false;
         }
 
         $convertTypes = config('media.webp.convert_types', []);
+
         return in_array($mimeType, $convertTypes);
     }
 
     /**
      * Bulk delete media files.
      *
-     * @param array $mediaIds
      * @return int Number of deleted files
      */
     public function bulkDelete(array $mediaIds): int

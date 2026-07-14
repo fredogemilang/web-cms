@@ -97,7 +97,7 @@ class CustomPostType extends Model
      */
     public function getContentTableName(): string
     {
-        return 'cpt_' . $this->slug;
+        return 'cpt_'.$this->slug;
     }
 
     /**
@@ -121,7 +121,7 @@ class CustomPostType extends Model
      */
     public function getRouteNameAttribute(): string
     {
-        return 'admin.cpt.' . $this->slug;
+        return 'admin.cpt.'.$this->slug;
     }
 
     /**

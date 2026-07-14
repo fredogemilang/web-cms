@@ -2,9 +2,11 @@
 
 namespace Plugins\Events\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class EventRegistration extends Model
 {
@@ -25,14 +27,14 @@ class EventRegistration extends Model
     ];
 
     protected $casts = [
-        'approved_at'         => 'datetime',
-        'rejected_at'         => 'datetime',
-        'check_in_date'       => 'datetime',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
+        'check_in_date' => 'datetime',
         'consent_accepted_at' => 'datetime',
-        'verified_at'         => 'datetime',
-        'walk_in'             => 'boolean',
-        'check_in'            => 'boolean',
-        'custom_fields'       => 'array',
+        'verified_at' => 'datetime',
+        'walk_in' => 'boolean',
+        'check_in' => 'boolean',
+        'custom_fields' => 'array',
     ];
 
     /**
@@ -44,7 +46,7 @@ class EventRegistration extends Model
 
         static::creating(function ($reg) {
             if (empty($reg->uuid)) {
-                $reg->uuid = \Illuminate\Support\Str::uuid();
+                $reg->uuid = Str::uuid();
             }
         });
     }
@@ -117,7 +119,7 @@ class EventRegistration extends Model
     public function approve(): void
     {
         $this->update([
-            'status'      => 'approved',
+            'status' => 'approved',
             'approved_at' => now(),
         ]);
         $this->event->incrementRegisteredCount();
@@ -131,7 +133,7 @@ class EventRegistration extends Model
         $wasApproved = $this->status === 'approved';
 
         $this->update([
-            'status'      => 'rejected',
+            'status' => 'rejected',
             'rejected_at' => now(),
         ]);
 
@@ -146,11 +148,10 @@ class EventRegistration extends Model
     public function checkIn(): void
     {
         $this->update([
-            'check_in'      => true,
+            'check_in' => true,
             'check_in_date' => now(),
         ]);
     }
-
 
     /**
      * Get custom field value.
@@ -174,7 +175,7 @@ class EventRegistration extends Model
     public function getCustomAnswer(string $shortLabel): mixed
     {
         return $this->customAnswers()
-            ->whereHas('question', fn($q) => $q->where('short_label', $shortLabel))
+            ->whereHas('question', fn ($q) => $q->where('short_label', $shortLabel))
             ->first()?->answer;
     }
 
@@ -185,7 +186,7 @@ class EventRegistration extends Model
     public static function detectCompanyType(string $companyName): ?string
     {
         $types = ['PT', 'CV', 'Firma', 'UD', 'Yayasan', 'Koperasi',
-                  'Ltd', 'LLC', 'Inc', 'Corp', 'Pte Ltd', 'GmbH', 'SA', 'AG'];
+            'Ltd', 'LLC', 'Inc', 'Corp', 'Pte Ltd', 'GmbH', 'SA', 'AG'];
 
         foreach ($types as $type) {
             if (stripos($companyName, $type) === 0) {
@@ -205,7 +206,7 @@ class EventRegistration extends Model
         $cleaned = preg_replace('/[^\d]/', '', $phone);
 
         if (str_starts_with($cleaned, '0')) {
-            return '62' . substr($cleaned, 1);
+            return '62'.substr($cleaned, 1);
         }
 
         return $cleaned;
@@ -214,7 +215,7 @@ class EventRegistration extends Model
     /**
      * Build referral source from UTM params and tracking code.
      */
-    public static function buildReferralSource(?string $trackingCode, \Illuminate\Http\Request $request): string
+    public static function buildReferralSource(?string $trackingCode, Request $request): string
     {
         // Check tracking code first
         if ($trackingCode) {
@@ -225,15 +226,15 @@ class EventRegistration extends Model
         }
 
         // Fallback to UTM parameters
-        $source   = $request->query('utm_source', 'Direct');
+        $source = $request->query('utm_source', 'Direct');
         $campaign = $request->query('utm_campaign');
-        $medium   = $request->query('utm_medium');
+        $medium = $request->query('utm_medium');
 
         if ($campaign) {
-            $source .= ' - ' . $campaign;
+            $source .= ' - '.$campaign;
         }
         if ($medium) {
-            $source .= ' (' . $medium . ')';
+            $source .= ' ('.$medium.')';
         }
 
         return $source ?: 'Direct';
@@ -245,22 +246,22 @@ class EventRegistration extends Model
     public function toExportArray(): array
     {
         $export = [
-            'ID'           => $this->id,
-            'UUID'         => $this->uuid,
-            'Event'        => $this->event->title,
-            'Salutation'   => $this->salutation,
-            'Full Name'    => $this->full_name ?? $this->name,
-            'Company'      => $this->company_name ?? $this->organization,
+            'ID' => $this->id,
+            'UUID' => $this->uuid,
+            'Event' => $this->event->title,
+            'Salutation' => $this->salutation,
+            'Full Name' => $this->full_name ?? $this->name,
+            'Company' => $this->company_name ?? $this->organization,
             'Company Type' => $this->company_type,
-            'Job Title'    => $this->job_title,
-            'Email'        => $this->email,
+            'Job Title' => $this->job_title,
+            'Email' => $this->email,
             'Mobile Phone' => $this->mobile_phone ?? $this->phone,
-            'Referral Code'=> $this->referral_code,
+            'Referral Code' => $this->referral_code,
             'Referral Src' => $this->referral_source,
-            'Status'       => ucfirst($this->status),
-            'Walk-in'      => $this->walk_in ? 'Yes' : 'No',
-            'Checked In'   => $this->check_in ? 'Yes' : 'No',
-            'Registered At'=> $this->created_at->format('Y-m-d H:i:s'),
+            'Status' => ucfirst($this->status),
+            'Walk-in' => $this->walk_in ? 'Yes' : 'No',
+            'Checked In' => $this->check_in ? 'Yes' : 'No',
+            'Registered At' => $this->created_at->format('Y-m-d H:i:s'),
         ];
 
         if ($this->approved_at) {
@@ -276,7 +277,7 @@ class EventRegistration extends Model
         // Add custom question answers
         foreach ($this->event->customQuestions as $question) {
             $answer = $this->getCustomAnswer($question->short_label);
-            if (!is_null($answer)) {
+            if (! is_null($answer)) {
                 $export[$question->short_label] = is_array($answer)
                     ? implode(', ', $answer)
                     : $answer;

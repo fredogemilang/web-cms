@@ -9,9 +9,13 @@ use Livewire\Component;
 class TwoFactorSettings extends Component
 {
     public string $stage = 'idle';   // idle | setup | confirmed
+
     public string $secret = '';
+
     public string $confirmCode = '';
+
     public array $recoveryCodes = [];
+
     public string $currentPassword = '';
 
     public function mount(): void
@@ -36,6 +40,7 @@ class TwoFactorSettings extends Component
 
         if (! $tfa->verify($this->secret, $this->confirmCode)) {
             $this->addError('confirmCode', 'Kode tidak cocok. Coba lagi.');
+
             return;
         }
 
@@ -51,6 +56,7 @@ class TwoFactorSettings extends Component
 
         if (! Hash::check($this->currentPassword, auth()->user()->password)) {
             $this->addError('currentPassword', 'Password salah.');
+
             return;
         }
 
@@ -63,7 +69,10 @@ class TwoFactorSettings extends Component
 
     public function getOtpauthUriProperty(): string
     {
-        if (! $this->secret) return '';
+        if (! $this->secret) {
+            return '';
+        }
+
         return app(TwoFactorService::class)->otpauthUri(auth()->user(), $this->secret);
     }
 

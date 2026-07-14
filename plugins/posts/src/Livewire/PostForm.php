@@ -2,18 +2,20 @@
 
 namespace Plugins\Posts\Livewire;
 
+use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\On;
-use Plugins\Posts\Models\Post;
 use Plugins\Posts\Models\Category;
+use Plugins\Posts\Models\Post;
 use Plugins\Posts\Models\Tag;
-use Illuminate\Support\Str;
 
 class PostForm extends Component
 {
     use WithFileUploads;
-    
+
     #[On('media-selected')]
     public function onMediaSelected($field, $mediaId, $mediaPath, $mediaUrl)
     {
@@ -21,7 +23,7 @@ class PostForm extends Component
             $this->featured_image = $mediaPath;
         }
     }
-    
+
     #[On('media-removed')]
     public function onMediaRemoved($field)
     {
@@ -31,28 +33,43 @@ class PostForm extends Component
     }
 
     public ?Post $post = null;
+
     public $postId = null;
 
     // Form Fields
     public $title = '';
+
     public $slug = '';
+
     public $content = '';
+
     public $excerpt = '';
+
     public $status = 'draft';
+
     public $visibility = 'public';
+
     public $published_at = null;
+
     public $featured_image = null;
+
     public $is_featured = false;
+
     public $meta_title = '';
+
     public $meta_description = '';
+
     public $og_title = '';
+
     public $og_description = '';
+
     public $og_image = '';
 
     public $author_id;
 
     // Relationships
     public $selectedCategories = [];
+
     public $tags = ''; // Comma separated
 
     public $password = '';
@@ -60,8 +77,10 @@ class PostForm extends Component
     // === Translations state ===
     /** Locale currently shown in the form. */
     public string $editingLocale = '';
+
     /** Snapshots of translatable fields per non-default locale. */
     public array $localizedSnapshots = [];
+
     /** Available locales from Settings. */
     public array $availableLocales = [];
 
@@ -113,18 +132,20 @@ class PostForm extends Component
         $translations = $this->post->translations ?? [];
         $defaultLocale = Post::defaultLocale();
         foreach ($translations as $locale => $fields) {
-            if ($locale === $defaultLocale) continue;
+            if ($locale === $defaultLocale) {
+                continue;
+            }
             $meta = is_array($fields['meta'] ?? null) ? $fields['meta'] : [];
             $this->localizedSnapshots[$locale] = [
-                'title'            => $fields['title'] ?? '',
-                'slug'             => $fields['slug'] ?? '',
-                'excerpt'          => $fields['excerpt'] ?? '',
-                'content'          => $fields['content'] ?? '',
-                'meta_title'       => $meta['meta_title'] ?? '',
+                'title' => $fields['title'] ?? '',
+                'slug' => $fields['slug'] ?? '',
+                'excerpt' => $fields['excerpt'] ?? '',
+                'content' => $fields['content'] ?? '',
+                'meta_title' => $meta['meta_title'] ?? '',
                 'meta_description' => $meta['meta_description'] ?? '',
-                'og_title'         => $meta['og_title'] ?? '',
-                'og_description'   => $meta['og_description'] ?? '',
-                'og_image'         => $meta['og_image'] ?? null,
+                'og_title' => $meta['og_title'] ?? '',
+                'og_description' => $meta['og_description'] ?? '',
+                'og_image' => $meta['og_image'] ?? null,
             ];
         }
     }
@@ -132,22 +153,26 @@ class PostForm extends Component
     /** Switch the form between locale tabs. */
     public function switchLocale(string $newLocale): void
     {
-        if ($newLocale === $this->editingLocale) return;
-        if (!in_array($newLocale, $this->availableLocales, true)) return;
+        if ($newLocale === $this->editingLocale) {
+            return;
+        }
+        if (! in_array($newLocale, $this->availableLocales, true)) {
+            return;
+        }
 
         $prevLocale = $this->editingLocale;
         $this->localizedSnapshots[$prevLocale] = $this->currentLocaleSnapshot();
 
         $next = $this->localizedSnapshots[$newLocale] ?? [];
-        $this->title            = $next['title'] ?? '';
-        $this->slug             = $next['slug'] ?? '';
-        $this->excerpt          = $next['excerpt'] ?? '';
-        $this->content          = $next['content'] ?? '';
-        $this->meta_title       = $next['meta_title'] ?? '';
+        $this->title = $next['title'] ?? '';
+        $this->slug = $next['slug'] ?? '';
+        $this->excerpt = $next['excerpt'] ?? '';
+        $this->content = $next['content'] ?? '';
+        $this->meta_title = $next['meta_title'] ?? '';
         $this->meta_description = $next['meta_description'] ?? '';
-        $this->og_title         = $next['og_title'] ?? '';
-        $this->og_description   = $next['og_description'] ?? '';
-        $this->og_image         = $next['og_image'] ?? null;
+        $this->og_title = $next['og_title'] ?? '';
+        $this->og_description = $next['og_description'] ?? '';
+        $this->og_image = $next['og_image'] ?? null;
 
         $this->editingLocale = $newLocale;
         $this->resetErrorBag();
@@ -156,21 +181,21 @@ class PostForm extends Component
     protected function currentLocaleSnapshot(): array
     {
         return [
-            'title'            => $this->title,
-            'slug'             => $this->slug,
-            'excerpt'          => $this->excerpt,
-            'content'          => $this->content,
-            'meta_title'       => $this->meta_title,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'excerpt' => $this->excerpt,
+            'content' => $this->content,
+            'meta_title' => $this->meta_title,
             'meta_description' => $this->meta_description,
-            'og_title'         => $this->og_title,
-            'og_description'   => $this->og_description,
-            'og_image'         => $this->og_image,
+            'og_title' => $this->og_title,
+            'og_description' => $this->og_description,
+            'og_image' => $this->og_image,
         ];
     }
 
     public function updatedTitle($value)
     {
-        if (!$this->postId && empty($this->slug)) {
+        if (! $this->postId && empty($this->slug)) {
             $this->slug = $this->ensureUniqueSlug(Str::slug($value));
         }
     }
@@ -187,12 +212,12 @@ class PostForm extends Component
                 $slugQuery->where('id', '!=', $this->postId);
             }
 
-            if (!$slugQuery->exists()) {
+            if (! $slugQuery->exists()) {
                 break;
             }
 
             $counter++;
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
         }
 
         return $slug;
@@ -214,7 +239,7 @@ class PostForm extends Component
                 'author_id' => 'required|exists:users,id',
                 'is_featured' => 'boolean',
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->dispatch('notify', [
                 'type' => 'error',
                 'message' => 'There are validation errors. Please check the form.',
@@ -227,7 +252,7 @@ class PostForm extends Component
         }
 
         // Auto-generate excerpt if empty
-        if (empty($this->excerpt) && !empty($this->content)) {
+        if (empty($this->excerpt) && ! empty($this->content)) {
             $cleaned = html_entity_decode($this->content);
             $cleaned = strip_tags($cleaned);
             $cleaned = preg_replace('/\s+/', ' ', $cleaned);
@@ -253,7 +278,7 @@ class PostForm extends Component
             'visibility' => $this->visibility,
             'password' => $this->visibility === 'password' ? $this->password : null,
             'author_id' => $this->author_id,
-            'published_at' => $this->status === 'published' && !$this->published_at ? now() : $this->published_at,
+            'published_at' => $this->status === 'published' && ! $this->published_at ? now() : $this->published_at,
             'featured_image' => $imagePath,
             'is_featured' => $this->is_featured,
             'meta' => [
@@ -268,39 +293,49 @@ class PostForm extends Component
         // Build translations JSON from non-default locale snapshots
         $translations = [];
         foreach ($this->localizedSnapshots as $locale => $snap) {
-            if ($locale === $defaultLocale) continue;
+            if ($locale === $defaultLocale) {
+                continue;
+            }
             $isPopulated = false;
-            foreach (['title','slug','excerpt','content'] as $f) {
-                if (!empty($snap[$f] ?? '')) { $isPopulated = true; break; }
+            foreach (['title', 'slug', 'excerpt', 'content'] as $f) {
+                if (! empty($snap[$f] ?? '')) {
+                    $isPopulated = true;
+                    break;
+                }
             }
             $metaPopulated = false;
-            foreach (['meta_title','meta_description','og_title','og_description','og_image'] as $f) {
-                if (!empty($snap[$f] ?? '')) { $metaPopulated = true; break; }
+            foreach (['meta_title', 'meta_description', 'og_title', 'og_description', 'og_image'] as $f) {
+                if (! empty($snap[$f] ?? '')) {
+                    $metaPopulated = true;
+                    break;
+                }
             }
-            if (!$isPopulated && !$metaPopulated) continue;
+            if (! $isPopulated && ! $metaPopulated) {
+                continue;
+            }
             $translations[$locale] = [
-                'title'   => ($snap['title'] ?? '') ?: null,
-                'slug'    => ($snap['slug'] ?? '') ?: null,
+                'title' => ($snap['title'] ?? '') ?: null,
+                'slug' => ($snap['slug'] ?? '') ?: null,
                 'excerpt' => ($snap['excerpt'] ?? '') ?: null,
                 'content' => ($snap['content'] ?? '') ?: null,
-                'meta'    => !empty(array_filter([
-                    'meta_title'       => ($snap['meta_title'] ?? '') ?: null,
+                'meta' => ! empty(array_filter([
+                    'meta_title' => ($snap['meta_title'] ?? '') ?: null,
                     'meta_description' => ($snap['meta_description'] ?? '') ?: null,
-                    'og_title'         => ($snap['og_title'] ?? '') ?: null,
-                    'og_description'   => ($snap['og_description'] ?? '') ?: null,
-                    'og_image'         => ($snap['og_image'] ?? '') ?: null,
+                    'og_title' => ($snap['og_title'] ?? '') ?: null,
+                    'og_description' => ($snap['og_description'] ?? '') ?: null,
+                    'og_image' => ($snap['og_image'] ?? '') ?: null,
                 ])) ? array_filter([
-                    'meta_title'       => ($snap['meta_title'] ?? '') ?: null,
+                    'meta_title' => ($snap['meta_title'] ?? '') ?: null,
                     'meta_description' => ($snap['meta_description'] ?? '') ?: null,
-                    'og_title'         => ($snap['og_title'] ?? '') ?: null,
-                    'og_description'   => ($snap['og_description'] ?? '') ?: null,
-                    'og_image'         => ($snap['og_image'] ?? '') ?: null,
+                    'og_title' => ($snap['og_title'] ?? '') ?: null,
+                    'og_description' => ($snap['og_description'] ?? '') ?: null,
+                    'og_image' => ($snap['og_image'] ?? '') ?: null,
                 ]) : null,
             ];
         }
         $data['translations'] = $translations ?: null;
 
-        $isNew = !$this->postId;
+        $isNew = ! $this->postId;
 
         if ($this->postId) {
             $this->post->update($data);
@@ -319,7 +354,9 @@ class PostForm extends Component
             $tagNames = array_map('trim', explode(',', $this->tags));
             $tagIds = [];
             foreach ($tagNames as $tagName) {
-                if (empty($tagName)) continue;
+                if (empty($tagName)) {
+                    continue;
+                }
                 $tag = Tag::firstOrCreate(['name' => $tagName]);
                 $tagIds[] = $tag->id;
             }
@@ -330,9 +367,11 @@ class PostForm extends Component
 
         if ($isNew) {
             session()->flash('success', 'Post created successfully.');
+
             return redirect()->route('admin.posts.edit', $post->id);
         } else {
             $this->dispatch('notify', ['type' => 'success', 'message' => 'Post updated successfully.']);
+
             return redirect()->route('admin.posts.edit', $post->id);
         }
     }
@@ -342,6 +381,7 @@ class PostForm extends Component
         if ($this->post) {
             $this->post->delete();
             session()->flash('success', 'Post moved to trash.');
+
             return redirect()->route('admin.posts.index');
         }
     }
@@ -355,24 +395,28 @@ class PostForm extends Component
 
     public function addCategory($name)
     {
-        if (empty($name)) return;
-        
+        if (empty($name)) {
+            return;
+        }
+
         $category = Category::firstOrCreate(
             ['name' => $name],
             ['slug' => Str::slug($name)]
         );
-        
-        if (!in_array($category->id, $this->selectedCategories)) {
+
+        if (! in_array($category->id, $this->selectedCategories)) {
             $this->selectedCategories[] = $category->id;
         }
     }
 
     public function addTag($name)
     {
-        if (empty($name)) return;
-        
+        if (empty($name)) {
+            return;
+        }
+
         $currentTags = array_filter(array_map('trim', explode(',', $this->tags)));
-        if (!in_array($name, $currentTags)) {
+        if (! in_array($name, $currentTags)) {
             $currentTags[] = $name;
             $this->tags = implode(', ', $currentTags);
         }
@@ -382,7 +426,7 @@ class PostForm extends Component
     {
         return view('posts::livewire.post-form', [
             'categories' => Category::orderBy('name')->get(),
-            'users' => \App\Models\User::orderBy('name')->get(),
+            'users' => User::orderBy('name')->get(),
         ]);
     }
 }

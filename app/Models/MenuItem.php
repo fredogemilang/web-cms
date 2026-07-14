@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
 
 class MenuItem extends Model
 {
@@ -64,7 +65,7 @@ class MenuItem extends Model
      */
     public function isAccessible(?User $user = null): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -74,7 +75,7 @@ class MenuItem extends Model
 
         $user = $user ?? auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -84,7 +85,7 @@ class MenuItem extends Model
     /**
      * Get all accessible menu items for a user.
      */
-    public static function getAccessibleMenus(?User $user = null): \Illuminate\Database\Eloquent\Collection
+    public static function getAccessibleMenus(?User $user = null): Collection
     {
         $user = $user ?? auth()->user();
 
@@ -97,7 +98,7 @@ class MenuItem extends Model
             ->get()
             ->filter(function ($menu) use ($user) {
                 // Filter parent menus
-                if (!$menu->isAccessible($user)) {
+                if (! $menu->isAccessible($user)) {
                     return false;
                 }
 

@@ -11,9 +11,13 @@ class CptTable extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $status = '';
+
     public string $sortField = 'created_at';
+
     public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     protected $queryString = [
@@ -46,8 +50,8 @@ class CptTable extends Component
     public function toggleStatus(int $id)
     {
         $cpt = CustomPostType::findOrFail($id);
-        $cpt->update(['is_active' => !$cpt->is_active]);
-        
+        $cpt->update(['is_active' => ! $cpt->is_active]);
+
         $this->dispatch('notify', [
             'type' => 'success',
             'message' => $cpt->is_active ? 'Post type activated.' : 'Post type deactivated.',
@@ -55,6 +59,7 @@ class CptTable extends Component
     }
 
     public $targetDeleteId = null;
+
     public $showDeleteModal = false;
 
     // ... existing property definitions ...
@@ -73,13 +78,13 @@ class CptTable extends Component
 
     public function performDelete()
     {
-        if (!$this->targetDeleteId) {
+        if (! $this->targetDeleteId) {
             return;
         }
 
         $cpt = CustomPostType::findOrFail($this->targetDeleteId);
         $name = $cpt->plural_label;
-        
+
         // Delete associated meta fields
         $cpt->metaFields()->delete();
         $cpt->delete();
@@ -98,10 +103,10 @@ class CptTable extends Component
         $postTypes = CustomPostType::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('singular_label', 'like', '%' . $this->search . '%')
-                      ->orWhere('plural_label', 'like', '%' . $this->search . '%')
-                      ->orWhere('slug', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('singular_label', 'like', '%'.$this->search.'%')
+                        ->orWhere('plural_label', 'like', '%'.$this->search.'%')
+                        ->orWhere('slug', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->status !== '', function ($query) {

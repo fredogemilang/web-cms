@@ -26,7 +26,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => ['required', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
@@ -78,6 +78,7 @@ class AuthController extends Controller
             $this->throttle->clear($request);
             $request->session()->put('2fa.user_id', $user->id);
             $request->session()->put('2fa.remember', $remember);
+
             return redirect()->route('two-factor.challenge');
         }
 
@@ -94,7 +95,7 @@ class AuthController extends Controller
         }
 
         return redirect()->intended(route('admin.dashboard'))
-            ->with('success', 'Selamat datang, ' . $user->name . '!');
+            ->with('success', 'Selamat datang, '.$user->name.'!');
     }
 
     public function logout(Request $request)

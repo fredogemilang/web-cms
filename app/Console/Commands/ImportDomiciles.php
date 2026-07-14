@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class ImportDomiciles extends Command
 {
     protected $signature = 'domicile:import {--force : Overwrite existing database entries}';
+
     protected $description = 'Import provinces and regencies from wilayah.id API into the local database.';
 
     public function handle(): int
@@ -20,6 +21,7 @@ class ImportDomiciles extends Command
 
             if ($response->failed()) {
                 $this->error('Failed to fetch provinces from the API.');
+
                 return self::FAILURE;
             }
 
@@ -27,10 +29,11 @@ class ImportDomiciles extends Command
 
             if (empty($provinces)) {
                 $this->warn('No provinces found in the API response.');
+
                 return self::SUCCESS;
             }
 
-            $this->info('Found ' . count($provinces) . ' provinces. Importing and fetching regencies...');
+            $this->info('Found '.count($provinces).' provinces. Importing and fetching regencies...');
 
             $bar = $this->output->createProgressBar(count($provinces));
             $bar->start();
@@ -65,7 +68,7 @@ class ImportDomiciles extends Command
                         }
                     }
                 } catch (\Throwable $e) {
-                    $this->error("\nFailed to fetch regencies for province: " . $prov['name'] . " (" . $e->getMessage() . ")");
+                    $this->error("\nFailed to fetch regencies for province: ".$prov['name'].' ('.$e->getMessage().')');
                 }
 
                 $bar->advance();
@@ -76,7 +79,8 @@ class ImportDomiciles extends Command
 
             return self::SUCCESS;
         } catch (\Throwable $e) {
-            $this->error("\nAn error occurred during import: " . $e->getMessage());
+            $this->error("\nAn error occurred during import: ".$e->getMessage());
+
             return self::FAILURE;
         }
     }

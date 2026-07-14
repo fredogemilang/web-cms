@@ -184,10 +184,10 @@ class MetaField extends Model
             case 'number':
                 $rules[] = 'numeric';
                 if (isset($this->options['min'])) {
-                    $rules[] = 'min:' . $this->options['min'];
+                    $rules[] = 'min:'.$this->options['min'];
                 }
                 if (isset($this->options['max'])) {
-                    $rules[] = 'max:' . $this->options['max'];
+                    $rules[] = 'max:'.$this->options['max'];
                 }
                 break;
             case 'date':
@@ -197,7 +197,7 @@ class MetaField extends Model
         }
 
         // Merge with custom validation rules
-        if (!empty($this->validation)) {
+        if (! empty($this->validation)) {
             $rules = array_merge($rules, $this->validation);
         }
 

@@ -16,13 +16,14 @@ class MediaOptimize extends Command
     {
         $query = Media::query()->where('mime_type', 'like', 'image/%');
 
-        if (!$this->option('force')) {
+        if (! $this->option('force')) {
             $query->where(fn ($w) => $w->whereNull('webp_path')->orWhere('webp_path', ''));
         }
 
         $total = $query->count();
         if ($total === 0) {
             $this->info('Nothing to optimize.');
+
             return self::SUCCESS;
         }
 

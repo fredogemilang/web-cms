@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('posts_settings')) {
+        if (! Schema::hasTable('posts_settings')) {
             Schema::create('posts_settings', function (Blueprint $table) {
                 $table->string('key')->primary();
                 $table->text('value')->nullable();

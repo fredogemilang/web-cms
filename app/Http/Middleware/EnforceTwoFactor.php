@@ -15,13 +15,19 @@ class EnforceTwoFactor
     {
         $user = $request->user();
 
-        if (! $user) return $next($request);
-        if ($this->tfa->isEnabled($user)) return $next($request);
-        if (! $this->tfa->isEnforcedFor($user)) return $next($request);
+        if (! $user) {
+            return $next($request);
+        }
+        if ($this->tfa->isEnabled($user)) {
+            return $next($request);
+        }
+        if (! $this->tfa->isEnforcedFor($user)) {
+            return $next($request);
+        }
 
         // Allow access to profile page (where 2FA setup happens) + logout.
         $allowed = ['admin.profile.index', 'logout', 'admin.profile.two-factor.enable',
-                    'admin.profile.two-factor.confirm', 'admin.profile.two-factor.disable'];
+            'admin.profile.two-factor.confirm', 'admin.profile.two-factor.disable'];
         if (in_array($request->route()?->getName(), $allowed, true)) {
             return $next($request);
         }

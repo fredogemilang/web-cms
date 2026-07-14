@@ -9,16 +9,21 @@ class Settings extends Component
 {
     // General
     public $posts_per_page = 10;
+
     public $archive_slug = 'blog';
+
     public $date_format = 'M d, Y';
 
     // Comments
     public $enable_comments = true;
+
     public $comment_moderation = true;
+
     public $close_comments_days = 0; // 0 = never
 
     // Feed
     public $rss_full_text = false;
+
     public $rss_items = 10;
 
     public function mount()
@@ -61,7 +66,7 @@ class Settings extends Component
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => 'Settings saved successfully.'
+            'message' => 'Settings saved successfully.',
         ]);
     }
 

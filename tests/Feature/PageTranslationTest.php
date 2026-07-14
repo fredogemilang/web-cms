@@ -16,7 +16,7 @@ class PageTranslationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Setting::set('default_locale',    'id',    'languages', 'string');
+        Setting::set('default_locale', 'id', 'languages', 'string');
         Setting::set('available_locales', 'id,en', 'languages', 'string');
     }
 
@@ -39,7 +39,7 @@ class PageTranslationTest extends TestCase
     }
 
     #[Test]
-    public function findByLocalizedSlug_finds_default_slug_without_switching_locale(): void
+    public function find_by_localized_slug_finds_default_slug_without_switching_locale(): void
     {
         $page = $this->makePage('home');
         app()->setLocale('id');
@@ -52,11 +52,11 @@ class PageTranslationTest extends TestCase
     }
 
     #[Test]
-    public function findByLocalizedSlug_auto_switches_locale_on_translated_slug_match(): void
+    public function find_by_localized_slug_auto_switches_locale_on_translated_slug_match(): void
     {
         $page = $this->makePage('home');
         $page->setTranslation('title', 'en', 'Welcome');
-        $page->setTranslation('slug',  'en', 'welcome');
+        $page->setTranslation('slug', 'en', 'welcome');
         $page->save();
 
         app()->setLocale('id');
@@ -69,7 +69,7 @@ class PageTranslationTest extends TestCase
     }
 
     #[Test]
-    public function findByLocalizedSlug_returns_null_for_unknown_slug(): void
+    public function find_by_localized_slug_returns_null_for_unknown_slug(): void
     {
         $this->makePage('home');
 
@@ -77,7 +77,7 @@ class PageTranslationTest extends TestCase
     }
 
     #[Test]
-    public function setTranslation_stores_in_json_column_not_in_default_field(): void
+    public function set_translation_stores_in_json_column_not_in_default_field(): void
     {
         $page = $this->makePage('home');
         $page->setTranslation('title', 'en', 'English Title');
@@ -90,12 +90,13 @@ class PageTranslationTest extends TestCase
     protected function makePage(string $slug): Page
     {
         $author = User::factory()->create();
+
         return Page::create([
-            'title'     => ucfirst($slug),
-            'slug'      => $slug,
-            'status'    => 'published',
+            'title' => ucfirst($slug),
+            'slug' => $slug,
+            'status' => 'published',
             'author_id' => $author->id,
-            'template'  => 'default',
+            'template' => 'default',
         ]);
     }
 }

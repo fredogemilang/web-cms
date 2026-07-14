@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Jobs\SendFormNotificationJob;
 use App\Models\Form;
-use App\Models\FormField;
 use App\Models\FormEntry;
+use App\Models\FormField;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,8 +30,8 @@ class FormSubmissionTest extends TestCase
         $form = $this->makeContactForm();
 
         $response = $this->postJson("/forms/{$form->slug}/ajax", [
-            'name'    => 'Alice',
-            'email'   => 'alice@example.com',
+            'name' => 'Alice',
+            'email' => 'alice@example.com',
             'message' => 'Hello',
         ]);
 
@@ -64,8 +64,8 @@ class FormSubmissionTest extends TestCase
         ]);
 
         $this->postJson("/forms/{$form->slug}/ajax", [
-            'name'    => 'Alice',
-            'email'   => 'alice@example.com',
+            'name' => 'Alice',
+            'email' => 'alice@example.com',
             'message' => 'Hi',
         ])->assertOk();
 
@@ -83,9 +83,9 @@ class FormSubmissionTest extends TestCase
         ]);
 
         $this->postJson("/forms/{$form->slug}/ajax", [
-            'name'        => 'Bot',
-            'email'       => 'bot@example.com',
-            'message'     => 'spam',
+            'name' => 'Bot',
+            'email' => 'bot@example.com',
+            'message' => 'spam',
             'website_url' => 'http://botsite.com', // honeypot trap
         ])->assertStatus(422);
 
@@ -96,11 +96,11 @@ class FormSubmissionTest extends TestCase
     protected function makeContactForm(array $overrides = []): Form
     {
         $form = Form::create(array_merge([
-            'name'        => 'Contact',
-            'slug'        => 'contact',
+            'name' => 'Contact',
+            'slug' => 'contact',
             'description' => null,
-            'is_active'   => true,
-            'form_type'   => 'standard',
+            'is_active' => true,
+            'form_type' => 'standard',
             'confirmations' => ['type' => 'message', 'message' => 'Thanks!'],
         ], $overrides));
 

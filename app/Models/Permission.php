@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Permission extends Model
 {
@@ -112,13 +112,13 @@ class Permission extends Model
             ->select('module', 'source', 'sort_order')
             ->get()
             ->sortBy('sort_order')
-            ->unique(fn($p) => $p->module . '|' . $p->source);
+            ->unique(fn ($p) => $p->module.'|'.$p->source);
 
         return [
             'core' => $permissions->where('source', 'core')->pluck('module')->unique()->values()->toArray(),
-            'plugins' => $permissions->filter(fn($p) => str_starts_with($p->source, 'plugin:'))
-                ->groupBy(fn($p) => str_replace('plugin:', '', $p->source))
-                ->map(fn($group) => $group->pluck('module')->unique()->values()->toArray())
+            'plugins' => $permissions->filter(fn ($p) => str_starts_with($p->source, 'plugin:'))
+                ->groupBy(fn ($p) => str_replace('plugin:', '', $p->source))
+                ->map(fn ($group) => $group->pluck('module')->unique()->values()->toArray())
                 ->toArray(),
         ];
     }
@@ -144,9 +144,10 @@ class Permission extends Model
      */
     public function getPluginSlugFromSource(): ?string
     {
-        if (!$this->isFromPlugin()) {
+        if (! $this->isFromPlugin()) {
             return null;
         }
+
         return str_replace('plugin:', '', $this->source);
     }
 }

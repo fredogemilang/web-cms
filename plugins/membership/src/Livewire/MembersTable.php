@@ -12,19 +12,24 @@ class MembersTable extends Component
 
     // Filters
     public $search = '';
+
     public $statusFilter = '';
+
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
+
     public $perPage = 10;
 
     // Bulk Actions
     public $selectedMembers = [];
+
     public $selectAll = false;
 
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedMembers = Membership::pluck('id')->map(fn($id) => (string)$id)->toArray();
+            $this->selectedMembers = Membership::pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedMembers = [];
         }
@@ -66,7 +71,7 @@ class MembersTable extends Component
     {
         $membership = Membership::findOrFail($id);
         $membership->approve();
-        
+
         session()->flash('success', 'Member approved successfully!');
     }
 
@@ -74,7 +79,7 @@ class MembersTable extends Component
     {
         $membership = Membership::findOrFail($id);
         $membership->reject();
-        
+
         session()->flash('success', 'Member rejected.');
     }
 
@@ -102,7 +107,7 @@ class MembersTable extends Component
                 $membership->approve();
             }
         }
-        
+
         $this->selectedMembers = [];
         session()->flash('success', 'Selected members approved!');
     }
@@ -110,7 +115,7 @@ class MembersTable extends Component
     public function bulkDelete()
     {
         Membership::whereIn('id', $this->selectedMembers)->delete();
-        
+
         $this->selectedMembers = [];
         session()->flash('success', 'Selected members deleted!');
     }
@@ -122,8 +127,8 @@ class MembersTable extends Component
         // Search
         if ($this->search) {
             $query->whereHas('user', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('email', 'like', '%'.$this->search.'%');
             });
         }
 

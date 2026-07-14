@@ -11,14 +11,18 @@ class FormsTable extends Component
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $perPage = 10;
-    
+
     // Sorting
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
-    
+
     public $selectedForms = [];
+
     public $selectAll = false;
 
     protected $queryString = [
@@ -57,7 +61,7 @@ class FormsTable extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedForms = $this->forms->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selectedForms = $this->forms->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedForms = [];
         }
@@ -69,8 +73,8 @@ class FormsTable extends Component
             ->withCount('entries')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->statusFilter, function ($query) {
@@ -89,8 +93,8 @@ class FormsTable extends Component
         $baseQuery = Form::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             });
 
@@ -118,30 +122,30 @@ class FormsTable extends Component
     public function deleteForm($formId)
     {
         $form = Form::find($formId);
-        
+
         if ($form) {
             $form->delete();
             session()->flash('success', 'Form deleted successfully.');
         }
-        
+
         $this->selectedForms = array_diff($this->selectedForms, [(string) $formId]);
     }
 
     public function deleteSelected()
     {
         $count = Form::whereIn('id', $this->selectedForms)->delete();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' form(s) deleted successfully.');
+
+        session()->flash('success', $count.' form(s) deleted successfully.');
     }
 
     public function toggleStatus($formId)
     {
         $form = Form::find($formId);
-        
+
         if ($form) {
-            $form->update(['is_active' => !$form->is_active]);
+            $form->update(['is_active' => ! $form->is_active]);
             session()->flash('success', 'Form status updated successfully.');
         }
     }
@@ -150,26 +154,26 @@ class FormsTable extends Component
     {
         $count = Form::whereIn('id', $this->selectedForms)
             ->update(['is_active' => true]);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' form(s) activated successfully.');
+
+        session()->flash('success', $count.' form(s) activated successfully.');
     }
 
     public function deactivateSelected()
     {
         $count = Form::whereIn('id', $this->selectedForms)
             ->update(['is_active' => false]);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' form(s) deactivated successfully.');
+
+        session()->flash('success', $count.' form(s) deactivated successfully.');
     }
 
     public function restore($formId)
     {
         $form = Form::onlyTrashed()->find($formId);
-        
+
         if ($form) {
             $form->restore();
             session()->flash('success', 'Form restored successfully.');
@@ -179,7 +183,7 @@ class FormsTable extends Component
     public function forceDelete($formId)
     {
         $form = Form::onlyTrashed()->find($formId);
-        
+
         if ($form) {
             $form->forceDelete();
             session()->flash('success', 'Form deleted permanently.');
@@ -189,19 +193,19 @@ class FormsTable extends Component
     public function restoreSelected()
     {
         $count = Form::onlyTrashed()->whereIn('id', $this->selectedForms)->restore();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' form(s) restored successfully.');
+
+        session()->flash('success', $count.' form(s) restored successfully.');
     }
 
     public function forceDeleteSelected()
     {
         $count = Form::onlyTrashed()->whereIn('id', $this->selectedForms)->forceDelete();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' form(s) deleted permanently.');
+
+        session()->flash('success', $count.' form(s) deleted permanently.');
     }
 
     public function render()

@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class CptEntry extends Model
 {
-    use SoftDeletes, HasTranslations;
+    use HasTranslations, SoftDeletes;
 
     protected $table = 'cpt_entries';
 
@@ -46,14 +46,18 @@ class CptEntry extends Model
             ? $postType->id
             : CustomPostType::where('slug', $postType)->value('id');
 
-        if (!$postTypeId) return null;
+        if (! $postTypeId) {
+            return null;
+        }
 
         $base = static::query()
             ->where('post_type_id', $postTypeId)
             ->where('status', 'published');
 
         $entry = (clone $base)->where('slug', $slug)->first();
-        if ($entry) return $entry;
+        if ($entry) {
+            return $entry;
+        }
 
         $defaultLocale = static::defaultLocale();
         $locales = array_filter(available_locales(), fn ($l) => $l !== $defaultLocale);
@@ -64,6 +68,7 @@ class CptEntry extends Model
                 ->first();
             if ($entry) {
                 app()->setLocale($locale);
+
                 return $entry;
             }
         }
@@ -149,7 +154,7 @@ class CptEntry extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                     ->where('published_at', '<=', now());
+            ->where('published_at', '<=', now());
     }
 
     /**
@@ -191,7 +196,7 @@ class CptEntry extends Model
      */
     public function getStatusBadgeAttribute(): array
     {
-        return match($this->status) {
+        return match ($this->status) {
             'published' => ['color' => 'green', 'label' => 'Published'],
             'draft' => ['color' => 'gray', 'label' => 'Draft'],
             'scheduled' => ['color' => 'blue', 'label' => 'Scheduled'],

@@ -1,34 +1,39 @@
 <?php
+
 namespace App\Controllers\Backend\Events;
 
 use App\Controllers\BaseController;
-use App\Models\EventsModel;
-use App\Models\SubsidiariesModel;
-use App\Models\SubsidiariesLimitModel;
-use App\Models\EventAccessModel;
-use App\Models\ApprovalTypeModel;
 use App\Libraries\LogActivity;
-
-use CodeIgniter\Config\Services;
+use App\Models\ApprovalTypeModel;
+use App\Models\EventAccessModel;
+use App\Models\EventsModel;
+use App\Models\SubsidiariesLimitModel;
+use App\Models\SubsidiariesModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 use DateTime;
 
 class EventController extends BaseController
 {
     protected $eventsModel;
+
     protected $subsidiariesModel;
+
     protected $subsidiarysLimitModel;
+
     protected $eventAccessModel;
+
     protected $approvalTypeModel;
+
     protected $logActivity;
 
     public function __construct()
     {
-        $this->eventsModel = new EventsModel();
-        $this->subsidiariesModel = new SubsidiariesModel();
-        $this->eventAccessModel = new EventAccessModel();
-        $this->approvalTypeModel = new ApprovalTypeModel();
-        $this->logActivity = new LogActivity();
-        $this->subsidiarysLimitModel = new SubsidiariesLimitModel();
+        $this->eventsModel = new EventsModel;
+        $this->subsidiariesModel = new SubsidiariesModel;
+        $this->eventAccessModel = new EventAccessModel;
+        $this->approvalTypeModel = new ApprovalTypeModel;
+        $this->logActivity = new LogActivity;
+        $this->subsidiarysLimitModel = new SubsidiariesLimitModel;
     }
 
     public function index()
@@ -43,7 +48,7 @@ class EventController extends BaseController
         }
 
         $admins = $users_model->findAll();
-        
+
         $data = [
             'title' => 'Manage Events',
             'events' => $events,
@@ -61,7 +66,7 @@ class EventController extends BaseController
         $event = $this->eventsModel->find($eventId);
 
         // Ensure the user has access to share this event
-        if (!$event || (!$user->inGroup('admin', 'superadmin') && $event['created_by'] !== $user->id)) {
+        if (! $event || (! $user->inGroup('admin', 'superadmin') && $event['created_by'] !== $user->id)) {
             return redirect()->back()->with('error', 'You do not have permission to share this event.');
         }
 
@@ -81,7 +86,7 @@ class EventController extends BaseController
         $event = $this->eventsModel->find($eventId);
 
         // Ensure the user has access to modify sharing
-        if (!$event || (!$user->inGroup('admin', 'superadmin') && $event['created_by'] !== $user->id)) {
+        if (! $event || (! $user->inGroup('admin', 'superadmin') && $event['created_by'] !== $user->id)) {
             return redirect()->back()->with('error', 'You do not have permission to modify access for this event.');
         }
 
@@ -93,7 +98,7 @@ class EventController extends BaseController
 
     private function convertToYMD($date)
     {
-        return \DateTime::createFromFormat('d/m/Y H:i', $date)->format('Y-m-d H:i');
+        return DateTime::createFromFormat('d/m/Y H:i', $date)->format('Y-m-d H:i');
     }
 
     public function add()
@@ -106,17 +111,16 @@ class EventController extends BaseController
         return view('events/wizard', $data);
     }
 
-    public function draft($eventId = NULL)
+    public function draft($eventId = null)
     {
-        if ($eventId == NULL) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Event not found");
-        }else{
+        if ($eventId == null) {
+            throw new PageNotFoundException('Event not found');
+        } else {
             $event = $this->eventsModel->find($eventId);
 
-            if (!$event) {
-                throw new \CodeIgniter\Exceptions\PageNotFoundException("Event not found");
-            }
-            else{
+            if (! $event) {
+                throw new PageNotFoundException('Event not found');
+            } else {
                 $tgl_event = new DateTime($event['tgl_event']);
                 $event['tgl_event'] = $tgl_event->format('d/m/Y H:i');
                 $tgl_event_end = new DateTime($event['tgl_event_end']);
@@ -132,7 +136,7 @@ class EventController extends BaseController
                     'subsidiaries' => $this->subsidiariesModel->getAllSubsidiaries(),
                 ];
 
-                return view('events/wizard', $data);   
+                return view('events/wizard', $data);
             }
         }
     }
@@ -161,8 +165,8 @@ class EventController extends BaseController
         if ($eventId) {
 
             $event = $this->eventsModel->find($eventId);
-            if (!$event) {
-                throw new \CodeIgniter\Exceptions\PageNotFoundException("Event not found");
+            if (! $event) {
+                throw new PageNotFoundException('Event not found');
             }
 
             $rules = [];
@@ -187,7 +191,7 @@ class EventController extends BaseController
                         'description' => $this->request->getPost('event_desc'),
                         'step' => 1,
                     ];
-                break;
+                    break;
 
                 case 'eventDateForm':
                     $rules = [
@@ -204,7 +208,7 @@ class EventController extends BaseController
                         'tgl_end' => $this->convertToYMD($this->request->getPost('end_date')),
                         'step' => 2,
                     ];
-                break;
+                    break;
 
                 case 'eventPropertiesForm':
                     $rules = [
@@ -215,14 +219,13 @@ class EventController extends BaseController
 
                     $ccEmails = $this->request->getPost('cc_to_email');
                     $ccEmailsArray = json_decode($ccEmails[0], true);
-                    if($ccEmailsArray !== NULL){
+                    if ($ccEmailsArray !== null) {
                         $ccEmailsString = implode(', ', array_column($ccEmailsArray, 'value'));
-                    }else{
-                        $ccEmailsString = "";
+                    } else {
+                        $ccEmailsString = '';
                     }
-                    
 
-                    $quota = $this->request->getPost('quota') === "" ? NULL : $this->request->getPost('quota');
+                    $quota = $this->request->getPost('quota') === '' ? null : $this->request->getPost('quota');
 
                     $logoName = $event['logo'];
                     if ($this->request->getFile('event_logo')->isValid()) {
@@ -237,8 +240,6 @@ class EventController extends BaseController
                         $bannerName = $banner->getRandomName();
                         $banner->move('uploads/events', $bannerName);
                     }
-
-                    
 
                     $updateData = [
                         'corpo_email' => $this->request->getPost('corpo_email') ? 'yes' : 'no',
@@ -258,62 +259,62 @@ class EventController extends BaseController
 
                     $parser = \Config\Services::parser();
 
-                    $dataDefault= [
-                            'event' => $event['name'],
-                            'email' => $event['sender_email']
-                        ];
+                    $dataDefault = [
+                        'event' => $event['name'],
+                        'email' => $event['sender_email'],
+                    ];
                     $htmlDefault = $parser->setData($dataDefault)->render('emails/default');
 
                     $this->approvalTypeModel->insert([
                         'event_id' => $eventId,
                         'cat' => 'default',
                         'type_name' => 'Default no approval',
-                        'email_subject' => 'Registration Notification - ' . $event['name'],
+                        'email_subject' => 'Registration Notification - '.$event['name'],
                         'email_banner' => $bannerName,
                         'email_body' => $htmlDefault,
                     ]);
 
-                    $dataPending= [
-                            'event' => $event['name'],
-                            'email' => $event['sender_email']
-                        ];
+                    $dataPending = [
+                        'event' => $event['name'],
+                        'email' => $event['sender_email'],
+                    ];
                     $htmlPending = $parser->setData($dataPending)->render('emails/pending');
 
                     $this->approvalTypeModel->insert([
                         'event_id' => $eventId,
                         'cat' => 'pending',
                         'type_name' => 'Pending',
-                        'email_subject' => 'Pending Notification - ' . $event['name'],
+                        'email_subject' => 'Pending Notification - '.$event['name'],
                         'email_banner' => $bannerName,
                         'email_body' => $htmlPending,
                     ]);
 
-                    $dataApproved= [
-                            'event' => $event['name'],
-                            'email' => $event['sender_email']
-                        ];
+                    $dataApproved = [
+                        'event' => $event['name'],
+                        'email' => $event['sender_email'],
+                    ];
                     $htmlApproved = $parser->setData($dataApproved)->render('emails/approve');
 
                     $this->approvalTypeModel->insert([
                         'event_id' => $eventId,
                         'cat' => 'approved',
                         'type_name' => 'Regular',
-                        'email_subject' => 'Approve Notification - ' . $event['name'],
+                        'email_subject' => 'Approve Notification - '.$event['name'],
                         'email_banner' => $bannerName,
                         'email_body' => $htmlApproved,
                     ]);
 
-                    $dataRejected= [
-                            'event' => $event['name'],
-                            'email' => $event['sender_email']
-                        ];
+                    $dataRejected = [
+                        'event' => $event['name'],
+                        'email' => $event['sender_email'],
+                    ];
                     $htmlReject = $parser->setData($dataRejected)->render('emails/reject');
 
                     $this->approvalTypeModel->insert([
                         'event_id' => $eventId,
                         'cat' => 'rejected',
                         'type_name' => 'Not Eligible',
-                        'email_subject' => 'Reject Notification - ' . $event['name'],
+                        'email_subject' => 'Reject Notification - '.$event['name'],
                         'email_banner' => $bannerName,
                         'email_body' => $htmlReject,
                     ]);
@@ -321,10 +322,10 @@ class EventController extends BaseController
                     break;
 
                 case 'eventSuccessForm':
-                    
+
                     $success_link = $this->request->getPost('success_link_type') === 'custom'
                     ? $this->request->getPost('custom_success_link')
-                    : base_url($event["slug"]);
+                    : base_url($event['slug']);
 
                     $rules = [
                         'success_title' => ['label' => 'Success Title', 'rules' => 'required'],
@@ -352,13 +353,13 @@ class EventController extends BaseController
                         'message' => 'Invalid step provided.',
                     ]);
             }
-            if (!$this->validate($rules)) {
+            if (! $this->validate($rules)) {
                 return $this->response->setStatusCode(400)->setJSON([
                     'status' => 'error',
                     'errors' => $this->validator->getErrors(),
                 ]);
 
-            }else{
+            } else {
                 $this->eventsModel->update($eventId, $updateData);
 
                 return $this->response->setJSON([
@@ -369,26 +370,26 @@ class EventController extends BaseController
             }
 
         } else {
-            
+
             $rules = [
                 'event_name' => ['label' => 'Event Name', 'rules' => 'required|max_length[255]'],
                 'seo_desc' => ['label' => 'SEO Description', 'rules' => 'required|max_length[255]'],
                 'subs' => ['label' => 'Subsidiary', 'rules' => 'required|integer'],
             ];
 
-            if (!$this->validate($rules)) {
+            if (! $this->validate($rules)) {
                 return $this->response->setStatusCode(400)->setJSON([
                     'status' => 'error',
                     'errors' => $this->validator->getErrors(),
                 ]);
-            }else{
+            } else {
                 $subsID = $this->request->getPost('subs');
                 $eventName = $this->request->getPost('event_name');
                 $slug = $this->generateUniqueSlug($eventName);
                 $currentUser = auth()->user();
                 $subsdata = $this->subsidiariesModel->find($subsID);
                 $favicon = $subsdata['logo'];
-                
+
                 $eventId = $this->eventsModel->insert([
                     'name' => $this->request->getPost('event_name'),
                     'slug' => $slug,
@@ -403,7 +404,7 @@ class EventController extends BaseController
                 $this->eventAccessModel->insert([
                     'event_id' => $eventId,
                     'admin_id' => $currentUser->id,
-                    'access_type' => 'edit'
+                    'access_type' => 'edit',
                 ], true);
 
                 return $this->response->setJSON([
@@ -412,14 +413,14 @@ class EventController extends BaseController
                     'event_id' => $eventId,
                 ]);
             }
-            
+
         }
     }
 
     public function ajax_edit_event($formType = null)
     {
         $eventId = $this->request->getPost('event_id');
-        if (!$eventId) {
+        if (! $eventId) {
             return $this->response->setStatusCode(400)->setJSON([
                 'status' => 'error',
                 'message' => 'Event ID is required.',
@@ -427,7 +428,7 @@ class EventController extends BaseController
         }
 
         $event = $this->eventsModel->find($eventId);
-        if (!$event) {
+        if (! $event) {
             return $this->response->setStatusCode(404)->setJSON([
                 'status' => 'error',
                 'message' => 'Event not found.',
@@ -472,9 +473,9 @@ class EventController extends BaseController
                     $banner->move('uploads/events', $bannerName);
                 }
 
-                if($this->request->getPost('quota') == ""){
-                    $quota = NULL;
-                }else{
+                if ($this->request->getPost('quota') == '') {
+                    $quota = null;
+                } else {
                     $quota = $this->request->getPost('quota');
                 }
 
@@ -493,9 +494,9 @@ class EventController extends BaseController
                     'one_company' => $this->request->getPost('one_company') ? 1 : 0,
                     'is_approval' => $this->request->getPost('is_approval') ? 1 : 0,
                     'quota' => $quota,
-                    'default_company' => $this->request->getPost('default_company')
+                    'default_company' => $this->request->getPost('default_company'),
                 ];
-            break;
+                break;
 
             case 'editEmailForm':
                 $rules = [
@@ -503,23 +504,23 @@ class EventController extends BaseController
                     'sender_name' => ['label' => 'Sender Name', 'rules' => 'required'],
                     'event_id' => ['label' => 'Event ID', 'rules' => 'required|integer'],
                 ];
-                
+
                 $updateData = [
                     'sender_email' => $this->request->getPost('sender_email'),
                     'sender_name' => $this->request->getPost('sender_name'),
                 ];
-            break;
+                break;
 
             case 'editRegPageForm':
                 $rules = [
                     'reg_page' => ['label' => 'Page Link', 'rules' => 'required'],
                     'event_id' => ['label' => 'Event ID', 'rules' => 'required|integer'],
                 ];
-                
+
                 $updateData = [
                     'reg_page' => $this->request->getPost('reg_page'),
                 ];
-            break;
+                break;
 
             case 'editNotificationForm':
                 $rules = [
@@ -528,24 +529,23 @@ class EventController extends BaseController
 
                 $ccEmails = $this->request->getPost('cc_to_email');
                 $ccEmailsArray = json_decode($ccEmails[0], true);
-                if($ccEmailsArray !== NULL){
+                if ($ccEmailsArray !== null) {
                     $ccEmailsString = implode(', ', array_column($ccEmailsArray, 'value'));
-                }else{
-                    $ccEmailsString = "";
+                } else {
+                    $ccEmailsString = '';
                 }
 
-                
                 $updateData = [
                     'to_email' => $this->request->getPost('to_email'),
                     'to_name' => $this->request->getPost('to_name'),
                     'cc_to_email' => $ccEmailsString,
                 ];
-            break;
+                break;
 
             case 'successPageForm':
                 $success_link = $this->request->getPost('success_link_type') === 'custom'
                 ? $this->request->getPost('custom_success_link')
-                : base_url('event/' . $event["slug"]);
+                : base_url('event/'.$event['slug']);
 
                 $rules = [
                     'success_title' => ['label' => 'Success Title', 'rules' => 'required'],
@@ -562,7 +562,7 @@ class EventController extends BaseController
                     'success_link_type' => $this->request->getPost('success_link_type'),
                     'success_link' => $success_link,
                 ];
-            break;
+                break;
 
             default:
                 return $this->response->setStatusCode(400)->setJSON([
@@ -572,7 +572,7 @@ class EventController extends BaseController
         }
 
         // Validate the input
-        if (!$this->validate($rules)) {
+        if (! $this->validate($rules)) {
             return $this->response->setStatusCode(400)->setJSON([
                 'status' => 'error',
                 'errors' => $this->validator->getErrors(),
@@ -592,8 +592,8 @@ class EventController extends BaseController
     public function edit($id)
     {
         $event = $this->eventsModel->find($id);
-        if (!$event) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Event not found");
+        if (! $event) {
+            throw new PageNotFoundException('Event not found');
         }
         $currentUser = auth()->user();
         $event['canEdit'] = $this->eventAccessModel->hasAccess($currentUser->id, $id, 'edit');
@@ -606,7 +606,7 @@ class EventController extends BaseController
         $tgl_end = new DateTime($event['tgl_end']);
         $event['tgl_end'] = $tgl_end->format('d/m/Y H:i');
         $subs_name = $this->subsidiariesModel->find($event['subs_id']);
-        $event['subs'] = $subs_name['name']." (".$subs_name['short_name'].")";
+        $event['subs'] = $subs_name['name'].' ('.$subs_name['short_name'].')';
 
         $data = [
             'title' => 'overview',
@@ -621,8 +621,8 @@ class EventController extends BaseController
     {
         $event = $this->eventsModel->find($id);
 
-        if (!$event) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Event not found');
+        if (! $event) {
+            throw new PageNotFoundException('Event not found');
         }
 
         $this->eventsModel->delete($id);

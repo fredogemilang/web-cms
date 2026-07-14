@@ -16,6 +16,7 @@ class PageTemplateService
     public function getTemplateSchema(string $templateName): array
     {
         $theme = $this->themeLoader->getActiveTheme();
+
         return $theme ? $theme->getTemplateBlockSchema($templateName) : [];
     }
 
@@ -36,13 +37,13 @@ class PageTemplateService
             }
 
             PageBlock::create([
-                'page_id'   => $page->id,
-                'name'      => $blockDef['name'],
-                'type'      => $blockDef['type'],
-                'label'     => $blockDef['label'] ?? ucfirst(str_replace('_', ' ', $blockDef['name'])),
-                'value'     => $blockDef['default'] ?? $this->defaultForType($blockDef['type']),
-                'options'   => $blockDef['options'] ?? [],
-                'order'     => $order,
+                'page_id' => $page->id,
+                'name' => $blockDef['name'],
+                'type' => $blockDef['type'],
+                'label' => $blockDef['label'] ?? ucfirst(str_replace('_', ' ', $blockDef['name'])),
+                'value' => $blockDef['default'] ?? $this->defaultForType($blockDef['type']),
+                'options' => $blockDef['options'] ?? [],
+                'order' => $order,
                 'is_active' => true,
             ]);
 
@@ -59,9 +60,9 @@ class PageTemplateService
     {
         return match ($type) {
             'switcher' => false,
-            'number'   => 0,
+            'number' => 0,
             'checkbox', 'gallery', 'posts', 'repeater' => '[]',
-            default    => '',
+            default => '',
         };
     }
 }

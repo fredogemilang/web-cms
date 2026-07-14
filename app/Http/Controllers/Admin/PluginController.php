@@ -30,7 +30,7 @@ class PluginController extends Controller
         foreach ($plugins as $plugin) {
             if ($plugin->is_active) {
                 $dependents = $this->pluginManager->getDependentPlugins($plugin);
-                if (!empty($dependents)) {
+                if (! empty($dependents)) {
                     $dependencyMap[$plugin->id] = $dependents;
                 }
             }
@@ -55,8 +55,9 @@ class PluginController extends Controller
             return redirect()->route('admin.plugins.index')
                 ->with('success', "Plugin '{$plugin->name}' installed successfully.");
         } catch (\Exception $e) {
-            Log::error("Plugin install failed: " . $e->getMessage());
-            return back()->with('error', 'Failed to install plugin: ' . $e->getMessage());
+            Log::error('Plugin install failed: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to install plugin: '.$e->getMessage());
         }
     }
 
@@ -67,10 +68,12 @@ class PluginController extends Controller
     {
         try {
             $this->pluginManager->activate($plugin);
+
             return back()->with('success', "Plugin '{$plugin->name}' activated successfully.");
         } catch (\Exception $e) {
-            Log::error("Plugin activation failed: " . $e->getMessage());
-            return back()->with('error', 'Failed to activate plugin: ' . $e->getMessage());
+            Log::error('Plugin activation failed: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to activate plugin: '.$e->getMessage());
         }
     }
 
@@ -81,13 +84,16 @@ class PluginController extends Controller
     {
         try {
             $this->pluginManager->deactivate($plugin);
+
             return back()->with('success', "Plugin '{$plugin->name}' deactivated successfully.");
         } catch (PluginDependencyException $e) {
-            Log::warning("Plugin deactivation blocked by dependencies: " . $e->getMessage());
+            Log::warning('Plugin deactivation blocked by dependencies: '.$e->getMessage());
+
             return back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
-            Log::error("Plugin deactivation failed: " . $e->getMessage());
-            return back()->with('error', 'Failed to deactivate plugin: ' . $e->getMessage());
+            Log::error('Plugin deactivation failed: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to deactivate plugin: '.$e->getMessage());
         }
     }
 
@@ -106,11 +112,13 @@ class PluginController extends Controller
 
             return back()->with('success', $message);
         } catch (PluginDependencyException $e) {
-            Log::warning("Plugin uninstall blocked by dependencies: " . $e->getMessage());
+            Log::warning('Plugin uninstall blocked by dependencies: '.$e->getMessage());
+
             return back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
-            Log::error("Plugin uninstall failed: " . $e->getMessage());
-            return back()->with('error', 'Failed to uninstall plugin: ' . $e->getMessage());
+            Log::error('Plugin uninstall failed: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to uninstall plugin: '.$e->getMessage());
         }
     }
 }

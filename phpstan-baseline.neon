@@ -1,0 +1,1033 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Plugins\\Events\\Models\\Event\:\:\$end_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/CompleteExpiredEvents.php
+
+		-
+			message: '#^Access to an undefined property Plugins\\Events\\Models\\Event\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/CompleteExpiredEvents.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Activity\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Relation ''form'' is not found in App\\Models\\FormEntry model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/Admin/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Form\:\:\$fields\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Admin/FormController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Admin/FormController.php
+
+		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\User and ''roles'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Cannot call method isFuture\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Auth/AuthController.php
+
+		-
+			message: '#^Relation ''fields'' is not found in App\\Models\\Form model\.$#'
+			identifier: larastan.relationExistence
+			count: 3
+			path: app/Http/Controllers/FormSubmissionController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/PageController.php
+
+		-
+			message: '#^Call to an undefined method DateTimeInterface\:\:toAtomString\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/SitemapController.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and '''' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: app/Http/Middleware/OptimizeHtml.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\CptEntryResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/CptEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\CptEntryResource\:\:\$postType\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/V1/CptEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\CptEntryResource\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/CptEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\CptEntryResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/CptEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\CptEntryResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/CptEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\CptEntryResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/CptEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\CptEntryResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/CptEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$alt_text\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$filename\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$height\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$mime_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$size\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$variants\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$webp_path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\MediaResource\:\:\$width\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/MediaResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$blocks\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$menu_order\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$parent_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$seo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$template\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\V1\\PageResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Call to an undefined method App\\Http\\Resources\\V1\\PageResource\:\:getUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Resources/V1/PageResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$headers\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/DeliverWebhook.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/DeliverWebhook.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$signing_secret\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/DeliverWebhook.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/DeliverWebhook.php
+
+		-
+			message: '#^Relation ''fields'' is not found in App\\Models\\Form model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Jobs/SendFormNotificationJob.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Livewire/Admin/ActivityLog/ActivityTable.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$label\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$order\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Livewire/Admin/Cpt/CptForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\Admin\\Cpt\\Entries\\EntriesTable\:\:\$statusCounts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntriesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\TaxonomyTerm\:\:\$depth\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$default_value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$field_group\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$taxonomy_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Undefined variable\: \$loop$#'
+			identifier: variable.undefined
+			count: 1
+			path: app/Livewire/Admin/Cpt/Entries/EntryForm.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Livewire/Admin/EmailTemplates/Edit.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\Admin\\FormsTable\:\:\$forms\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Livewire/Admin/FormsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\Admin\\FormsTable\:\:\$statusCounts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/FormsTable.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Livewire/Admin/Header/GlobalSearch.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: app/Livewire/Admin/Header/GlobalSearch.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\Admin\\MediaPicker\:\:\$media\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/MediaPicker.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$childBlocks\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$label\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$order\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Offset ''meta_description'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Offset ''meta_title'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Offset ''og_description'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Offset ''og_image'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Offset ''og_title'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Livewire/Admin/Pages/PageForm.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$childBlocks\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PagesTable.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PagesTable.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$page_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Pages/PagesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\TaxonomyTerm\:\:\$depth\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Taxonomies/Terms/TermTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\Admin\\TiptapMediaPicker\:\:\$media\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/TiptapMediaPicker.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/Users/EditUser.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\Admin\\UsersTable\:\:\$roles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Admin/UsersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\Admin\\UsersTable\:\:\$users\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Livewire/Admin/UsersTable.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Livewire/Admin/WordPressCptMigration.php
+
+		-
+			message: '#^Method Illuminate\\Http\\Client\\Response\:\:header\(\) invoked with 2 parameters, 1 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: app/Livewire/Admin/WordPressCptMigration.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: app/Livewire/Admin/WordPressCptMigration.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Mime\\RawMessage\:\:getHeaders\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Mail/Transport/BrevoApiTransport.php
+
+		-
+			message: '#^Parameter \#1 \$message of static method Symfony\\Component\\Mime\\MessageConverter\:\:toEmail\(\) expects Symfony\\Component\\Mime\\Message, Symfony\\Component\\Mime\\RawMessage given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Mail/Transport/BrevoApiTransport.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Symfony\\Component\\Mime\\Address\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Mail/Transport/BrevoApiTransport.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\CptEntry\:\:\$translations\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/CptEntry.php
+
+		-
+			message: '#^Match arm comparison between ''archived'' and ''archived'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Models/CptEntry.php
+
+		-
+			message: '#^Property App\\Models\\CptEntry\:\:\$translatable \(array\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 2
+			path: app/Models/CptEntry.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Form\:\:\$fields\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/Form.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\FormEntry\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/FormEntry.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\FormEntry\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/FormEntry.php
+
+		-
+			message: '#^Call to function is_array\(\) with string\|null will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Models/FormField.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isAccessible\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/MenuItem.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Page\:\:\$translations\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/Page.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:descendants\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Cannot call method isPast\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Method App\\Models\\Page\:\:getBlock\(\) should return App\\Models\\PageBlock\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Method App\\Models\\Page\:\:getOrCreateSeoMeta\(\) should return App\\Models\\SeoMeta but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Offset ''meta_description'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Offset ''meta_title'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Property App\\Models\\Page\:\:\$translatable \(array\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 2
+			path: app/Models/Page.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>description" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Cannot unset offset string on array\{\}\|string\.$#'
+			identifier: unset.offset
+			count: 1
+			path: app/Models/PageBlock.php
+
+		-
+			message: '#^Offset string on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Models/PageBlock.php
+
+		-
+			message: '#^Offset string on string\|null in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: app/Models/PageBlock.php
+
+		-
+			message: '#^Offset string on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Models/PageBlock.php
+
+		-
+			message: '#^Property App\\Models\\PageBlock\:\:\$translatable \(array\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 2
+			path: app/Models/PageBlock.php
+
+		-
+			message: '#^Property App\\Models\\PageBlock\:\:\$translations \(string\|null\) does not accept array\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Models/PageBlock.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/PageRevision.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:allBlocks\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/PageRevision.php
+
+		-
+			message: '#^Parameter \#1 \$blocks of method App\\Models\\PageRevision\:\:restoreBlocks\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/PageRevision.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/User.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$permissions\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasPermission\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Notifications\\Messages\\MailMessage\:\:html\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Notifications/PasswordResetNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>singular_label" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Observers/CptEntryObserver.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Observers/UserObserver.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Observers/UserObserver.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Illuminate\\Http\\Request\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Services/ActivityLogger.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Form\:\:\$fields\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/FormConditionalLogic.php
+
+		-
+			message: '#^Offset ''conditions'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/FormConditionalLogic.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\<mixed, mixed\>\|false\|null\) and ''0'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Services/FormConditionalLogic.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\<mixed, mixed\>\|false\|null\) and ''0'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/FormConditionalLogic.php
+
+		-
+			message: '#^Variable \$conditions in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: app/Services/FormConditionalLogic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Form\:\:\$fields\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/FormNotificationService.php
+
+		-
+			message: '#^Call to function is_array\(\) with string\|null will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 2
+			path: app/Services/MediaUsageService.php
+
+		-
+			message: '#^Offset 2 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/MediaUsageService.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: app/Services/MediaUsageService.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/PluginManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$author\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SchemaBuilder.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SchemaBuilder.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SchemaBuilder.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>description" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Services/SchemaBuilder.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>schema_data" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SchemaBuilder.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>schema_type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SchemaBuilder.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$seoMeta\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SeoRenderer.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>canonical_url" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SeoRenderer.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>description" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SeoRenderer.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>path" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SeoRenderer.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>robots" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SeoRenderer.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SeoRenderer.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>twitter_card" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/SeoRenderer.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\View\\ViewFinderInterface\:\:getPaths\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/ThemeLoader.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\View\\ViewFinderInterface\:\:setPaths\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/ThemeLoader.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/ThemeManager.php
+
+		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\User and ''roles'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Services/TwoFactorService.php
+
+		-
+			message: '#^Trait App\\Traits\\FindsByLocalizedSlug is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Traits/FindsByLocalizedSlug.php

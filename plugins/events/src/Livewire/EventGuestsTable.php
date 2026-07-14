@@ -2,13 +2,21 @@
 
 namespace Plugins\Events\Livewire;
 
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Plugins\Events\Models\Event;
-use Plugins\Events\Models\EventRegistration;
-use Plugins\Events\Models\EventCustomAnswer;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Plugins\Events\Mail\GuestApproved;
+use Plugins\Events\Mail\GuestRejected;
+use Plugins\Events\Models\ApprovalType;
 use Plugins\Events\Models\ContactLevel;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventCustomAnswer;
+use Plugins\Events\Models\EventRegistration;
 
 class EventGuestsTable extends Component
 {
@@ -28,6 +36,7 @@ class EventGuestsTable extends Component
 
     /** Date range filters */
     public ?string $dateFrom = null;
+
     public ?string $dateTo = null;
 
     /** Per-page pagination */
@@ -35,34 +44,51 @@ class EventGuestsTable extends Component
 
     /** Sorting */
     public string $sortField = 'created_at';
+
     public string $sortDirection = 'desc';
 
     /** Bulk selection */
     public array $selectedItems = [];
+
     public bool $selectAll = false;
 
     // Edit Modal state
     public bool $showEditModal = false;
+
     public ?int $editingGuestId = null;
+
     public string $editFullName = '';
+
     public string $editEmail = '';
+
     public string $editPhone = '';
+
     public string $editCompany = '';
+
     public string $editJobTitle = '';
+
     public string $editNotes = '';
-    
+
     // Check-in confirmation modal state
     public bool $showCheckinConfirmModal = false;
+
     public ?int $checkinRegistrationId = null;
+
     public string $checkinRegistrationName = '';
+
     public bool $showBulkCheckinConfirmModal = false;
+
     public int $eligibleCheckinCount = 0;
-    
+
     // New frontend-matching fields
     public int $editContactLevelId = 0;
+
     public string $editHighestEducationLevel = '';
+
     public string $editIndustry = '';
+
     public string $editDomicile = '';
+
     public string $editLinkedin = '';
 
     // Custom questions answers
@@ -70,25 +96,25 @@ class EventGuestsTable extends Component
 
     protected $queryString = [
         'activeTab' => ['except' => 'all'],
-        'search'    => ['except' => ''],
-        'dateFrom'  => ['except' => null],
-        'dateTo'    => ['except' => null],
-        'sortField'  => ['except' => 'created_at'],
+        'search' => ['except' => ''],
+        'dateFrom' => ['except' => null],
+        'dateTo' => ['except' => null],
+        'sortField' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
-        'perPage'   => ['except' => 25],
+        'perPage' => ['except' => 25],
     ];
 
     public function mount(Event $event, $approvalTypes = null): void
     {
         $this->event = $event;
-        if ($approvalTypes instanceof \Illuminate\Support\Collection) {
+        if ($approvalTypes instanceof Collection) {
             $firstItem = $approvalTypes->first();
-            if ($firstItem instanceof \Illuminate\Support\Collection || is_array($firstItem)) {
+            if ($firstItem instanceof Collection || is_array($firstItem)) {
                 $grouped = $approvalTypes;
             } else {
                 $grouped = $approvalTypes->groupBy('cat');
             }
-            
+
             $normalized = [];
             foreach ($grouped as $cat => $items) {
                 $normalized[$cat] = collect($items)->map(function ($item) {
@@ -130,7 +156,7 @@ class EventGuestsTable extends Component
     {
         if ($value) {
             $this->selectedItems = $this->registrations->pluck('id')
-                ->map(fn($id) => (string) $id)
+                ->map(fn ($id) => (string) $id)
                 ->toArray();
         } else {
             $this->selectedItems = [];
@@ -142,10 +168,10 @@ class EventGuestsTable extends Component
         $base = EventRegistration::query()->where('event_id', $this->event->id);
 
         return [
-            'all'      => (clone $base)->count(),
-            'pending'  => (clone $base)->where('status', 'pending')->count(),
+            'all' => (clone $base)->count(),
+            'pending' => (clone $base)->where('status', 'pending')->count(),
             'approved' => (clone $base)->where('status', 'approved')->count(),
-            'checkin'  => (clone $base)->where('check_in', true)->count(),
+            'checkin' => (clone $base)->where('check_in', true)->count(),
             'rejected' => (clone $base)->where('status', 'rejected')->count(),
         ];
     }
@@ -169,22 +195,20 @@ class EventGuestsTable extends Component
                 }
             })
             ->when($this->search, function ($query) {
-                $term = '%' . $this->search . '%';
+                $term = '%'.$this->search.'%';
                 $query->where(function ($q) use ($term) {
                     $q->where('full_name', 'like', $term)
-                      ->orWhere('name', 'like', $term)
-                      ->orWhere('email', 'like', $term)
-                      ->orWhere('company_name', 'like', $term)
-                      ->orWhere('organization', 'like', $term);
+                        ->orWhere('name', 'like', $term)
+                        ->orWhere('email', 'like', $term)
+                        ->orWhere('company_name', 'like', $term)
+                        ->orWhere('organization', 'like', $term);
                 });
             })
-            ->when($this->dateFrom, fn($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn($q) => $q->whereDate('created_at', '<=', $this->dateTo))
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
     }
-
-
 
     /**
      * Inline update a field via AJAX.
@@ -192,9 +216,9 @@ class EventGuestsTable extends Component
     public function inlineUpdate(int $id, string $field, ?string $value): void
     {
         $allowed = ['full_name', 'name', 'email', 'phone', 'mobile_phone',
-                    'organization', 'company_name', 'job_title', 'notes'];
+            'organization', 'company_name', 'job_title', 'notes'];
 
-        if (!in_array($field, $allowed)) {
+        if (! in_array($field, $allowed)) {
             return;
         }
 
@@ -202,14 +226,15 @@ class EventGuestsTable extends Component
             ->where('event_id', $this->event->id)
             ->first();
 
-        if (!$reg) {
+        if (! $reg) {
             return;
         }
 
         // Basic email validation
         if ($field === 'email' && $value) {
-            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($value, FILTER_VALIDATE_EMAIL)) {
                 $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Invalid email address.']);
+
                 return;
             }
         }
@@ -251,6 +276,7 @@ class EventGuestsTable extends Component
         if ($reg) {
             if ($reg->status !== 'approved') {
                 $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Only approved guests can check in.']);
+
                 return;
             }
             $this->checkinRegistrationId = $id;
@@ -287,6 +313,7 @@ class EventGuestsTable extends Component
     {
         if (empty($this->selectedItems)) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'No attendees selected.']);
+
             return;
         }
 
@@ -298,6 +325,7 @@ class EventGuestsTable extends Component
 
         if ($this->eligibleCheckinCount === 0) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'None of the selected guests are approved (Confirmed) and eligible for check-in.']);
+
             return;
         }
 
@@ -331,12 +359,13 @@ class EventGuestsTable extends Component
             ->where('event_id', $this->event->id)
             ->first();
 
-        if (!$reg) {
+        if (! $reg) {
             return;
         }
 
         if ($reg->status !== 'approved') {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Only approved guests can check in.']);
+
             return;
         }
 
@@ -352,6 +381,7 @@ class EventGuestsTable extends Component
     {
         if (empty($this->selectedItems)) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'No attendees selected.']);
+
             return;
         }
 
@@ -361,7 +391,7 @@ class EventGuestsTable extends Component
 
         $count = 0;
         foreach ($registrations as $reg) {
-            if (!$reg->check_in && $reg->status === 'approved') {
+            if (! $reg->check_in && $reg->status === 'approved') {
                 $reg->checkIn();
                 $count++;
             }
@@ -387,7 +417,7 @@ class EventGuestsTable extends Component
             $this->editCompany = $reg->company_name ?? $reg->organization ?? '';
             $this->editJobTitle = $reg->job_title ?? '';
             $this->editNotes = $reg->notes ?? '';
-            
+
             // Load frontend fields
             $this->editContactLevelId = $reg->contact_level_id ?? 0;
             $customFields = $reg->custom_fields ?? [];
@@ -454,8 +484,8 @@ class EventGuestsTable extends Component
                     break;
             }
 
-            if (!empty($questionRules)) {
-                $rules['editCustomQuestions.' . $question->short_label] = $questionRules;
+            if (! empty($questionRules)) {
+                $rules['editCustomQuestions.'.$question->short_label] = $questionRules;
             }
         }
 
@@ -470,9 +500,9 @@ class EventGuestsTable extends Component
         if ($reg) {
             $customFields = [
                 'highest_education_level' => $this->editHighestEducationLevel,
-                'industry'                => $this->editIndustry,
-                'domicile'                => $this->editDomicile,
-                'linkedin'                => $this->editLinkedin,
+                'industry' => $this->editIndustry,
+                'domicile' => $this->editDomicile,
+                'linkedin' => $this->editLinkedin,
             ];
 
             $reg->update([
@@ -495,20 +525,21 @@ class EventGuestsTable extends Component
                     ->where('short_label', $shortLabel)
                     ->first();
 
-                if (!$question) {
+                if (! $question) {
                     continue;
                 }
 
                 $storeValue = is_array($answer) ? $answer : (is_string($answer) ? trim($answer) : $answer);
 
                 if ($storeValue === null || $storeValue === '' || (is_array($storeValue) && empty(array_filter($storeValue)))) {
-                    \Plugins\Events\Models\EventCustomAnswer::where('event_registration_id', $reg->id)
+                    EventCustomAnswer::where('event_registration_id', $reg->id)
                         ->where('question_id', $question->id)
                         ->delete();
+
                     continue;
                 }
 
-                \Plugins\Events\Models\EventCustomAnswer::updateOrCreate(
+                EventCustomAnswer::updateOrCreate(
                     [
                         'event_registration_id' => $reg->id,
                         'question_id' => $question->id,
@@ -534,7 +565,7 @@ class EventGuestsTable extends Component
         $reg = EventRegistration::where('id', $id)
             ->where('event_id', $this->event->id)
             ->first();
-            
+
         if ($reg) {
             $reg->delete();
             $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Attendee deleted successfully.']);
@@ -553,7 +584,7 @@ class EventGuestsTable extends Component
 
         $this->selectedItems = [];
         $this->selectAll = false;
-        
+
         $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Selected attendees deleted successfully.']);
     }
 
@@ -563,7 +594,7 @@ class EventGuestsTable extends Component
             ->where('event_id', $this->event->id)
             ->first();
 
-        if (!$reg) {
+        if (! $reg) {
             return ['success' => false, 'message' => 'Attendee registration not found.'];
         }
 
@@ -577,11 +608,11 @@ class EventGuestsTable extends Component
         // Validate approval type if confirmed or cancelled is selected
         $approvalType = null;
         if (in_array($status, ['approved', 'rejected'])) {
-            if (!$approvalTypeId) {
+            if (! $approvalTypeId) {
                 return ['success' => false, 'message' => 'Please select a reason/approval type.'];
             }
-            $approvalType = \Plugins\Events\Models\ApprovalType::find($approvalTypeId);
-            if (!$approvalType) {
+            $approvalType = ApprovalType::find($approvalTypeId);
+            if (! $approvalType) {
                 return ['success' => false, 'message' => 'Selected reason/approval type not found.'];
             }
         }
@@ -597,32 +628,32 @@ class EventGuestsTable extends Component
 
                 if ($status === 'approved') {
                     $reg->update([
-                        'status'         => 'approved',
-                        'approved_at'    => now(),
-                        'verified_by'    => auth()->id(),
-                        'verified_at'    => now(),
-                        'verified_type'  => $approvalType->type_name,
-                        'verified_note'  => $note,
+                        'status' => 'approved',
+                        'approved_at' => now(),
+                        'verified_by' => auth()->id(),
+                        'verified_at' => now(),
+                        'verified_type' => $approvalType->type_name,
+                        'verified_note' => $note,
                     ]);
                 } elseif ($status === 'rejected') {
                     $reg->update([
-                        'status'         => 'rejected',
-                        'rejected_at'    => now(),
-                        'verified_by'    => auth()->id(),
-                        'verified_at'    => now(),
-                        'verified_type'  => $approvalType->type_name,
-                        'verified_note'  => $note,
+                        'status' => 'rejected',
+                        'rejected_at' => now(),
+                        'verified_by' => auth()->id(),
+                        'verified_at' => now(),
+                        'verified_type' => $approvalType->type_name,
+                        'verified_note' => $note,
                     ]);
                 } else {
                     // Pending
                     $reg->update([
-                        'status'         => 'pending',
-                        'approved_at'    => null,
-                        'rejected_at'    => null,
-                        'verified_by'    => null,
-                        'verified_at'    => null,
-                        'verified_type'  => null,
-                        'verified_note'  => null,
+                        'status' => 'pending',
+                        'approved_at' => null,
+                        'rejected_at' => null,
+                        'verified_by' => null,
+                        'verified_at' => null,
+                        'verified_type' => null,
+                        'verified_note' => null,
                     ]);
                 }
             });
@@ -630,23 +661,25 @@ class EventGuestsTable extends Component
             // Send Email notifications
             if ($status === 'approved' && $approvalType) {
                 try {
-                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
+                    Mail::to($reg->email)->send(new GuestApproved($reg, $approvalType));
                 } catch (\Exception $e) {
                     \Log::warning('Failed to send guest approved email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
                 }
             } elseif ($status === 'rejected' && $approvalType) {
                 try {
-                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
+                    Mail::to($reg->email)->send(new GuestRejected($reg, $approvalType));
                 } catch (\Exception $e) {
                     \Log::warning('Failed to send guest rejected email via Livewire', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
                 }
             }
 
             $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Status updated successfully.']);
+
             return ['success' => true, 'message' => 'Status updated successfully.'];
         } catch (\Exception $e) {
-            \Log::error('Error saving guest status: ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Failed to save status: ' . $e->getMessage()];
+            \Log::error('Error saving guest status: '.$e->getMessage());
+
+            return ['success' => false, 'message' => 'Failed to save status: '.$e->getMessage()];
         }
     }
 
@@ -654,12 +687,14 @@ class EventGuestsTable extends Component
     {
         if (empty($this->selectedItems)) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'No attendees selected.']);
+
             return;
         }
 
-        $approvalType = \Plugins\Events\Models\ApprovalType::find($approvalTypeId);
-        if (!$approvalType) {
+        $approvalType = ApprovalType::find($approvalTypeId);
+        if (! $approvalType) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Selected reason/approval type not found.']);
+
             return;
         }
 
@@ -683,21 +718,21 @@ class EventGuestsTable extends Component
 
                 if ($status === 'approved') {
                     $reg->update([
-                        'status'         => 'approved',
-                        'approved_at'    => now(),
-                        'verified_by'    => auth()->id(),
-                        'verified_at'    => now(),
-                        'verified_type'  => $approvalType->type_name,
-                        'verified_note'  => $note,
+                        'status' => 'approved',
+                        'approved_at' => now(),
+                        'verified_by' => auth()->id(),
+                        'verified_at' => now(),
+                        'verified_type' => $approvalType->type_name,
+                        'verified_note' => $note,
                     ]);
                 } elseif ($status === 'rejected') {
                     $reg->update([
-                        'status'         => 'rejected',
-                        'rejected_at'    => now(),
-                        'verified_by'    => auth()->id(),
-                        'verified_at'    => now(),
-                        'verified_type'  => $approvalType->type_name,
-                        'verified_note'  => $note,
+                        'status' => 'rejected',
+                        'rejected_at' => now(),
+                        'verified_by' => auth()->id(),
+                        'verified_at' => now(),
+                        'verified_type' => $approvalType->type_name,
+                        'verified_note' => $note,
                     ]);
                 }
             });
@@ -705,13 +740,13 @@ class EventGuestsTable extends Component
             // Send Email notifications
             if ($status === 'approved') {
                 try {
-                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestApproved($reg, $approvalType));
+                    Mail::to($reg->email)->send(new GuestApproved($reg, $approvalType));
                 } catch (\Exception $e) {
                     \Log::warning('Failed to send guest approved email via Livewire bulk action', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
                 }
             } elseif ($status === 'rejected') {
                 try {
-                    \Illuminate\Support\Facades\Mail::to($reg->email)->send(new \Plugins\Events\Mail\GuestRejected($reg, $approvalType));
+                    Mail::to($reg->email)->send(new GuestRejected($reg, $approvalType));
                 } catch (\Exception $e) {
                     \Log::warning('Failed to send guest rejected email via Livewire bulk action', ['registration_id' => $reg->id, 'error' => $e->getMessage()]);
                 }
@@ -741,17 +776,17 @@ class EventGuestsTable extends Component
                 }
             })
             ->when($this->search, function ($query) {
-                $term = '%' . $this->search . '%';
+                $term = '%'.$this->search.'%';
                 $query->where(function ($q) use ($term) {
                     $q->where('full_name', 'like', $term)
-                      ->orWhere('name', 'like', $term)
-                      ->orWhere('email', 'like', $term)
-                      ->orWhere('company_name', 'like', $term)
-                      ->orWhere('organization', 'like', $term);
+                        ->orWhere('name', 'like', $term)
+                        ->orWhere('email', 'like', $term)
+                        ->orWhere('company_name', 'like', $term)
+                        ->orWhere('organization', 'like', $term);
                 });
             })
-            ->when($this->dateFrom, fn($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn($q) => $q->whereDate('created_at', '<=', $this->dateTo))
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->orderBy($this->sortField, $this->sortDirection)
             ->get();
 
@@ -767,7 +802,7 @@ class EventGuestsTable extends Component
             $headers[] = $question->question;
         }
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->fromArray($headers, null, 'A1');
 
@@ -796,7 +831,7 @@ class EventGuestsTable extends Component
             ];
 
             // Fetch custom answers for this registration
-            $answers = \Plugins\Events\Models\EventCustomAnswer::where('event_registration_id', $reg->id)->get()->keyBy('question_id');
+            $answers = EventCustomAnswer::where('event_registration_id', $reg->id)->get()->keyBy('question_id');
             foreach ($customQuestions as $question) {
                 $ans = $answers->get($question->id);
                 $answerVal = '';
@@ -806,14 +841,14 @@ class EventGuestsTable extends Component
                 $row[] = $answerVal;
             }
 
-            $sheet->fromArray($row, null, 'A' . $rowNumber);
+            $sheet->fromArray($row, null, 'A'.$rowNumber);
             $rowNumber++;
         }
 
-        $filename = \Illuminate\Support\Str::slug($this->event->title) . '-guests-' . date('Ymd') . '.xlsx';
+        $filename = Str::slug($this->event->title).'-guests-'.date('Ymd').'.xlsx';
 
-        return response()->streamDownload(function() use ($spreadsheet) {
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
         }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -821,12 +856,12 @@ class EventGuestsTable extends Component
         ]);
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('events::livewire.event-guests-table', [
             'registrations' => $this->registrations,
-            'guestCounts'   => $this->guestCounts,
-            'contactLevels' => \Plugins\Events\Models\ContactLevel::orderBy('id')->get(),
+            'guestCounts' => $this->guestCounts,
+            'contactLevels' => ContactLevel::orderBy('id')->get(),
         ]);
     }
 }

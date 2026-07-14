@@ -2,11 +2,11 @@
 
 namespace Plugins\Events\Livewire;
 
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Models\EventCustomQuestion;
-use Plugins\Events\Models\EventCustomQuestionOption;
 
 class QuestionsManager extends Component
 {
@@ -15,7 +15,7 @@ class QuestionsManager extends Component
     /** @var Event */
     public $event;
 
-    /** @var \Illuminate\Support\Collection */
+    /** @var Collection */
     public $questions;
 
     /** @var EventCustomQuestion|null */
@@ -32,20 +32,27 @@ class QuestionsManager extends Component
 
     // Form fields
     public $question_text = '';
+
     public $question_description = '';
+
     public $short_label = '';
+
     public $type = 'text';
+
     public $required = false;
+
     public $options = [];
+
     public $image;
+
     public $target_event_id = '';
 
     protected function rules(): array
     {
         return [
             'question_text' => 'required|max:255',
-            'short_label' => 'required|max:50|alpha_dash|unique:event_custom_questions,short_label' .
-                ($this->editingQuestion ? ',' . $this->editingQuestion->id : ''),
+            'short_label' => 'required|max:50|alpha_dash|unique:event_custom_questions,short_label'.
+                ($this->editingQuestion ? ','.$this->editingQuestion->id : ''),
             'type' => 'required|in:text,textarea,single_select,multi_select,email,phone,date',
             'options' => $this->type === 'single_select' || $this->type === 'multi_select'
                 ? 'required|array|min:1|min:1'
@@ -101,8 +108,8 @@ class QuestionsManager extends Component
         ];
 
         // Short label validation - only enforce unique if creating new
-        if (!$this->editingQuestion) {
-            $rules['short_label'] = 'required|max:50|alpha_dash|unique:event_custom_questions,short_label,NULL,id,event_id,' . $this->event->id;
+        if (! $this->editingQuestion) {
+            $rules['short_label'] = 'required|max:50|alpha_dash|unique:event_custom_questions,short_label,NULL,id,event_id,'.$this->event->id;
         } else {
             $rules['short_label'] = 'required|max:50|alpha_dash';
         }
@@ -112,6 +119,7 @@ class QuestionsManager extends Component
             $validOptions = array_filter($this->options);
             if (empty($validOptions)) {
                 $this->addError('options', 'At least one option is required for select-type questions.');
+
                 return;
             }
         }
@@ -127,6 +135,7 @@ class QuestionsManager extends Component
                     ->exists();
                 if ($exists) {
                     $this->addError('short_label', 'This short label is already in use by another question in this event.');
+
                     return;
                 }
             }
@@ -137,6 +146,7 @@ class QuestionsManager extends Component
                 ->exists();
             if ($exists) {
                 $this->addError('short_label', 'This short label is already in use by another question in this event.');
+
                 return;
             }
         }
@@ -156,7 +166,7 @@ class QuestionsManager extends Component
 
         // Handle image upload
         if ($this->image) {
-            $filename = $question->id . '_' . time() . '.' . $this->image->getClientOriginalExtension();
+            $filename = $question->id.'_'.time().'.'.$this->image->getClientOriginalExtension();
             $path = $this->image->storeAs('event-questions/images', $filename, 'public');
             $question->image = $path;
             $question->save();
@@ -166,7 +176,7 @@ class QuestionsManager extends Component
         if ($this->type === 'single_select' || $this->type === 'multi_select') {
             $question->options()->delete();
             foreach (array_values(array_filter($this->options)) as $index => $optionText) {
-                if (!empty(trim($optionText))) {
+                if (! empty(trim($optionText))) {
                     $question->options()->create([
                         'option_text' => trim($optionText),
                         'order' => $index,
@@ -216,37 +226,41 @@ class QuestionsManager extends Component
 
     public function cloneQuestion()
     {
-        if (!$this->target_event_id) {
+        if (! $this->target_event_id) {
             $this->addError('target_event_id', 'Please select a target event.');
+
             return;
         }
 
         $targetEvent = Event::find($this->target_event_id);
-        if (!$targetEvent) {
+        if (! $targetEvent) {
             $this->addError('target_event_id', 'Target event not found.');
+
             return;
         }
 
         if ($targetEvent->id === $this->event->id) {
             $this->addError('target_event_id', 'Cannot clone question to the same event.');
+
             return;
         }
 
         // Check short_label uniqueness in target event
         $exists = EventCustomQuestion::where('event_id', $targetEvent->id)
-            ->where('short_label', $this->editingQuestion->short_label . '_copy')
+            ->where('short_label', $this->editingQuestion->short_label.'_copy')
             ->exists();
         if ($exists) {
             $this->addError('target_event_id', 'A question with this short label already exists in the target event.');
+
             return;
         }
 
         $clone = EventCustomQuestion::create([
             'event_id' => $targetEvent->id,
             'type' => $this->editingQuestion->type,
-            'question' => $this->editingQuestion->question . ' (Copy)',
+            'question' => $this->editingQuestion->question.' (Copy)',
             'question_description' => $this->editingQuestion->question_description,
-            'short_label' => $this->editingQuestion->short_label . '_copy',
+            'short_label' => $this->editingQuestion->short_label.'_copy',
             'required' => $this->editingQuestion->required,
             'order' => EventCustomQuestion::getNextOrder($targetEvent->id),
             'image' => $this->editingQuestion->image,

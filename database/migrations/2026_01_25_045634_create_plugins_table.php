@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('installed_at')->nullable();
             $table->timestamp('activated_at')->nullable();
             $table->timestamps();
-            
+
             $table->index('is_active');
         });
     }

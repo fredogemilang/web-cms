@@ -11,16 +11,20 @@ use Livewire\Component;
 class Index extends Component
 {
     public bool $showForm = false;
+
     public ?int $editingId = null;
 
     public string $name = '';
+
     public string $url = '';
+
     public array $events = [];
+
     public bool $is_active = true;
 
     public function startCreate(): void
     {
-        $this->authorize('webhooks.create');
+        $this->checkPermission('webhooks.create');
         $this->reset(['editingId', 'name', 'url', 'events', 'is_active']);
         $this->is_active = true;
         $this->showForm = true;
@@ -28,7 +32,7 @@ class Index extends Component
 
     public function edit(int $id): void
     {
-        $this->authorize('webhooks.edit');
+        $this->checkPermission('webhooks.edit');
         $w = Webhook::findOrFail($id);
         $this->editingId = $w->id;
         $this->name = $w->name;
@@ -40,12 +44,12 @@ class Index extends Component
 
     public function save(): void
     {
-        $this->authorize($this->editingId ? 'webhooks.edit' : 'webhooks.create');
+        $this->checkPermission($this->editingId ? 'webhooks.edit' : 'webhooks.create');
         $this->validate([
-            'name'   => ['required', 'string', 'max:255'],
-            'url'    => ['required', 'url', 'max:500'],
+            'name' => ['required', 'string', 'max:255'],
+            'url' => ['required', 'url', 'max:500'],
             'events' => ['required', 'array', 'min:1'],
-            'events.*' => ['string', 'in:' . implode(',', WebhookDispatcher::EVENTS)],
+            'events.*' => ['string', 'in:'.implode(',', WebhookDispatcher::EVENTS)],
         ]);
 
         if ($this->editingId) {
@@ -70,22 +74,22 @@ class Index extends Component
 
     public function delete(int $id): void
     {
-        $this->authorize('webhooks.delete');
+        $this->checkPermission('webhooks.delete');
         Webhook::findOrFail($id)->delete();
         session()->flash('success', 'Webhook deleted.');
     }
 
     public function rotateSecret(int $id): void
     {
-        $this->authorize('webhooks.edit');
+        $this->checkPermission('webhooks.edit');
         $w = Webhook::findOrFail($id);
         $w->update(['signing_secret' => Webhook::generateSecret()]);
-        session()->flash('success', "Secret rotated. New value visible in detail view.");
+        session()->flash('success', 'Secret rotated. New value visible in detail view.');
     }
 
     public function test(int $id): void
     {
-        $this->authorize('webhooks.edit');
+        $this->checkPermission('webhooks.edit');
         $w = Webhook::findOrFail($id);
 
         $delivery = WebhookDelivery::create([
@@ -102,7 +106,7 @@ class Index extends Component
         session()->flash('success', "Test delivery queued (#{$delivery->id}).");
     }
 
-    protected function authorize(string $perm): void
+    protected function checkPermission(string $perm): void
     {
         abort_unless(auth()->user()?->hasPermission($perm), 403);
     }

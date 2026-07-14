@@ -19,10 +19,10 @@ class ActivityLogTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Page::create([
-            'title'     => 'Sample',
-            'slug'      => 'sample',
-            'status'    => 'draft',
-            'template'  => 'default',
+            'title' => 'Sample',
+            'slug' => 'sample',
+            'status' => 'draft',
+            'template' => 'default',
             'author_id' => auth()->id(),
         ]);
 
@@ -35,10 +35,10 @@ class ActivityLogTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $page = Page::create([
-            'title'     => 'Original',
-            'slug'      => 'sample-' . uniqid(),
-            'status'    => 'draft',
-            'template'  => 'default',
+            'title' => 'Original',
+            'slug' => 'sample-'.uniqid(),
+            'status' => 'draft',
+            'template' => 'default',
             'author_id' => auth()->id(),
         ]);
 
@@ -46,9 +46,9 @@ class ActivityLogTest extends TestCase
 
         $activity = Activity::where('action', 'page.updated')->latest('id')->first();
         $this->assertNotNull($activity);
-        $this->assertSame('Original',  $activity->properties['old']['title']);
-        $this->assertSame('Renamed',   $activity->properties['new']['title']);
-        $this->assertSame('draft',     $activity->properties['old']['status']);
+        $this->assertSame('Original', $activity->properties['old']['title']);
+        $this->assertSame('Renamed', $activity->properties['new']['title']);
+        $this->assertSame('draft', $activity->properties['old']['status']);
         $this->assertSame('published', $activity->properties['new']['status']);
     }
 
@@ -58,8 +58,8 @@ class ActivityLogTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $user = User::create([
-            'name'     => 'Sensitive User',
-            'email'    => 'sens-' . uniqid() . '@example.com',
+            'name' => 'Sensitive User',
+            'email' => 'sens-'.uniqid().'@example.com',
             'password' => bcrypt('initial-password'),
         ]);
 
@@ -76,10 +76,10 @@ class ActivityLogTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $page = Page::create([
-            'title'     => 'To delete',
-            'slug'      => 'del-' . uniqid(),
-            'status'    => 'draft',
-            'template'  => 'default',
+            'title' => 'To delete',
+            'slug' => 'del-'.uniqid(),
+            'status' => 'draft',
+            'template' => 'default',
             'author_id' => auth()->id(),
         ]);
 

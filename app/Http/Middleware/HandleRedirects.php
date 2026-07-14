@@ -12,7 +12,7 @@ class HandleRedirects
     public function handle(Request $request, Closure $next): Response
     {
         // Only intercept safe methods — POST/PUT/etc shouldn't be redirected
-        if (!in_array($request->method(), ['GET', 'HEAD'], true)) {
+        if (! in_array($request->method(), ['GET', 'HEAD'], true)) {
             return $next($request);
         }
 
@@ -22,18 +22,18 @@ class HandleRedirects
             return $next($request);
         }
 
-        $path = '/' . ltrim($request->path(), '/');
+        $path = '/'.ltrim($request->path(), '/');
 
         $rule = Redirect::matchRequestPath($path);
-        if (!$rule) {
+        if (! $rule) {
             return $next($request);
         }
 
         $target = $rule->resolveTarget($path);
 
         // Preserve query string unless target already has one
-        if ($request->getQueryString() && !str_contains($target, '?')) {
-            $target .= '?' . $request->getQueryString();
+        if ($request->getQueryString() && ! str_contains($target, '?')) {
+            $target .= '?'.$request->getQueryString();
         }
 
         // Update counter in a non-blocking way — failure should never break the redirect

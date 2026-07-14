@@ -33,6 +33,7 @@ trait HasTranslations
         if ($value === null && $fallback) {
             return $this->getAttribute($field);
         }
+
         return $value;
     }
 
@@ -42,12 +43,14 @@ trait HasTranslations
 
         if ($this->isDefaultLocale($locale)) {
             $this->setAttribute($field, $value);
+
             return $this;
         }
 
         $translations = $this->translations ?? [];
         $translations[$locale][$field] = $value;
         $this->translations = $this->pruneEmpty($translations);
+
         return $this;
     }
 
@@ -64,6 +67,7 @@ trait HasTranslations
             unset($translations[$locale]);
         }
         $this->translations = $translations ?: null;
+
         return $this;
     }
 
@@ -77,6 +81,7 @@ trait HasTranslations
         if ($this->isDefaultLocale($locale)) {
             return $this->getAttribute($field) !== null;
         }
+
         return isset($this->translations[$locale][$field]) && $this->translations[$locale][$field] !== '';
     }
 
@@ -85,8 +90,11 @@ trait HasTranslations
     {
         $locales = [static::defaultLocale()];
         foreach (array_keys($this->translations ?? []) as $l) {
-            if (!in_array($l, $locales, true)) $locales[] = $l;
+            if (! in_array($l, $locales, true)) {
+                $locales[] = $l;
+            }
         }
+
         return $locales;
     }
 
@@ -109,9 +117,9 @@ trait HasTranslations
     protected function ensureFieldIsTranslatable(string $field): void
     {
         $allowed = $this->translatable ?? [];
-        if (!in_array($field, $allowed, true)) {
+        if (! in_array($field, $allowed, true)) {
             throw new \InvalidArgumentException(
-                "Field [{$field}] is not translatable on " . static::class . '. Add it to $translatable.'
+                "Field [{$field}] is not translatable on ".static::class.'. Add it to $translatable.'
             );
         }
     }
@@ -121,10 +129,11 @@ trait HasTranslations
         $out = [];
         foreach ($translations as $locale => $fields) {
             $clean = array_filter($fields, fn ($v) => $v !== null && $v !== '');
-            if (!empty($clean)) {
+            if (! empty($clean)) {
                 $out[$locale] = $clean;
             }
         }
+
         return $out ?: null;
     }
 }

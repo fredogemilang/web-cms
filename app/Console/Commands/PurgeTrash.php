@@ -12,6 +12,7 @@ use Illuminate\Console\Command;
 class PurgeTrash extends Command
 {
     protected $signature = 'content:purge-trash {--dry-run : Show counts without deleting}';
+
     protected $description = 'Permanently delete soft-deleted records older than the configured retention window.';
 
     public function handle(): int
@@ -26,18 +27,21 @@ class PurgeTrash extends Command
         foreach ([Page::class, CptEntry::class, Form::class, FormEntry::class, Media::class] as $model) {
             $q = $model::onlyTrashed()->where('deleted_at', '<', $cutoff);
             $count = $q->count();
-            if ($count === 0) continue;
+            if ($count === 0) {
+                continue;
+            }
 
             if ($dry) {
-                $this->info(class_basename($model) . ": would purge {$count}");
+                $this->info(class_basename($model).": would purge {$count}");
             } else {
                 $q->forceDelete();
-                $this->info(class_basename($model) . ": purged {$count}");
+                $this->info(class_basename($model).": purged {$count}");
             }
             $total += $count;
         }
 
         $this->line($dry ? "Dry run: {$total} item(s) eligible." : "Purged total: {$total}");
+
         return self::SUCCESS;
     }
 }

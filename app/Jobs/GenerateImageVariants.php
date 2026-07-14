@@ -17,10 +17,10 @@ class GenerateImageVariants implements ShouldQueue
     /** Variant sizes (max-width in pixels). Original is kept untouched. */
     public const SIZES = [
         'thumb' => 150,
-        'sm'    => 480,
-        'md'    => 768,
-        'lg'    => 1280,
-        'xl'    => 1920,
+        'sm' => 480,
+        'md' => 768,
+        'lg' => 1280,
+        'xl' => 1920,
     ];
 
     public int $tries = 2;
@@ -30,22 +30,30 @@ class GenerateImageVariants implements ShouldQueue
     public function handle(): void
     {
         $media = Media::find($this->mediaId);
-        if (! $media || ! str_starts_with($media->mime_type, 'image/')) return;
-        if ($media->mime_type === 'image/svg+xml' || $media->mime_type === 'image/gif') return;
+        if (! $media || ! str_starts_with($media->mime_type, 'image/')) {
+            return;
+        }
+        if ($media->mime_type === 'image/svg+xml' || $media->mime_type === 'image/gif') {
+            return;
+        }
 
         $disk = Storage::disk(config('media.disk', 'public'));
-        if (! $disk->exists($media->path)) return;
+        if (! $disk->exists($media->path)) {
+            return;
+        }
 
         $fullPath = $disk->path($media->path);
         $variants = $media->variants ?? [];
 
         $source = $this->createImageFrom($fullPath, $media->mime_type);
-        if (! $source) return;
+        if (! $source) {
+            return;
+        }
 
         $srcW = imagesx($source);
         $srcH = imagesy($source);
 
-        $jpgQ  = (int) (setting('img_jpg_quality', 85));
+        $jpgQ = (int) (setting('img_jpg_quality', 85));
         $webpQ = (int) (setting('img_webp_quality', 80));
         $emitWebp = (bool) setting('img_auto_webp', true);
 
@@ -53,13 +61,15 @@ class GenerateImageVariants implements ShouldQueue
         // and bytes match the filename suffix (otherwise CDNs/browsers serve
         // the wrong Content-Type and transparency is silently lost).
         [$encoder, $variantExt] = match ($media->mime_type) {
-            'image/png'  => ['png',  'png'],
+            'image/png' => ['png',  'png'],
             'image/webp' => ['webp', 'webp'],
-            default      => ['jpeg', 'jpg'],
+            default => ['jpeg', 'jpg'],
         };
 
         foreach (self::SIZES as $label => $targetW) {
-            if ($srcW <= $targetW) continue;
+            if ($srcW <= $targetW) {
+                continue;
+            }
 
             $targetH = (int) round($srcH * ($targetW / $srcW));
             $thumb = imagecreatetruecolor($targetW, $targetH);
@@ -73,12 +83,12 @@ class GenerateImageVariants implements ShouldQueue
             imagecopyresampled($thumb, $source, 0, 0, 0, 0, $targetW, $targetH, $srcW, $srcH);
 
             $base = pathinfo($media->path, PATHINFO_FILENAME);
-            $dir  = pathinfo($media->path, PATHINFO_DIRNAME);
+            $dir = pathinfo($media->path, PATHINFO_DIRNAME);
 
             $rel = "{$dir}/{$base}-{$label}.{$variantExt}";
             $absolute = $disk->path($rel);
             match ($encoder) {
-                'png'  => imagepng($thumb, $absolute, 6),
+                'png' => imagepng($thumb, $absolute, 6),
                 'webp' => imagewebp($thumb, $absolute, $webpQ),
                 default => imagejpeg($thumb, $absolute, $jpgQ),
             };
@@ -108,7 +118,7 @@ class GenerateImageVariants implements ShouldQueue
         imagedestroy($source);
 
         $media->variants = $variants;
-        $media->placeholder_data_uri = 'data:image/jpeg;base64,' . base64_encode($lqipBytes);
+        $media->placeholder_data_uri = 'data:image/jpeg;base64,'.base64_encode($lqipBytes);
         $media->save();
     }
 

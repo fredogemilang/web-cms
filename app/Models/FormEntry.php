@@ -77,12 +77,12 @@ class FormEntry extends Model
 
         foreach ($this->form->fields as $field) {
             $value = $this->getFieldValue($field->field_id);
-            
+
             // Format array values (for checkboxes)
             if (is_array($value)) {
                 $value = implode(', ', $value);
             }
-            
+
             $export[$field->label] = $value;
         }
 

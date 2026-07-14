@@ -9,6 +9,8 @@ namespace Plugins\Events\Services;
  * Referenced by: PRD 01 (Event Creation) section 1.3 and PRD 07 (Email Customization).
  */
 
+use Illuminate\Support\Facades\Log;
+use Plugins\EmailTemplates\Models\ApprovalType;
 use Plugins\Events\Models\Event;
 
 class ApprovalTypeService
@@ -24,12 +26,13 @@ class ApprovalTypeService
     {
         // Guard: skip if ApprovalType model is not yet available (email-templates plugin not loaded).
         // Bug fix #3: log a warning instead of silently skipping so developers know templates were not seeded.
-        if (!class_exists(\Plugins\EmailTemplates\Models\ApprovalType::class)) {
-            \Illuminate\Support\Facades\Log::warning(
-                "ApprovalTypeService: EmailTemplates plugin unavailable. " .
-                "Default email templates were NOT seeded for event #{$event->id} ({$event->title}). " .
-                "Run again after installing the email-templates plugin."
+        if (! class_exists(ApprovalType::class)) {
+            Log::warning(
+                'ApprovalTypeService: EmailTemplates plugin unavailable. '.
+                "Default email templates were NOT seeded for event #{$event->id} ({$event->title}). ".
+                'Run again after installing the email-templates plugin.'
             );
+
             return;
         }
 
@@ -56,7 +59,7 @@ class ApprovalTypeService
             ],
         ];
 
-        $ApprovalType = \Plugins\EmailTemplates\Models\ApprovalType::class;
+        $ApprovalType = ApprovalType::class;
 
         foreach ($defaults as $cat => $data) {
             $ApprovalType::firstOrCreate(
@@ -76,8 +79,8 @@ class ApprovalTypeService
     protected function buildDefaultBody(Event $event, string $category): string
     {
         $messages = [
-            'default'  => "Thank you for registering for {$event->title}. We look forward to seeing you!",
-            'pending'  => "Your registration for {$event->title} is pending approval. We will notify you once approved.",
+            'default' => "Thank you for registering for {$event->title}. We look forward to seeing you!",
+            'pending' => "Your registration for {$event->title} is pending approval. We will notify you once approved.",
             'approved' => "Your registration for {$event->title} has been approved. See you there!",
             'rejected' => "Unfortunately, your registration for {$event->title} has been declined.",
         ];

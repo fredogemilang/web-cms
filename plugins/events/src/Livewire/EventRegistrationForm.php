@@ -2,57 +2,73 @@
 
 namespace Plugins\Events\Livewire;
 
-use Livewire\Component;
-use Plugins\Events\Models\Event;
-use Plugins\Events\Models\EventRegistration;
-use Plugins\Events\Models\EventCustomQuestion;
-use Plugins\Events\Models\EventCustomAnswer;
-use Plugins\Events\Models\ContactLevel;
-use Plugins\Events\Models\ContactDivision;
-use Plugins\Events\Rules\CorporateEmail;
+use App\Models\Domicile;
 use App\Rules\PhoneNumberFormat;
 use Illuminate\Support\Str;
+use Livewire\Component;
+use Plugins\Events\Models\ContactLevel;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventCustomAnswer;
+use Plugins\Events\Models\EventRegistration;
+use Plugins\Events\Rules\CorporateEmail;
 
 class EventRegistrationForm extends Component
 {
     public Event $event;
 
     // ─── Form Fields ─────────────────────────────────────────────────────────
-    public string $salutation       = '';
-    public string $full_name        = '';
-    public string $company_name     = '';
-    public string $job_title        = '';
-    public int    $contact_level_id = 0;
-    public int    $contact_divisi_id = 0;
+    public string $salutation = '';
+
+    public string $full_name = '';
+
+    public string $company_name = '';
+
+    public string $job_title = '';
+
+    public int $contact_level_id = 0;
+
+    public int $contact_divisi_id = 0;
+
     public string $contact_divisi_name = '';
-    public string $country_code     = '+62';
-    public string $mobile_phone     = '';
-    public string $email            = '';
-    public string $notes            = '';
-    public string $referral_code    = '';
-    public bool   $consentCheckbox  = true;
+
+    public string $country_code = '+62';
+
+    public string $mobile_phone = '';
+
+    public string $email = '';
+
+    public string $notes = '';
+
+    public string $referral_code = '';
+
+    public bool $consentCheckbox = true;
 
     // New custom form fields
     public string $highest_education_level = '';
-    public string $industry                = '';
-    public string $domicile                = '';
-    public string $linkedin                = '';
-    public string $domicileSearch          = '';
-    public ?string $domicile_other         = '';
+
+    public string $industry = '';
+
+    public string $domicile = '';
+
+    public string $linkedin = '';
+
+    public string $domicileSearch = '';
+
+    public ?string $domicile_other = '';
 
     // ─── Custom Question Answers ─────────────────────────────────────────────
     public array $custom_questions = [];
 
     protected $validationAttributes = [
-        'full_name'        => 'Name',
-        'email'           => 'E-mail',
-        'mobile_phone'     => 'Phone Number',
+        'full_name' => 'Name',
+        'email' => 'E-mail',
+        'mobile_phone' => 'Phone Number',
         'contact_level_id' => 'Job Level',
-        'job_title'        => 'Job Title',
-        'company_name'     => 'Institution/company',
-        'industry'         => 'Industry',
-        'domicile'         => 'Domicile',
-        'domicile_other'   => 'Specify Domicile',
+        'job_title' => 'Job Title',
+        'company_name' => 'Institution/company',
+        'industry' => 'Industry',
+        'domicile' => 'Domicile',
+        'domicile_other' => 'Specify Domicile',
     ];
 
     public function messages(): array
@@ -63,7 +79,7 @@ class EventRegistrationForm extends Component
 
         foreach ($this->event->customQuestions as $question) {
             if ($question->type === 'phone') {
-                $messages['custom_questions.' . $question->short_label . '.regex'] = 'Please enter a valid phone number.';
+                $messages['custom_questions.'.$question->short_label.'.regex'] = 'Please enter a valid phone number.';
             }
         }
 
@@ -75,7 +91,7 @@ class EventRegistrationForm extends Component
         $attributes = $this->validationAttributes;
 
         foreach ($this->event->customQuestions as $question) {
-            $attributes['custom_questions.' . $question->short_label] = $question->question;
+            $attributes['custom_questions.'.$question->short_label] = $question->question;
         }
 
         return $attributes;
@@ -84,22 +100,22 @@ class EventRegistrationForm extends Component
     public function getRules(): array
     {
         $rules = [
-            'full_name'               => 'required|string|max:255',
-            'email'                   => [
+            'full_name' => 'required|string|max:255',
+            'email' => [
                 'required',
                 'email',
                 'max:255',
                 new CorporateEmail($this->event->id),
             ],
-            'mobile_phone'            => ['required', new PhoneNumberFormat()],
+            'mobile_phone' => ['required', new PhoneNumberFormat],
             'highest_education_level' => 'nullable|string',
-            'contact_level_id'        => 'required|integer|min:1|exists:contact_levels,id',
-            'job_title'               => 'required|string',
-            'company_name'            => 'required|string|max:255',
-            'industry'                => 'required|string',
-            'domicile'                => 'required|string',
-            'domicile_other'          => 'required_if:domicile,Other|nullable|string',
-            'linkedin'                => ['nullable', 'string', 'max:255', 'regex:/^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i'],
+            'contact_level_id' => 'required|integer|min:1|exists:contact_levels,id',
+            'job_title' => 'required|string',
+            'company_name' => 'required|string|max:255',
+            'industry' => 'required|string',
+            'domicile' => 'required|string',
+            'domicile_other' => 'required_if:domicile,Other|nullable|string',
+            'linkedin' => ['nullable', 'string', 'max:255', 'regex:/^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i'],
         ];
 
         foreach ($this->event->customQuestions as $question) {
@@ -128,8 +144,8 @@ class EventRegistrationForm extends Component
                     break;
             }
 
-            if (!empty($questionRules)) {
-                $rules['custom_questions.' . $question->short_label] = $questionRules;
+            if (! empty($questionRules)) {
+                $rules['custom_questions.'.$question->short_label] = $questionRules;
             }
         }
 
@@ -142,21 +158,23 @@ class EventRegistrationForm extends Component
             return [];
         }
 
-        return \App\Models\Domicile::query()
-            ->where('name', 'like', '%' . $this->domicileSearch . '%')
+        return Domicile::query()
+            ->where('name', 'like', '%'.$this->domicileSearch.'%')
             ->limit(15)
             ->get()
             ->map(function ($item) {
                 if ($item->type === 'regency') {
-                    $parent = \App\Models\Domicile::where('code', $item->parent_code)->first();
+                    $parent = Domicile::where('code', $item->parent_code)->first();
+
                     return [
                         'value' => $item->name,
-                        'label' => $item->name . ($parent ? ', ' . $parent->name : ''),
+                        'label' => $item->name.($parent ? ', '.$parent->name : ''),
                     ];
                 }
+
                 return [
                     'value' => $item->name,
-                    'label' => $item->name . ' (Provinsi)',
+                    'label' => $item->name.' (Provinsi)',
                 ];
             })
             ->toArray();
@@ -198,12 +216,13 @@ class EventRegistrationForm extends Component
             $query = $this->event->registrations()->whereIn('status', ['pending', 'approved']);
 
             // If approval not required, only count approved
-            if (!($this->event->registration_requires_approval ?? false)) {
+            if (! ($this->event->registration_requires_approval ?? false)) {
                 $query->where('status', 'approved');
             }
 
             if ($query->count() >= $this->event->max_participants) {
                 $this->addError('capacity', 'This event has reached its maximum capacity and is now full.');
+
                 return;
             }
         }
@@ -216,17 +235,20 @@ class EventRegistrationForm extends Component
 
         if ($duplicate) {
             $this->addError('email', 'This email is already registered for this event.');
+
             return;
         }
 
         // ── Registration period check ───────────────────────────────────
         if ($this->event->registration_start_date && $this->event->registration_start_date->isFuture()) {
             $this->addError('registration', 'Registration for this event has not yet opened.');
+
             return;
         }
         $effectiveEnd = $this->event->registration_end_date ?? $this->event->registration_deadline;
         if ($effectiveEnd && $effectiveEnd->isPast()) {
             $this->addError('registration', 'Registration for this event has closed.');
+
             return;
         }
 
@@ -234,44 +256,44 @@ class EventRegistrationForm extends Component
         $requiresApproval = (bool) ($this->event->registration_requires_approval ?? false);
 
         $finalDomicile = $this->domicile;
-        if ($this->domicile === 'Other' && !empty($this->domicile_other)) {
+        if ($this->domicile === 'Other' && ! empty($this->domicile_other)) {
             $finalDomicile = $this->domicile_other;
         }
 
         $registration = EventRegistration::create([
-            'event_id'              => $this->event->id,
-            'uuid'                  => Str::uuid(),
-            'name'                  => $this->full_name,
-            'salutation'            => null,
-            'full_name'             => $this->full_name,
-            'company_name'          => $this->company_name,
-            'company_type'          => EventRegistration::detectCompanyType($this->company_name),
-            'job_title'             => $this->job_title,
-            'contact_level_id'      => $this->contact_level_id,
-            'contact_divisi_id'     => null,
-            'contact_divisi_name'   => null,
-            'country_code'          => $this->country_code,
-            'mobile_phone'          => EventRegistration::formatPhoneNumber($this->mobile_phone),
-            'email'                 => $this->email,
-            'notes'                 => null,
-            'referral_code'         => null,
-            'referral_source'       => EventRegistration::buildReferralSource(null, request()),
-            'status'                => $requiresApproval ? 'pending' : 'approved',
-            'approved_at'           => $requiresApproval ? null : now(),
-            'consent_accepted_at'   => now(),
-            'walk_in'               => false,
-            'ip_address'            => request()->ip(),
-            'user_agent'            => request()->userAgent(),
-            'custom_fields'         => [
+            'event_id' => $this->event->id,
+            'uuid' => Str::uuid(),
+            'name' => $this->full_name,
+            'salutation' => null,
+            'full_name' => $this->full_name,
+            'company_name' => $this->company_name,
+            'company_type' => EventRegistration::detectCompanyType($this->company_name),
+            'job_title' => $this->job_title,
+            'contact_level_id' => $this->contact_level_id,
+            'contact_divisi_id' => null,
+            'contact_divisi_name' => null,
+            'country_code' => $this->country_code,
+            'mobile_phone' => EventRegistration::formatPhoneNumber($this->mobile_phone),
+            'email' => $this->email,
+            'notes' => null,
+            'referral_code' => null,
+            'referral_source' => EventRegistration::buildReferralSource(null, request()),
+            'status' => $requiresApproval ? 'pending' : 'approved',
+            'approved_at' => $requiresApproval ? null : now(),
+            'consent_accepted_at' => now(),
+            'walk_in' => false,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'custom_fields' => [
                 'highest_education_level' => $this->highest_education_level,
-                'industry'                => $this->industry,
-                'domicile'                => $finalDomicile,
-                'linkedin'                => $this->linkedin,
+                'industry' => $this->industry,
+                'domicile' => $finalDomicile,
+                'linkedin' => $this->linkedin,
             ],
         ]);
 
         // Increment count only if auto-approved
-        if (!$requiresApproval) {
+        if (! $requiresApproval) {
             $this->event->incrementRegisteredCount();
         }
 
@@ -285,12 +307,10 @@ class EventRegistrationForm extends Component
         session()->flash('success', $message);
 
         return redirect()->route('events.register.success', [
-            'slug'  => $this->event->slug,
+            'slug' => $this->event->slug,
             'email' => $this->email,
         ]);
     }
-
-
 
     /**
      * Save custom question answers linked to the registration.
@@ -311,7 +331,7 @@ class EventRegistrationForm extends Component
                 ->where('short_label', $shortLabel)
                 ->first();
 
-            if (!$question) {
+            if (! $question) {
                 continue;
             }
 
@@ -331,14 +351,14 @@ class EventRegistrationForm extends Component
 
     public function render()
     {
-        $contactLevels  = ContactLevel::where('is_active', true)->orderBy('level')->get();
-        
+        $contactLevels = ContactLevel::where('is_active', true)->orderBy('level')->get();
+
         $educationLevels = [
             'High School / Equivalent',
             'Associate Degree',
             'Bachelor\'s Degree',
             'Master\'s Degree',
-            'Doctorate (Ph.D)'
+            'Doctorate (Ph.D)',
         ];
 
         $jobTitles = [
@@ -352,7 +372,7 @@ class EventRegistrationForm extends Component
             'Junior Engineer / Associate',
             'Consultant / Advisor',
             'Student / Academic',
-            'Other'
+            'Other',
         ];
 
         $industries = [
@@ -366,7 +386,7 @@ class EventRegistrationForm extends Component
             'Manufacturing / Logistics',
             'Media / Entertainment',
             'Government / Public Sector',
-            'Other'
+            'Other',
         ];
 
         $domiciles = [
@@ -379,15 +399,15 @@ class EventRegistrationForm extends Component
             'Makassar',
             'Bali',
             'Other City (Indonesia)',
-            'International (Outside Indonesia)'
+            'International (Outside Indonesia)',
         ];
 
         return view('events::livewire.event-registration-form', [
-            'contactLevels'   => $contactLevels,
+            'contactLevels' => $contactLevels,
             'educationLevels' => $educationLevels,
-            'jobTitles'       => $jobTitles,
-            'industries'      => $industries,
-            'domiciles'       => $domiciles,
+            'jobTitles' => $jobTitles,
+            'industries' => $industries,
+            'domiciles' => $domiciles,
         ]);
     }
 }

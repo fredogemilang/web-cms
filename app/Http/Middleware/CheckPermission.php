@@ -11,11 +11,11 @@ class CheckPermission
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
         }
 
@@ -33,6 +33,7 @@ class CheckPermission
         // Super admin bypass
         if ($user->isSuperAdmin()) {
             \Log::info('User is super admin - bypassing permission check');
+
             return $next($request);
         }
 
@@ -43,9 +44,10 @@ class CheckPermission
                 'permission' => $permission,
                 'has_permission' => $hasPermission,
             ]);
-            
+
             if ($hasPermission) {
                 \Log::info('Permission granted', ['permission' => $permission]);
+
                 return $next($request);
             }
         }

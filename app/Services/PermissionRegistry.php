@@ -47,7 +47,7 @@ class PermissionRegistry
                 foreach ($resource['actions'] as $action) {
                     // Format: {module}.{action} - module name from plugin.json is already unique
                     $permissionName = "{$module}.{$action}";
-                    
+
                     Permission::updateOrCreate(
                         ['name' => $permissionName],
                         [
@@ -99,8 +99,8 @@ class PermissionRegistry
     public function deleteByPlugin(string $pluginSlug, bool $force = false): int
     {
         $query = Permission::where('plugin_slug', $pluginSlug);
-        
-        if (!$force) {
+
+        if (! $force) {
             // Check if any roles have these permissions assigned
             $permissionIds = $query->pluck('id');
             // Note: We still delete, but this could be extended to warn the user
@@ -120,7 +120,7 @@ class PermissionRegistry
             ->get();
 
         $corePermissions = $permissions->where('source', 'core');
-        $pluginPermissions = $permissions->filter(fn($p) => str_starts_with($p->source, 'plugin:'));
+        $pluginPermissions = $permissions->filter(fn ($p) => str_starts_with($p->source, 'plugin:'));
 
         return [
             'core' => [
@@ -128,8 +128,8 @@ class PermissionRegistry
                 'count' => $corePermissions->count(),
             ],
             'plugins' => $pluginPermissions
-                ->groupBy(fn($p) => str_replace('plugin:', '', $p->source))
-                ->map(fn($group) => [
+                ->groupBy(fn ($p) => str_replace('plugin:', '', $p->source))
+                ->map(fn ($group) => [
                     'modules' => $group->groupBy('module'),
                     'count' => $group->count(),
                 ])

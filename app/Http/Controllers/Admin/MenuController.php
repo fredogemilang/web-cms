@@ -30,7 +30,7 @@ class MenuController extends Controller
     {
         $parentMenus = MenuItem::whereNull('parent_id')->ordered()->get();
         $permissions = Permission::all();
-        
+
         return view('admin.menus.create', compact('parentMenus', 'permissions'));
     }
 
@@ -62,6 +62,7 @@ class MenuController extends Controller
     public function show(MenuItem $menu)
     {
         $menu->load(['children', 'parent']);
+
         return view('admin.menus.show', compact('menu'));
     }
 
@@ -75,7 +76,7 @@ class MenuController extends Controller
             ->ordered()
             ->get();
         $permissions = Permission::all();
-        
+
         return view('admin.menus.edit', compact('menu', 'parentMenus', 'permissions'));
     }
 

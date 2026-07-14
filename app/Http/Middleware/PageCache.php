@@ -13,7 +13,7 @@ class PageCache
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$this->shouldCache($request)) {
+        if (! $this->shouldCache($request)) {
             return $next($request);
         }
 
@@ -34,20 +34,27 @@ class PageCache
 
             Cache::put($key, [
                 'content' => $response->getContent(),
-                'status'  => 200,
+                'status' => 200,
                 'headers' => ['Content-Type' => $response->headers->get('Content-Type')],
             ], $ttl);
         }
 
         $response->headers->set('X-Page-Cache', 'MISS');
+
         return $response;
     }
 
     protected function shouldCache(Request $request): bool
     {
-        if (!setting('page_cache_enabled', false)) return false;
-        if (!in_array($request->method(), ['GET', 'HEAD'], true)) return false;
-        if (auth()->check()) return false;
+        if (! setting('page_cache_enabled', false)) {
+            return false;
+        }
+        if (! in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return false;
+        }
+        if (auth()->check()) {
+            return false;
+        }
 
         // Skip admin path
         $adminPath = trim(config('admin.path', 'admin'), '/');
@@ -57,10 +64,12 @@ class PageCache
 
         // Skip excluded paths
         $excluded = array_filter(array_map('trim', explode("\n", (string) setting('page_cache_excluded_paths', ''))));
-        $path = '/' . ltrim($request->path(), '/');
+        $path = '/'.ltrim($request->path(), '/');
         foreach ($excluded as $pattern) {
-            $regex = '#^' . str_replace(['\*', '\?'], ['.*', '.'], preg_quote($pattern, '#')) . '$#';
-            if (preg_match($regex, $path) === 1) return false;
+            $regex = '#^'.str_replace(['\*', '\?'], ['.*', '.'], preg_quote($pattern, '#')).'$#';
+            if (preg_match($regex, $path) === 1) {
+                return false;
+            }
         }
 
         return true;
@@ -69,7 +78,8 @@ class PageCache
     protected function cacheKey(Request $request): string
     {
         $version = Cache::get('page-cache:version', 1);
-        return "page:v{$version}:" . md5($request->fullUrl());
+
+        return "page:v{$version}:".md5($request->fullUrl());
     }
 
     public static function purgeAll(): void

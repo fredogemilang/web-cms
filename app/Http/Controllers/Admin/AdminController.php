@@ -14,6 +14,7 @@ class AdminController extends Controller
         if (auth()->check()) {
             return redirect()->route('admin.dashboard');
         }
+
         return redirect()->route('login');
     }
 }

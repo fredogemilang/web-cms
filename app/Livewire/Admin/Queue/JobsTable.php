@@ -4,7 +4,6 @@ namespace App\Livewire\Admin\Queue;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -22,26 +21,26 @@ class JobsTable extends Component
 
     public function retry(string $uuid): void
     {
-        $this->authorize();
+        $this->checkPermission();
         Artisan::call('queue:retry', ['id' => [$uuid]]);
         session()->flash('success', "Job {$uuid} queued for retry.");
     }
 
     public function forget(int $id): void
     {
-        $this->authorize();
+        $this->checkPermission();
         DB::table('failed_jobs')->where('id', $id)->delete();
         session()->flash('success', 'Job removed.');
     }
 
     public function retryAll(): void
     {
-        $this->authorize();
+        $this->checkPermission();
         Artisan::call('queue:retry', ['id' => ['all']]);
         session()->flash('success', 'All failed jobs queued for retry.');
     }
 
-    protected function authorize(): void
+    protected function checkPermission(): void
     {
         abort_unless(auth()->user()?->hasPermission('queue.retry'), 403);
     }

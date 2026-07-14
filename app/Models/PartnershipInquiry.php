@@ -22,10 +22,10 @@ class PartnershipInquiry extends Model
     ];
 
     public const TYPES = [
-        'corporate'  => 'Corporate Partner (Sponsorship)',
+        'corporate' => 'Corporate Partner (Sponsorship)',
         'university' => 'University Partner (Education)',
-        'community'  => 'Community Partner (Collaboration)',
-        'media'      => 'Media Partner',
-        'other'      => 'Other',
+        'community' => 'Community Partner (Collaboration)',
+        'media' => 'Media Partner',
+        'other' => 'Other',
     ];
 }

@@ -2,19 +2,18 @@
 
 namespace Plugins\Events\Models;
 
+use App\Models\Media;
+use App\Models\User;
 use App\Traits\FindsByLocalizedSlug;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use App\Models\User;
-use App\Models\Media;
-use Carbon\Carbon;
 
 class Event extends Model
 {
-    use SoftDeletes, HasTranslations, FindsByLocalizedSlug;
+    use FindsByLocalizedSlug, HasTranslations, SoftDeletes;
 
     protected static function baseLocalizedSlugQuery(): Builder
     {
@@ -124,7 +123,7 @@ class Event extends Model
 
         static::updating(function ($event) {
             // Re-generate slug if title changed and slug was auto-generated
-            if ($event->isDirty('title') && !$event->getOriginal('slug')) {
+            if ($event->isDirty('title') && ! $event->getOriginal('slug')) {
                 $event->slug = static::generateUniqueSlug($event->title, $event->id);
             }
         });
@@ -147,7 +146,7 @@ class Event extends Model
         }
 
         while ($query->exists()) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
             $query = static::where('slug', $slug);
             if ($excludeId) {
@@ -204,7 +203,7 @@ class Event extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                     ->where('published_at', '<=', now());
+            ->where('published_at', '<=', now());
     }
 
     /**
@@ -213,7 +212,7 @@ class Event extends Model
     public function scopeUpcoming($query)
     {
         return $query->where('start_date', '>', now())
-                     ->orderBy('start_date', 'asc');
+            ->orderBy('start_date', 'asc');
     }
 
     /**
@@ -222,7 +221,7 @@ class Event extends Model
     public function scopePast($query)
     {
         return $query->where('end_date', '<', now())
-                     ->orderBy('start_date', 'desc');
+            ->orderBy('start_date', 'desc');
     }
 
     /**
@@ -231,10 +230,10 @@ class Event extends Model
     public function scopeOngoing($query)
     {
         return $query->where('start_date', '<=', now())
-                     ->where(function($q) {
-                         $q->whereNull('end_date')
-                           ->orWhere('end_date', '>=', now());
-                     });
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            });
     }
 
     /**
@@ -267,7 +266,8 @@ class Event extends Model
     public function getIsOngoingAttribute()
     {
         $now = now();
-        return $this->start_date->isPast() && 
+
+        return $this->start_date->isPast() &&
                ($this->end_date ? $this->end_date->isFuture() : true);
     }
 
@@ -277,7 +277,7 @@ class Event extends Model
      */
     public function getIsRegistrationOpenAttribute(): bool
     {
-        if (!$this->requires_registration) {
+        if (! $this->requires_registration) {
             return false;
         }
 
@@ -305,7 +305,7 @@ class Event extends Model
      */
     public function getAvailableSlotsAttribute()
     {
-        if (!$this->max_participants) {
+        if (! $this->max_participants) {
             return null;
         }
 
@@ -318,19 +318,21 @@ class Event extends Model
     public function getFormattedDateRangeAttribute()
     {
         if ($this->is_all_day) {
-            if ($this->end_date && !$this->start_date->isSameDay($this->end_date)) {
-                return $this->start_date->format('M d') . ' - ' . $this->end_date->format('M d, Y');
+            if ($this->end_date && ! $this->start_date->isSameDay($this->end_date)) {
+                return $this->start_date->format('M d').' - '.$this->end_date->format('M d, Y');
             }
+
             return $this->start_date->format('M d, Y');
         }
 
         if ($this->end_date) {
             if ($this->start_date->isSameDay($this->end_date)) {
-                return $this->start_date->format('M d, Y') . ' • ' . 
-                       $this->start_date->format('g:i A') . ' - ' . 
+                return $this->start_date->format('M d, Y').' • '.
+                       $this->start_date->format('g:i A').' - '.
                        $this->end_date->format('g:i A');
             }
-            return $this->start_date->format('M d, g:i A') . ' - ' . 
+
+            return $this->start_date->format('M d, g:i A').' - '.
                    $this->end_date->format('M d, g:i A');
         }
 
@@ -359,8 +361,8 @@ class Event extends Model
     public function speakers()
     {
         return $this->belongsToMany(Speaker::class, 'event_speaker')
-                    ->withPivot('order')
-                    ->orderByPivot('order');
+            ->withPivot('order')
+            ->orderByPivot('order');
     }
 
     /**

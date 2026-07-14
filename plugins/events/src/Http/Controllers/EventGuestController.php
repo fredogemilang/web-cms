@@ -5,8 +5,10 @@ namespace Plugins\Events\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Plugins\Events\Models\ApprovalType;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Models\EventRegistration;
@@ -22,7 +24,7 @@ class EventGuestController extends Controller
     /**
      * Display the guest list page for an event.
      */
-    public function index(Event $event): \Illuminate\View\View
+    public function index(Event $event): View
     {
         $approvalTypes = ApprovalType::where('event_id', $event->id)
             ->orWhere('event_id', 0)
@@ -89,7 +91,7 @@ class EventGuestController extends Controller
         $approvalType = ApprovalType::findOrFail($request->approval_type_id);
 
         // Only allow rejecting pending or approved registrations
-        if (!in_array($registration->status, ['pending', 'approved'])) {
+        if (! in_array($registration->status, ['pending', 'approved'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'This registration cannot be rejected.',
@@ -172,7 +174,7 @@ class EventGuestController extends Controller
         $allowedFields = ['full_name', 'name', 'email', 'phone', 'mobile_phone', 'organization', 'company_name', 'job_title', 'notes'];
 
         $request->validate([
-            'field' => 'required|string|in:' . implode(',', $allowedFields),
+            'field' => 'required|string|in:'.implode(',', $allowedFields),
             'value' => 'nullable|string|max:255',
         ]);
 
@@ -232,7 +234,7 @@ class EventGuestController extends Controller
             'Verified Type', 'Verified Note', 'Referral Source',
         ];
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->fromArray($headers, null, 'A1');
 
@@ -258,14 +260,14 @@ class EventGuestController extends Controller
                 $reg->verified_type ?? '',
                 $reg->verified_note ?? '',
                 $reg->referral_source ?? '',
-            ], null, 'A' . $rowNumber);
+            ], null, 'A'.$rowNumber);
             $rowNumber++;
         }
 
-        $filename = Str::slug($event->title) . '-guests-' . date('Ymd') . '.xlsx';
+        $filename = Str::slug($event->title).'-guests-'.date('Ymd').'.xlsx';
 
-        return response()->streamDownload(function() use ($spreadsheet) {
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
         }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

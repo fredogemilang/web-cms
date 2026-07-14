@@ -4,23 +4,29 @@ namespace App\Livewire\Admin\Taxonomies\Terms;
 
 use App\Models\CustomTaxonomy;
 use App\Models\TaxonomyTerm;
-use Illuminate\Validation\Rule;
-use Livewire\Component;
 use Illuminate\Support\Str;
-
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class TermForm extends Component
 {
     public CustomTaxonomy $taxonomy;
+
     public ?int $termId = null;
+
     public bool $isEdit = false;
+
     public bool $inline = false;
 
     public string $name = '';
+
     public string $slug = '';
+
     public string $description = '';
+
     public ?int $parentId = null;
+
     public int $order = 0;
 
     protected function rules(): array
@@ -55,7 +61,7 @@ class TermForm extends Component
     protected function loadTerm()
     {
         $term = TaxonomyTerm::where('taxonomy_id', $this->taxonomy->id)->findOrFail($this->termId);
-        
+
         $this->name = $term->name;
         $this->slug = $term->slug;
         $this->description = $term->description ?? '';
@@ -65,7 +71,7 @@ class TermForm extends Component
 
     public function updatedName($value)
     {
-        if (!$this->isEdit && empty($this->slug)) {
+        if (! $this->isEdit && empty($this->slug)) {
             $this->slug = Str::slug($value);
         }
     }
@@ -95,8 +101,9 @@ class TermForm extends Component
             $this->dispatch('term-saved');
             $this->dispatch('notify', [
                 'type' => 'success',
-                'message' => "Term '{$term->name}' " . ($this->isEdit ? 'updated' : 'created') . " successfully.",
+                'message' => "Term '{$term->name}' ".($this->isEdit ? 'updated' : 'created').' successfully.',
             ]);
+
             return;
         }
 
@@ -104,7 +111,7 @@ class TermForm extends Component
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => $this->isEdit 
+            'message' => $this->isEdit
                 ? "Term '{$this->name}' updated successfully."
                 : "Term '{$this->name}' created successfully.",
         ]);
@@ -123,7 +130,7 @@ class TermForm extends Component
         $this->parentId = $term->parent_id;
         $this->order = $term->order ?? 0;
         $this->isEdit = true;
-        
+
         $this->resetValidation();
     }
 

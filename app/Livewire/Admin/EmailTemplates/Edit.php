@@ -11,13 +11,19 @@ use Livewire\Component;
 class Edit extends Component
 {
     public ?int $templateId = null;
+
     public EmailTemplate $template;
 
     public string $name = '';
+
     public string $key_name = '';
+
     public string $subject = '';
+
     public string $body_html = '';
+
     public ?string $body_text = null;
+
     public ?string $description = null;
 
     public string $testEmail = '';
@@ -105,8 +111,9 @@ class Edit extends Component
             'entry' => ['summary' => 'Dummy submission contents.', 'url' => url('/')],
         ];
         foreach ((array) $this->template->variables as $k => $_label) {
-            data_fill($bag, $k, '[' . $k . ']');
+            data_fill($bag, $k, '['.$k.']');
         }
+
         return $bag;
     }
 

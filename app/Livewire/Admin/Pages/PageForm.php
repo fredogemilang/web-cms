@@ -6,35 +6,48 @@ use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\PageRevision;
 use App\Services\PageTemplateService;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class PageForm extends Component
 {
     protected PageTemplateService $templateService;
 
     public ?Page $page = null;
+
     public ?int $pageId = null;
+
     public bool $isEdit = false;
 
     // Page fields
     public string $title = '';
+
     public string $slug = '';
+
     public ?int $parentId = null;
+
     public int $menuOrder = 0;
+
     public string $status = 'draft';
+
     public ?string $publishedAt = null;
+
     public string $template = 'default';
+
     public ?string $featuredImage = null;
 
     // SEO fields
     public string $metaTitle = '';
+
     public string $metaDescription = '';
+
     public string $ogTitle = '';
+
     public string $ogDescription = '';
+
     public ?string $ogImage = null;
 
     // Blocks (array of block data)
@@ -42,13 +55,18 @@ class PageForm extends Component
 
     // UI State
     public bool $showBlockSelector = false;
+
     public bool $showMediaPicker = false;
+
     public ?string $mediaPickerField = null;
+
     public ?int $editingBlockIndex = null;
+
     public bool $showSeoSettings = false;
 
     // Autosave
     public bool $hasUnsavedChanges = false;
+
     public ?string $lastSavedAt = null;
 
     // Slug generation
@@ -91,7 +109,7 @@ class PageForm extends Component
             'template' => 'required|string',
             'publishedAt' => 'nullable|date',
             'blocks.*.name' => 'required|string|max:255|regex:/^[a-z][a-z0-9_]*$/',
-            'blocks.*.type' => 'required|in:' . implode(',', array_keys(PageBlock::$blockTypes)),
+            'blocks.*.type' => 'required|in:'.implode(',', array_keys(PageBlock::$blockTypes)),
         ];
     }
 
@@ -151,7 +169,7 @@ class PageForm extends Component
             // Decode JSON for specific types
             if (in_array($block->type, ['checkbox', 'gallery', 'posts', 'repeater'])) {
                 $value = is_string($value) ? json_decode($value, true) : $value;
-                if ($block->type === 'repeater' && !is_array($value)) {
+                if ($block->type === 'repeater' && ! is_array($value)) {
                     $value = [];
                 }
             }
@@ -175,16 +193,18 @@ class PageForm extends Component
         // Hydrate per-locale snapshots from translations JSON for fields the form binds to.
         $translations = $this->page->translations ?? [];
         foreach ($translations as $locale => $fields) {
-            if ($locale === Page::defaultLocale()) continue;
+            if ($locale === Page::defaultLocale()) {
+                continue;
+            }
             $seo = is_array($fields['seo'] ?? null) ? $fields['seo'] : [];
             $this->localizedSnapshots[$locale] = [
-                'title'           => $fields['title'] ?? '',
-                'slug'            => $fields['slug'] ?? '',
-                'metaTitle'       => $seo['meta_title'] ?? '',
+                'title' => $fields['title'] ?? '',
+                'slug' => $fields['slug'] ?? '',
+                'metaTitle' => $seo['meta_title'] ?? '',
                 'metaDescription' => $seo['meta_description'] ?? '',
-                'ogTitle'         => $seo['og_title'] ?? '',
-                'ogDescription'   => $seo['og_description'] ?? '',
-                'ogImage'         => $seo['og_image'] ?? null,
+                'ogTitle' => $seo['og_title'] ?? '',
+                'ogDescription' => $seo['og_description'] ?? '',
+                'ogImage' => $seo['og_image'] ?? null,
             ];
         }
 
@@ -200,11 +220,15 @@ class PageForm extends Component
         $defaultLocale = Page::defaultLocale();
 
         foreach ($this->blocks as $bi => $block) {
-            if (empty($block['id']) || !isset($blockRows[$block['id']])) continue;
+            if (empty($block['id']) || ! isset($blockRows[$block['id']])) {
+                continue;
+            }
 
             $rowTrans = $blockRows[$block['id']]->translations ?? [];
             foreach ($rowTrans as $locale => $fields) {
-                if ($locale === $defaultLocale) continue;
+                if ($locale === $defaultLocale) {
+                    continue;
+                }
                 $value = $fields['value'] ?? null;
                 // Decode JSON for repeater (whole rows array stored as JSON string)
                 if ($block['type'] === 'repeater' && is_string($value)) {
@@ -222,8 +246,12 @@ class PageForm extends Component
      */
     public function switchLocale(string $newLocale): void
     {
-        if ($newLocale === $this->editingLocale) return;
-        if (!in_array($newLocale, $this->availableLocales, true)) return;
+        if ($newLocale === $this->editingLocale) {
+            return;
+        }
+        if (! in_array($newLocale, $this->availableLocales, true)) {
+            return;
+        }
 
         $prevLocale = $this->editingLocale;
 
@@ -235,13 +263,13 @@ class PageForm extends Component
 
         // 3. Load NEW locale's Page-level form fields
         $next = $this->localizedSnapshots[$newLocale] ?? [];
-        $this->title           = $next['title']           ?? '';
-        $this->slug            = $next['slug']            ?? '';
-        $this->metaTitle       = $next['metaTitle']       ?? '';
+        $this->title = $next['title'] ?? '';
+        $this->slug = $next['slug'] ?? '';
+        $this->metaTitle = $next['metaTitle'] ?? '';
         $this->metaDescription = $next['metaDescription'] ?? '';
-        $this->ogTitle         = $next['ogTitle']         ?? '';
-        $this->ogDescription   = $next['ogDescription']   ?? '';
-        $this->ogImage         = $next['ogImage']         ?? null;
+        $this->ogTitle = $next['ogTitle'] ?? '';
+        $this->ogDescription = $next['ogDescription'] ?? '';
+        $this->ogImage = $next['ogImage'] ?? null;
 
         // 4. Apply NEW locale's block values into $blocks (atomic blocks unchanged)
         $this->applyBlocksFromLocale($newLocale);
@@ -253,7 +281,9 @@ class PageForm extends Component
     protected function snapshotBlocksToLocale(string $locale): void
     {
         foreach ($this->blocks as $bi => $block) {
-            if (!$this->isTranslatableBlockType($block['type'] ?? '')) continue;
+            if (! $this->isTranslatableBlockType($block['type'] ?? '')) {
+                continue;
+            }
             $this->localizedBlockValues[$locale][$bi]['value'] = $block['value'] ?? null;
         }
     }
@@ -263,7 +293,9 @@ class PageForm extends Component
         $defaultLocale = Page::defaultLocale();
 
         foreach ($this->blocks as $bi => $block) {
-            if (!$this->isTranslatableBlockType($block['type'] ?? '')) continue;
+            if (! $this->isTranslatableBlockType($block['type'] ?? '')) {
+                continue;
+            }
 
             $snap = $this->localizedBlockValues[$locale][$bi]['value'] ?? null;
 
@@ -290,13 +322,13 @@ class PageForm extends Component
     protected function currentLocaleFormSnapshot(): array
     {
         return [
-            'title'           => $this->title,
-            'slug'            => $this->slug,
-            'metaTitle'       => $this->metaTitle,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'metaTitle' => $this->metaTitle,
             'metaDescription' => $this->metaDescription,
-            'ogTitle'         => $this->ogTitle,
-            'ogDescription'   => $this->ogDescription,
-            'ogImage'         => $this->ogImage,
+            'ogTitle' => $this->ogTitle,
+            'ogDescription' => $this->ogDescription,
+            'ogImage' => $this->ogImage,
         ];
     }
 
@@ -324,7 +356,7 @@ class PageForm extends Component
 
     public function updatedTitle($value)
     {
-        if (!$this->manualSlug && !$this->isEdit) {
+        if (! $this->manualSlug && ! $this->isEdit) {
             $this->slug = $this->makeUniqueSlug(Str::slug($value));
         }
         $this->hasUnsavedChanges = true;
@@ -345,13 +377,15 @@ class PageForm extends Component
 
     protected function makeUniqueSlug(string $slug): string
     {
-        if (empty($slug)) return '';
+        if (empty($slug)) {
+            return '';
+        }
 
         $original = $slug;
         $counter = 2;
 
         while (Page::where('slug', $slug)->where('id', '!=', $this->pageId ?? 0)->exists()) {
-            $slug = $original . '-' . $counter;
+            $slug = $original.'-'.$counter;
             $counter++;
         }
 
@@ -384,16 +418,16 @@ class PageForm extends Component
             }
 
             $this->blocks[] = [
-                'id'             => null,
-                'name'           => $blockDef['name'],
-                'type'           => $blockDef['type'],
-                'label'          => $blockDef['label'] ?? ucfirst(str_replace('_', ' ', $blockDef['name'])),
-                'value'          => $blockDef['default'] ?? $this->getDefaultValue($blockDef['type']),
-                'options'        => $blockDef['options'] ?? $this->getDefaultOptions($blockDef['type']),
-                'order'          => count($this->blocks),
-                'is_active'      => true,
-                'is_configured'  => true, // pre-configured — skip setup mode
-                'children'       => [],
+                'id' => null,
+                'name' => $blockDef['name'],
+                'type' => $blockDef['type'],
+                'label' => $blockDef['label'] ?? ucfirst(str_replace('_', ' ', $blockDef['name'])),
+                'value' => $blockDef['default'] ?? $this->getDefaultValue($blockDef['type']),
+                'options' => $blockDef['options'] ?? $this->getDefaultOptions($blockDef['type']),
+                'order' => count($this->blocks),
+                'is_active' => true,
+                'is_configured' => true, // pre-configured — skip setup mode
+                'children' => [],
             ];
         }
     }
@@ -457,13 +491,13 @@ class PageForm extends Component
 
     public function duplicateBlock(int $index)
     {
-        if (!isset($this->blocks[$index])) {
+        if (! isset($this->blocks[$index])) {
             return;
         }
 
         $block = $this->blocks[$index];
         $block['id'] = null;
-        $block['name'] = $block['name'] . '_copy';
+        $block['name'] = $block['name'].'_copy';
         $block['order'] = count($this->blocks);
         $block['is_configured'] = false; // Put duplicate in config mode
 
@@ -471,6 +505,7 @@ class PageForm extends Component
         if (isset($block['children'])) {
             $block['children'] = array_map(function ($child) {
                 $child['id'] = null;
+
                 return $child;
             }, $block['children']);
         }
@@ -522,7 +557,7 @@ class PageForm extends Component
     public function toggleBlockActive(int $index)
     {
         if (isset($this->blocks[$index])) {
-            $this->blocks[$index]['is_active'] = !$this->blocks[$index]['is_active'];
+            $this->blocks[$index]['is_active'] = ! $this->blocks[$index]['is_active'];
             $this->hasUnsavedChanges = true;
         }
     }
@@ -534,6 +569,7 @@ class PageForm extends Component
         // Validate block name is set
         if (empty($this->blocks[$index]['name'])) {
             $this->addError("blocks.{$index}.name", 'Block name is required.');
+
             return;
         }
 
@@ -541,6 +577,7 @@ class PageForm extends Component
         foreach ($this->blocks as $i => $block) {
             if ($i !== $index && $block['name'] === $this->blocks[$index]['name']) {
                 $this->addError("blocks.{$index}.name", 'Block name must be unique.');
+
                 return;
             }
         }
@@ -561,15 +598,15 @@ class PageForm extends Component
     // This adds a FIELD definition to the repeater schema
     public function addRepeaterItem(int $blockIndex)
     {
-        if (!isset($this->blocks[$blockIndex]['children'])) {
+        if (! isset($this->blocks[$blockIndex]['children'])) {
             $this->blocks[$blockIndex]['children'] = [];
         }
 
         $this->blocks[$blockIndex]['children'][] = [
             'id' => null,
-            'name' => 'field_' . count($this->blocks[$blockIndex]['children']),
+            'name' => 'field_'.count($this->blocks[$blockIndex]['children']),
             'type' => 'text',
-            'label' => 'Field ' . (count($this->blocks[$blockIndex]['children']) + 1),
+            'label' => 'Field '.(count($this->blocks[$blockIndex]['children']) + 1),
             'value' => '',
             'options' => [],
             'order' => count($this->blocks[$blockIndex]['children']),
@@ -626,10 +663,10 @@ class PageForm extends Component
 
     public function addRepeaterRow(int $blockIndex)
     {
-        if (!isset($this->blocks[$blockIndex]['value']) || !is_array($this->blocks[$blockIndex]['value'])) {
-             $this->blocks[$blockIndex]['value'] = [];
+        if (! isset($this->blocks[$blockIndex]['value']) || ! is_array($this->blocks[$blockIndex]['value'])) {
+            $this->blocks[$blockIndex]['value'] = [];
         }
-        
+
         // Initialize an empty row with keys based on children fields
         $newRow = [];
         foreach ($this->blocks[$blockIndex]['children'] ?? [] as $field) {
@@ -647,12 +684,12 @@ class PageForm extends Component
             $this->hasUnsavedChanges = true;
         }
     }
-    
+
     // === CHOICE OPTIONS FOR SELECT/RADIO/CHECKBOX ===
 
     public function addChoice(int $blockIndex)
     {
-        if (!isset($this->blocks[$blockIndex]['options']['choices'])) {
+        if (! isset($this->blocks[$blockIndex]['options']['choices'])) {
             $this->blocks[$blockIndex]['options']['choices'] = [];
         }
 
@@ -698,12 +735,12 @@ class PageForm extends Component
             $parts = explode('_', $this->mediaPickerField);
             if (count($parts) >= 4) {
                 // remove "repeater"
-                array_shift($parts); 
+                array_shift($parts);
                 $blockIndex = (int) array_shift($parts);
                 $rowIndex = (int) array_shift($parts);
                 // field name can contain underscores, so join the rest
                 $fieldName = implode('_', $parts);
-                
+
                 if (isset($this->blocks[$blockIndex]['value'][$rowIndex])) {
                     $this->blocks[$blockIndex]['value'][$rowIndex][$fieldName] = $mediaPath;
                 }
@@ -742,16 +779,17 @@ class PageForm extends Component
         $blockNames = array_column($this->blocks, 'name');
         if (count($blockNames) !== count(array_unique($blockNames))) {
             $this->addError('blocks', 'Block names must be unique within the page.');
+
             return;
         }
 
         $defaultLocale = Page::defaultLocale();
-        $defaultSnap   = $this->localizedSnapshots[$defaultLocale] ?? $this->currentLocaleFormSnapshot();
+        $defaultSnap = $this->localizedSnapshots[$defaultLocale] ?? $this->currentLocaleFormSnapshot();
 
         // Build default-locale data for the row columns
         $pageData = [
             'title' => $defaultSnap['title'] ?? $this->title,
-            'slug'  => $defaultSnap['slug']  ?? $this->slug,
+            'slug' => $defaultSnap['slug'] ?? $this->slug,
             'parent_id' => $this->parentId,
             'menu_order' => $this->menuOrder,
             'status' => $this->status,
@@ -760,31 +798,33 @@ class PageForm extends Component
             'template' => $this->template,
             'featured_image' => $this->featuredImage,
             'seo' => array_filter([
-                'meta_title'       => ($defaultSnap['metaTitle']       ?? '') ?: null,
+                'meta_title' => ($defaultSnap['metaTitle'] ?? '') ?: null,
                 'meta_description' => ($defaultSnap['metaDescription'] ?? '') ?: null,
-                'og_title'         => ($defaultSnap['ogTitle']         ?? '') ?: null,
-                'og_description'   => ($defaultSnap['ogDescription']   ?? '') ?: null,
-                'og_image'         => $defaultSnap['ogImage']          ?? null,
+                'og_title' => ($defaultSnap['ogTitle'] ?? '') ?: null,
+                'og_description' => ($defaultSnap['ogDescription'] ?? '') ?: null,
+                'og_image' => $defaultSnap['ogImage'] ?? null,
             ]),
         ];
 
         // Build translations JSON from snapshots for non-default locales
         $translations = [];
         foreach ($this->localizedSnapshots as $locale => $snap) {
-            if ($locale === $defaultLocale) continue;
+            if ($locale === $defaultLocale) {
+                continue;
+            }
             $seo = array_filter([
-                'meta_title'       => ($snap['metaTitle']       ?? '') ?: null,
+                'meta_title' => ($snap['metaTitle'] ?? '') ?: null,
                 'meta_description' => ($snap['metaDescription'] ?? '') ?: null,
-                'og_title'         => ($snap['ogTitle']         ?? '') ?: null,
-                'og_description'   => ($snap['ogDescription']   ?? '') ?: null,
-                'og_image'         => $snap['ogImage']          ?? null,
+                'og_title' => ($snap['ogTitle'] ?? '') ?: null,
+                'og_description' => ($snap['ogDescription'] ?? '') ?: null,
+                'og_image' => $snap['ogImage'] ?? null,
             ]);
             $localeFields = array_filter([
                 'title' => ($snap['title'] ?? '') ?: null,
-                'slug'  => ($snap['slug']  ?? '') ?: null,
-                'seo'   => !empty($seo) ? $seo : null,
+                'slug' => ($snap['slug'] ?? '') ?: null,
+                'seo' => ! empty($seo) ? $seo : null,
             ], fn ($v) => $v !== null);
-            if (!empty($localeFields)) {
+            if (! empty($localeFields)) {
                 $translations[$locale] = $localeFields;
             }
         }
@@ -841,9 +881,13 @@ class PageForm extends Component
             $blockTranslations = [];
             if ($this->isTranslatableBlockType($blockData['type'] ?? '')) {
                 foreach ($this->localizedBlockValues as $locale => $snaps) {
-                    if ($locale === $defaultLocale) continue;
+                    if ($locale === $defaultLocale) {
+                        continue;
+                    }
                     $v = $snaps[$index]['value'] ?? null;
-                    if ($v === null || $v === '' || (is_array($v) && empty($v))) continue;
+                    if ($v === null || $v === '' || (is_array($v) && empty($v))) {
+                        continue;
+                    }
                     if ($blockData['type'] === 'repeater' && is_array($v)) {
                         $v = json_encode($v);
                     }
@@ -888,8 +932,9 @@ class PageForm extends Component
         $blocksSnapshot = $this->page->allBlocks->map(function ($block) {
             $data = $block->toArray();
             if ($block->type === 'repeater') {
-                $data['children'] = $block->childBlocks->map(fn($child) => $child->toArray())->toArray();
+                $data['children'] = $block->childBlocks->map(fn ($child) => $child->toArray())->toArray();
             }
+
             return $data;
         })->toArray();
 
@@ -922,7 +967,7 @@ class PageForm extends Component
 
     public function autosave()
     {
-        if (!$this->hasUnsavedChanges || !$this->isEdit) {
+        if (! $this->hasUnsavedChanges || ! $this->isEdit) {
             return;
         }
 
@@ -938,13 +983,13 @@ class PageForm extends Component
 
     public function toggleSeoSettings()
     {
-        $this->showSeoSettings = !$this->showSeoSettings;
+        $this->showSeoSettings = ! $this->showSeoSettings;
     }
 
     public function render()
     {
         $parentPages = Page::whereNull('parent_id')
-            ->when($this->pageId, fn($q) => $q->where('id', '!=', $this->pageId))
+            ->when($this->pageId, fn ($q) => $q->where('id', '!=', $this->pageId))
             ->orderBy('title')
             ->get();
 

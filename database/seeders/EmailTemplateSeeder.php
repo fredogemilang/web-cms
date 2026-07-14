@@ -12,8 +12,8 @@ class EmailTemplateSeeder extends Seeder
         $templates = [
             [
                 'key_name' => 'password_reset',
-                'name'     => 'Password Reset',
-                'subject'  => 'Reset Password — {{ site.name }}',
+                'name' => 'Password Reset',
+                'subject' => 'Reset Password — {{ site.name }}',
                 'description' => 'Sent when a user requests a password reset.',
                 'variables' => [
                     'user.name' => 'Name of the recipient',
@@ -32,8 +32,8 @@ class EmailTemplateSeeder extends Seeder
             ],
             [
                 'key_name' => 'user_invited',
-                'name'     => 'User Invited',
-                'subject'  => 'Anda diundang ke {{ site.name }}',
+                'name' => 'User Invited',
+                'subject' => 'Anda diundang ke {{ site.name }}',
                 'variables' => [
                     'user.name' => 'Name of the recipient',
                     'inviter.name' => 'Name of the person who invited',
@@ -48,8 +48,8 @@ class EmailTemplateSeeder extends Seeder
             ],
             [
                 'key_name' => 'form_notification',
-                'name'     => 'Form Submission Notification',
-                'subject'  => 'Submission baru di form: {{ form.name }}',
+                'name' => 'Form Submission Notification',
+                'subject' => 'Submission baru di form: {{ form.name }}',
                 'variables' => [
                     'form.name' => 'Form display name',
                     'form.url' => 'Public URL of the form',

@@ -9,10 +9,15 @@ use Livewire\Component;
 class MediaDetails extends Component
 {
     public $mediaId;
+
     public $media;
+
     public $alt_text;
+
     public $title;
+
     public $description;
+
     public $showModal = false;
 
     protected $rules = [
@@ -38,8 +43,9 @@ class MediaDetails extends Component
 
     public function save()
     {
-        if (!auth()->user()->can('media.edit')) {
+        if (! auth()->user()->can('media.edit')) {
             session()->flash('error', 'You do not have permission to edit media.');
+
             return;
         }
 
@@ -55,18 +61,19 @@ class MediaDetails extends Component
 
             session()->flash('success', 'Media updated successfully.');
             $this->dispatch('media-updated');
-            
+
             // Dispatch event to close modal with animation
             $this->dispatch('closeMediaDetails');
         } catch (\Exception $e) {
-            session()->flash('error', 'Update failed: ' . $e->getMessage());
+            session()->flash('error', 'Update failed: '.$e->getMessage());
         }
     }
 
     public function delete()
     {
-        if (!auth()->user()->can('media.delete')) {
+        if (! auth()->user()->can('media.delete')) {
             session()->flash('error', 'You do not have permission to delete media.');
+
             return;
         }
 
@@ -74,11 +81,11 @@ class MediaDetails extends Component
             $this->media->delete();
             session()->flash('success', 'Media deleted successfully.');
             $this->dispatch('media-deleted');
-            
+
             // Dispatch event to close modal with animation
             $this->dispatch('closeMediaDetails');
         } catch (\Exception $e) {
-            session()->flash('error', 'Delete failed: ' . $e->getMessage());
+            session()->flash('error', 'Delete failed: '.$e->getMessage());
         }
     }
 

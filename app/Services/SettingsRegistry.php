@@ -37,17 +37,17 @@ class SettingsRegistry
         usort($fields, fn ($a, $b) => ($a['order'] ?? 100) <=> ($b['order'] ?? 100));
 
         $this->groups[$slug] = [
-            'slug'       => $slug,
-            'label'      => $config['label'] ?? ucfirst($slug),
-            'icon'       => $config['icon'] ?? 'settings',
+            'slug' => $slug,
+            'label' => $config['label'] ?? ucfirst($slug),
+            'icon' => $config['icon'] ?? 'settings',
             'permission' => $config['permission'] ?? 'settings.view',
-            'order'      => $config['order'] ?? 100,
+            'order' => $config['order'] ?? 100,
             'description' => $config['description'] ?? null,
             // Optional custom Livewire component (e.g. 'admin.redirects.redirect-table').
             // When set, SettingsPage renders this component instead of the generic field form.
-            'component'  => $config['component'] ?? null,
-            'actions'    => $config['actions'] ?? [],
-            'fields'     => $existing
+            'component' => $config['component'] ?? null,
+            'actions' => $config['actions'] ?? [],
+            'fields' => $existing
                 ? $this->mergeFields($existing['fields'], $fields)
                 : $fields,
         ];
@@ -57,6 +57,7 @@ class SettingsRegistry
     {
         $sorted = $this->groups;
         uasort($sorted, fn ($a, $b) => $a['order'] <=> $b['order']);
+
         return $sorted;
     }
 
@@ -81,6 +82,7 @@ class SettingsRegistry
         foreach ($this->fields($slug) as $field) {
             $out[$field['key']] = $field['default'] ?? null;
         }
+
         return $out;
     }
 
@@ -90,6 +92,7 @@ class SettingsRegistry
         foreach ($this->fields($slug) as $field) {
             $out[$field['key']] = $field['rules'] ?? ['nullable'];
         }
+
         return $out;
     }
 
@@ -99,6 +102,7 @@ class SettingsRegistry
         foreach ($this->fields($slug) as $field) {
             $out[$field['key']] = $field['label'] ?? $field['key'];
         }
+
         return $out;
     }
 
@@ -110,10 +114,15 @@ class SettingsRegistry
     protected function mergeFields(array $existing, array $incoming): array
     {
         $byKey = [];
-        foreach ($existing as $f) $byKey[$f['key']] = $f;
-        foreach ($incoming as $f) $byKey[$f['key']] = $f;
+        foreach ($existing as $f) {
+            $byKey[$f['key']] = $f;
+        }
+        foreach ($incoming as $f) {
+            $byKey[$f['key']] = $f;
+        }
         $merged = array_values($byKey);
         usort($merged, fn ($a, $b) => ($a['order'] ?? 100) <=> ($b['order'] ?? 100));
+
         return $merged;
     }
 }

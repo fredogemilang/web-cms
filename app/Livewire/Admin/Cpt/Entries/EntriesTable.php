@@ -13,10 +13,15 @@ class EntriesTable extends Component
     use WithPagination;
 
     public CustomPostType $postType;
+
     public string $search = '';
+
     public string $status = '';
+
     public string $sortField = 'created_at';
+
     public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     protected $queryString = [
@@ -52,6 +57,7 @@ class EntriesTable extends Component
     }
 
     public array $selectedEntries = [];
+
     public bool $selectAll = false;
 
     // ... existing properties ...
@@ -60,7 +66,7 @@ class EntriesTable extends Component
     {
         if ($value) {
             $query = CptEntry::where('post_type_id', $this->postType->id);
-            
+
             if ($this->status === 'trash') {
                 $query->onlyTrashed();
             } elseif ($this->status) {
@@ -69,12 +75,12 @@ class EntriesTable extends Component
 
             if ($this->search) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('slug', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('slug', 'like', '%'.$this->search.'%');
                 });
             }
 
-            $this->selectedEntries = $query->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selectedEntries = $query->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedEntries = [];
         }
@@ -94,7 +100,7 @@ class EntriesTable extends Component
     public function deleteSelected()
     {
         $count = count($this->selectedEntries);
-        
+
         CptEntry::whereIn('id', $this->selectedEntries)
             ->where('post_type_id', $this->postType->id)
             ->delete();
@@ -110,7 +116,7 @@ class EntriesTable extends Component
     public function restoreSelected()
     {
         $count = count($this->selectedEntries);
-        
+
         CptEntry::withTrashed()
             ->whereIn('id', $this->selectedEntries)
             ->where('post_type_id', $this->postType->id)
@@ -127,7 +133,7 @@ class EntriesTable extends Component
     public function forceDeleteSelected()
     {
         $count = count($this->selectedEntries);
-        
+
         CptEntry::withTrashed()
             ->whereIn('id', $this->selectedEntries)
             ->where('post_type_id', $this->postType->id)
@@ -144,7 +150,7 @@ class EntriesTable extends Component
     public function publishSelected()
     {
         $count = count($this->selectedEntries);
-        
+
         CptEntry::whereIn('id', $this->selectedEntries)
             ->where('post_type_id', $this->postType->id)
             ->update(['status' => 'published']);
@@ -160,7 +166,7 @@ class EntriesTable extends Component
     public function draftSelected()
     {
         $count = count($this->selectedEntries);
-        
+
         CptEntry::whereIn('id', $this->selectedEntries)
             ->where('post_type_id', $this->postType->id)
             ->update(['status' => 'draft']);
@@ -243,8 +249,8 @@ class EntriesTable extends Component
         // Search
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('title', 'like', '%' . $this->search . '%')
-                  ->orWhere('slug', 'like', '%' . $this->search . '%');
+                $q->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('slug', 'like', '%'.$this->search.'%');
             });
         }
 

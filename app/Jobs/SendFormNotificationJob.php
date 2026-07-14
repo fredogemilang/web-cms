@@ -23,6 +23,7 @@ class SendFormNotificationJob implements ShouldQueue
 
     /** Retry the whole notification chain up to 3 times with backoff. */
     public int $tries = 3;
+
     public array $backoff = [60, 300, 900]; // 1m → 5m → 15m
 
     public function __construct(
@@ -32,10 +33,10 @@ class SendFormNotificationJob implements ShouldQueue
 
     public function handle(FormNotificationService $service): void
     {
-        $form  = Form::with('fields')->find($this->formId);
+        $form = Form::with('fields')->find($this->formId);
         $entry = FormEntry::find($this->entryId);
 
-        if (!$form || !$entry) {
+        if (! $form || ! $entry) {
             // Entry/form deleted between dispatch and handling — nothing to do.
             return;
         }
@@ -46,9 +47,9 @@ class SendFormNotificationJob implements ShouldQueue
     public function failed(\Throwable $e): void
     {
         Log::error('Form notification job permanently failed', [
-            'form_id'  => $this->formId,
+            'form_id' => $this->formId,
             'entry_id' => $this->entryId,
-            'error'    => $e->getMessage(),
+            'error' => $e->getMessage(),
         ]);
     }
 }

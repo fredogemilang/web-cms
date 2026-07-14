@@ -4,16 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         $tables = [
-            'pages'       => 'settings',  // pages.settings exists
+            'pages' => 'settings',  // pages.settings exists
             'cpt_entries' => 'meta',      // cpt_entries.meta exists
         ];
 
         foreach ($tables as $tbl => $afterCol) {
-            if (Schema::hasTable($tbl) && !Schema::hasColumn($tbl, 'translations')) {
+            if (Schema::hasTable($tbl) && ! Schema::hasColumn($tbl, 'translations')) {
                 Schema::table($tbl, function (Blueprint $table) use ($afterCol) {
                     $table->json('translations')->nullable()->after($afterCol);
                 });

@@ -10,7 +10,7 @@ class LoginThrottle
 {
     public function key(Request $request): string
     {
-        return Str::lower((string) $request->input('email')) . '|' . $request->ip();
+        return Str::lower((string) $request->input('email')).'|'.$request->ip();
     }
 
     public function maxAttempts(): int

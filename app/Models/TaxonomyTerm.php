@@ -112,12 +112,12 @@ class TaxonomyTerm extends Model
     {
         $ancestors = collect();
         $parent = $this->parent;
-        
+
         while ($parent) {
             $ancestors->push($parent);
             $parent = $parent->parent;
         }
-        
+
         return $ancestors->reverse();
     }
 }

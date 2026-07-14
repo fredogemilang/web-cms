@@ -26,10 +26,10 @@ class AuthController extends Controller
             'two_factor_code' => ['nullable', 'string', 'max:64'],
         ]);
 
-        $key = 'api-login|' . $request->ip();
+        $key = 'api-login|'.$request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             throw ValidationException::withMessages([
-                'email' => 'Too many attempts. Wait ' . RateLimiter::availableIn($key) . 's.',
+                'email' => 'Too many attempts. Wait '.RateLimiter::availableIn($key).'s.',
             ]);
         }
 
@@ -101,13 +101,17 @@ class AuthController extends Controller
         if ($token instanceof ApiToken) {
             $token->delete();
         }
+
         return response()->json(['ok' => true]);
     }
 
     public function me(Request $request)
     {
         $user = $request->user();
-        if (! $user) return response()->json(['error' => 'Unauthenticated'], 401);
+        if (! $user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,

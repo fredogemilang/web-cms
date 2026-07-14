@@ -2,13 +2,16 @@
 
 namespace Plugins\Posts\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Event;
-use Livewire\Livewire;
 use App\Events\RenderAdminMenu;
-use Plugins\Posts\Livewire\PostsTable;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use Plugins\Posts\Livewire\BlogList;
+use Plugins\Posts\Livewire\CategoriesManager;
 use Plugins\Posts\Livewire\PostForm;
+use Plugins\Posts\Livewire\PostsTable;
+use Plugins\Posts\Livewire\Settings;
+use Plugins\Posts\Livewire\WordPressMigration;
 
 class PostsServiceProvider extends ServiceProvider
 {
@@ -20,21 +23,21 @@ class PostsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load Routes
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+
         // Load Views
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'posts');
-        
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'posts');
+
         // Load Migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         // Register Livewire Components
         Livewire::component('plugins.posts-table', PostsTable::class);
         Livewire::component('plugins.post-form', PostForm::class);
-        Livewire::component('plugins.categories-manager', \Plugins\Posts\Livewire\CategoriesManager::class);
-        Livewire::component('plugins.posts-settings', \Plugins\Posts\Livewire\Settings::class);
-        Livewire::component('plugins.wordpress-migration', \Plugins\Posts\Livewire\WordPressMigration::class);
-        Livewire::component('posts.blog-list', \Plugins\Posts\Livewire\BlogList::class);
+        Livewire::component('plugins.categories-manager', CategoriesManager::class);
+        Livewire::component('plugins.posts-settings', Settings::class);
+        Livewire::component('plugins.wordpress-migration', WordPressMigration::class);
+        Livewire::component('posts.blog-list', BlogList::class);
 
         // Register menu items via event (PRD Section 9.1)
         Event::listen(RenderAdminMenu::class, function (RenderAdminMenu $event) {

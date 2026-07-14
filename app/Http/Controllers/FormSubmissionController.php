@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Form;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class FormSubmissionController extends Controller
 {
@@ -34,7 +33,7 @@ class FormSubmissionController extends Controller
         // Process the submission (validation + entry creation + notifications)
         $result = $form->processSubmission($request->all(), $request);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return back()
                 ->withErrors($result['errors'])
                 ->withInput();
@@ -50,13 +49,14 @@ class FormSubmissionController extends Controller
         switch ($confirmationType) {
             case 'redirect':
                 $redirectUrl = $confirmations['redirect_url'] ?? url('/');
+
                 return redirect($redirectUrl)->with('success', $successMessage);
-            
+
             case 'success_page':
                 // Redirect to form's dedicated success page
                 return redirect()->route('forms.success', $slug)
                     ->with('form_success_message', $successMessage);
-            
+
             case 'message':
             default:
                 return back()->with('success', $successMessage);
@@ -69,7 +69,7 @@ class FormSubmissionController extends Controller
     public function success($slug)
     {
         $form = Form::where('slug', $slug)->firstOrFail();
-        
+
         $confirmations = $form->confirmations ?? [];
         $title = $confirmations['success_title'] ?? 'Thank You!';
         $message = $confirmations['success_description'] ?? 'Thank you for your submission!';
@@ -90,7 +90,7 @@ class FormSubmissionController extends Controller
         // Process the submission (validation + entry creation + notifications)
         $result = $form->processSubmission($request->all(), $request);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json([
                 'success' => false,
                 'errors' => $result['errors'],
@@ -101,9 +101,9 @@ class FormSubmissionController extends Controller
         $successMessage = $confirmations['message'] ?? 'Form submitted successfully!';
 
         return response()->json([
-            'success'      => true,
-            'message'      => $successMessage,
-            'entry_id'     => $result['entry']->id,
+            'success' => true,
+            'message' => $successMessage,
+            'entry_id' => $result['entry']->id,
             'redirect_url' => ($confirmations['type'] ?? null) === 'redirect'
                 ? ($confirmations['redirect_url'] ?? null)
                 : null,

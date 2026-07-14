@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\Form;
 use App\Models\FormEntry;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class FormNotificationService
 {
@@ -15,38 +15,38 @@ class FormNotificationService
     public function sendNotifications(Form $form, FormEntry $entry): void
     {
         $notifications = $form->notifications ?? [];
-        
+
         if (empty($notifications['enabled'])) {
             return;
         }
-        
+
         try {
             // Send admin notification
             $this->sendAdminNotification($form, $entry, $notifications);
-            
+
             // Send user confirmation if enabled
-            if (!empty($notifications['send_to_user'])) {
+            if (! empty($notifications['send_to_user'])) {
                 $this->sendUserConfirmation($form, $entry, $notifications);
             }
         } catch (\Exception $e) {
-            Log::error('Form notification failed: ' . $e->getMessage(), [
+            Log::error('Form notification failed: '.$e->getMessage(), [
                 'form_id' => $form->id,
                 'entry_id' => $entry->id,
             ]);
         }
     }
-    
+
     /**
      * Send notification email to admin.
      */
     protected function sendAdminNotification(Form $form, FormEntry $entry, array $notifications): void
     {
         $adminEmail = $notifications['admin_email'] ?? config('mail.from.address');
-        
+
         if (empty($adminEmail)) {
             return;
         }
-        
+
         $subject = $notifications['subject'] ?? "New Form Submission: {$form->name}";
         $data = $entry->data ?? [];
 
@@ -62,7 +62,7 @@ class FormNotificationService
             }
         });
     }
-    
+
     /**
      * Send confirmation email to user.
      */
@@ -70,23 +70,23 @@ class FormNotificationService
     {
         $data = $entry->data ?? [];
         $userEmail = $this->findUserEmailFromData($form, $data);
-        
+
         if (empty($userEmail)) {
             return;
         }
-        
+
         $subject = "Thank you for your submission - {$form->name}";
         $confirmations = $form->confirmations ?? [];
         $message = $confirmations['message'] ?? 'Thank you for your submission. We will get back to you soon.';
-        
+
         $html = $this->buildUserConfirmationHtml($form, $message, $data);
-        
+
         Mail::html($html, function ($mail) use ($userEmail, $subject) {
             $mail->to($userEmail)
                 ->subject($subject);
         });
     }
-    
+
     /**
      * Find user email from form data.
      */
@@ -96,23 +96,23 @@ class FormNotificationService
         foreach ($form->fields as $field) {
             if ($field->type === 'email') {
                 $email = $data[$field->field_id] ?? null;
-                if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                if (! empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
                     return $email;
                 }
             }
         }
-        
+
         // Check common field names
         $emailFields = ['email', 'user_email', 'contact_email', 'your_email'];
         foreach ($emailFields as $fieldName) {
-            if (!empty($data[$fieldName]) && filter_var($data[$fieldName], FILTER_VALIDATE_EMAIL)) {
+            if (! empty($data[$fieldName]) && filter_var($data[$fieldName], FILTER_VALIDATE_EMAIL)) {
                 return $data[$fieldName];
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Build HTML for admin notification email.
      */
@@ -120,7 +120,7 @@ class FormNotificationService
     {
         $formUrl = route('admin.forms.entries', $form->id);
         $timestamp = $entry->created_at->format('F j, Y \a\t g:i A');
-        
+
         $html = '
         <!DOCTYPE html>
         <html>
@@ -144,43 +144,43 @@ class FormNotificationService
             <div class="container">
                 <div class="header">
                     <h1>📬 New Submission</h1>
-                    <p style="margin: 5px 0 0; opacity: 0.9;">' . e($form->name) . '</p>
+                    <p style="margin: 5px 0 0; opacity: 0.9;">'.e($form->name).'</p>
                 </div>
                 <div class="content">';
-        
+
         foreach ($form->fields as $field) {
             // Skip layout fields
             if (in_array($field->type, ['section', 'divider', 'html'])) {
                 continue;
             }
-            
+
             $value = $data[$field->field_id] ?? '';
-            
+
             // Format array values
             if (is_array($value)) {
                 $value = implode(', ', array_filter($value));
             }
-            
+
             if (empty($value)) {
                 $value = '<em style="color: #9ca3af;">Not provided</em>';
             } else {
                 $value = e($value);
             }
-            
+
             $html .= '
                     <div class="field">
-                        <div class="field-label">' . e($field->label) . '</div>
-                        <div class="field-value">' . $value . '</div>
+                        <div class="field-label">'.e($field->label).'</div>
+                        <div class="field-value">'.$value.'</div>
                     </div>';
         }
-        
+
         $html .= '
                     <div class="meta">
-                        <p>📅 Submitted: ' . $timestamp . '</p>
-                        <p>🌐 IP Address: ' . ($entry->ip_address ?? 'Unknown') . '</p>
+                        <p>📅 Submitted: '.$timestamp.'</p>
+                        <p>🌐 IP Address: '.($entry->ip_address ?? 'Unknown').'</p>
                     </div>
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="' . $formUrl . '" class="btn">View All Entries</a>
+                        <a href="'.$formUrl.'" class="btn">View All Entries</a>
                     </div>
                 </div>
                 <div class="footer">
@@ -189,10 +189,10 @@ class FormNotificationService
             </div>
         </body>
         </html>';
-        
+
         return $html;
     }
-    
+
     /**
      * Build HTML for user confirmation email.
      */
@@ -201,7 +201,7 @@ class FormNotificationService
         // Find user's name if available
         $userName = $this->findUserName($data);
         $greeting = $userName ? "Dear {$userName}," : 'Hello,';
-        
+
         $html = '
         <!DOCTYPE html>
         <html>
@@ -229,33 +229,37 @@ class FormNotificationService
                     <h1>✅ Submission Received</h1>
                 </div>
                 <div class="content">
-                    <p class="message"><strong>' . $greeting . '</strong></p>
-                    <p class="message">' . nl2br(e($message)) . '</p>
+                    <p class="message"><strong>'.$greeting.'</strong></p>
+                    <p class="message">'.nl2br(e($message)).'</p>
                     
                     <div class="summary">
                         <h3>Your Submission Summary</h3>';
-        
+
         // Add submission summary (limited fields)
         $count = 0;
         foreach ($data as $key => $value) {
-            if ($count >= 5) break; // Limit to 5 fields
-            
+            if ($count >= 5) {
+                break;
+            } // Limit to 5 fields
+
             if (is_array($value)) {
                 $value = implode(', ', array_filter($value));
             }
-            if (empty($value)) continue;
-            
+            if (empty($value)) {
+                continue;
+            }
+
             // Format field name
             $label = ucwords(str_replace(['_', '-'], ' ', $key));
-            
+
             $html .= '
                         <div class="summary-item">
-                            <span class="summary-label">' . e($label) . '</span>
-                            <span class="summary-value">' . e($value) . '</span>
+                            <span class="summary-label">'.e($label).'</span>
+                            <span class="summary-value">'.e($value).'</span>
                         </div>';
             $count++;
         }
-        
+
         $html .= '
                     </div>
                 </div>
@@ -266,10 +270,10 @@ class FormNotificationService
             </div>
         </body>
         </html>';
-        
+
         return $html;
     }
-    
+
     /**
      * Find user's name from form data.
      */
@@ -279,17 +283,18 @@ class FormNotificationService
         if (isset($data['name']) && is_array($data['name'])) {
             $firstName = $data['name']['first_name'] ?? '';
             $lastName = $data['name']['last_name'] ?? '';
+
             return trim("{$firstName} {$lastName}") ?: null;
         }
-        
+
         // Check common name fields
         $nameFields = ['name', 'full_name', 'your_name', 'first_name'];
         foreach ($nameFields as $field) {
-            if (!empty($data[$field]) && is_string($data[$field])) {
+            if (! empty($data[$field]) && is_string($data[$field])) {
                 return $data[$field];
             }
         }
-        
+
         return null;
     }
 }

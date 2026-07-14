@@ -2,9 +2,8 @@
 
 namespace App\Listeners;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class UpdateLastLoginAt
 {
@@ -21,7 +20,7 @@ class UpdateLastLoginAt
      */
     public function handle(Login $event): void
     {
-        if ($event->user instanceof \App\Models\User) {
+        if ($event->user instanceof User) {
             $event->user->update([
                 'last_login_at' => now(),
             ]);

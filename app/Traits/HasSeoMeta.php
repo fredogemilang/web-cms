@@ -20,6 +20,7 @@ trait HasSeoMeta
     public function getResolvedSeoTitle(): string
     {
         $custom = $this->seoMeta?->title;
+
         return $custom ?: ($this->title ?? config('app.name'));
     }
 

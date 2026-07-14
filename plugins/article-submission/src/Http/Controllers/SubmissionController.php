@@ -4,7 +4,6 @@ namespace Plugins\ArticleSubmission\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Storage;
 use Plugins\ArticleSubmission\Models\ArticleSubmission;
 
 class SubmissionController extends Controller
@@ -22,7 +21,7 @@ class SubmissionController extends Controller
                     if (strlen($cleaned) < 9 || strlen($cleaned) > 13) {
                         $fail('The phone number must be between 9 and 13 digits.');
                     }
-                }
+                },
             ],
             'job_level' => 'required|string|max:100',
             'job_title' => 'required|string|max:255',
@@ -37,7 +36,7 @@ class SubmissionController extends Controller
             'linkedin.regex' => 'LinkedIn account must be a valid LinkedIn URL.',
         ]);
 
-        if ($validated['domicile'] === 'Other' && !empty($validated['domicile_other'])) {
+        if ($validated['domicile'] === 'Other' && ! empty($validated['domicile_other'])) {
             $validated['domicile'] = $validated['domicile_other'];
         }
         unset($validated['domicile_other']);
@@ -45,7 +44,7 @@ class SubmissionController extends Controller
         // Handle file upload
         if ($request->hasFile('article_file')) {
             $file = $request->file('article_file');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $path = $file->storeAs('article-submissions', $filename, 'public');
             $validated['article_file'] = $path;
         }

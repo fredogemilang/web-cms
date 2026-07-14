@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class Tag extends Model
 {
-    use HasTranslations, FindsByLocalizedSlug;
+    use FindsByLocalizedSlug, HasTranslations;
 
     protected $fillable = [
         'name',
@@ -27,7 +27,7 @@ class Tag extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($tag) {
             if (empty($tag->slug)) {
                 $tag->slug = Str::slug($tag->name);

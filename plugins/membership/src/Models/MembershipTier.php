@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class MembershipTier extends Model
 {
-    use SoftDeletes, HasTranslations;
+    use HasTranslations, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -92,7 +92,7 @@ class MembershipTier extends Model
      */
     public function getFormattedPriceAttribute()
     {
-        return 'Rp ' . number_format($this->price, 0, ',', '.');
+        return 'Rp '.number_format($this->price, 0, ',', '.');
     }
 
     /**
@@ -109,10 +109,10 @@ class MembershipTier extends Model
 
         $parts = [];
         if ($years > 0) {
-            $parts[] = $years . ' ' . Str::plural('year', $years);
+            $parts[] = $years.' '.Str::plural('year', $years);
         }
         if ($months > 0) {
-            $parts[] = $months . ' ' . Str::plural('month', $months);
+            $parts[] = $months.' '.Str::plural('month', $months);
         }
 
         return implode(' ', $parts);

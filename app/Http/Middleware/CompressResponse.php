@@ -35,7 +35,7 @@ class CompressResponse
     {
         $response = $next($request);
 
-        if (!$this->shouldCompress($request, $response)) {
+        if (! $this->shouldCompress($request, $response)) {
             return $response;
         }
 
@@ -59,24 +59,36 @@ class CompressResponse
 
     protected function shouldCompress(Request $request, Response $response): bool
     {
-        if (!setting('pageopt_gzip_enabled', false)) return false;
-        if (!str_contains((string) $request->header('Accept-Encoding', ''), 'gzip')) return false;
-        if ($response->headers->has('Content-Encoding')) return false;
+        if (! setting('pageopt_gzip_enabled', false)) {
+            return false;
+        }
+        if (! str_contains((string) $request->header('Accept-Encoding', ''), 'gzip')) {
+            return false;
+        }
+        if ($response->headers->has('Content-Encoding')) {
+            return false;
+        }
 
         $type = (string) $response->headers->get('Content-Type', '');
         foreach (self::COMPRESSIBLE_TYPES as $compType) {
-            if (str_contains($type, $compType)) return true;
+            if (str_contains($type, $compType)) {
+                return true;
+            }
         }
+
         return false;
     }
 
     protected function mergeVary(?string $existing, string $append): string
     {
-        if (!$existing) return $append;
+        if (! $existing) {
+            return $append;
+        }
         $parts = array_map('trim', explode(',', $existing));
-        if (!in_array(strtolower($append), array_map('strtolower', $parts), true)) {
+        if (! in_array(strtolower($append), array_map('strtolower', $parts), true)) {
             $parts[] = $append;
         }
+
         return implode(', ', $parts);
     }
 }

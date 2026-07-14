@@ -20,24 +20,24 @@ return new class extends Migration
         Schema::create('memberships', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            
+
             // Status
             $table->enum('status', ['pending', 'active', 'rejected', 'suspended'])->default('pending');
-            
+
             // Dates
             $table->date('joined_at')->nullable(); // When approved/activated
-            
+
             // Additional Info
             $table->text('notes')->nullable(); // Admin notes
             $table->json('metadata')->nullable(); // Custom fields from registration form
-            
+
             // Approval
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->dateTime('approved_at')->nullable();
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes
             $table->index(['user_id', 'status']);
             $table->unique('user_id'); // One membership per user
@@ -50,7 +50,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('memberships');
-        
+
         // Recreate old structure if needed (optional)
         // Not implementing reverse as this is a major refactor
     }

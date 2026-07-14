@@ -114,12 +114,14 @@ class SchemaBuilder
         if (! empty($entity->featured_image)) {
             return url($entity->featured_image);
         }
+
         return null;
     }
 
     protected function guessType(Model $entity): ?string
     {
         $class = class_basename($entity);
+
         return match ($class) {
             'Post' => 'BlogPosting',
             'Event' => 'Event',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -17,14 +18,15 @@ class Redirect extends Model
     ];
 
     protected $casts = [
-        'is_regex'   => 'boolean',
-        'is_active'  => 'boolean',
-        'hit_count'  => 'integer',
+        'is_regex' => 'boolean',
+        'is_active' => 'boolean',
+        'hit_count' => 'integer',
         'status_code' => 'integer',
         'last_hit_at' => 'datetime',
     ];
 
     protected const CACHE_KEY = 'redirects:active';
+
     protected const CACHE_TTL = 3600;
 
     protected static function booted(): void
@@ -45,18 +47,18 @@ class Redirect extends Model
      */
     public static function matchRequestPath(string $path): ?self
     {
-        $path = '/' . ltrim($path, '/');
+        $path = '/'.ltrim($path, '/');
         $rules = static::loadActive();
 
         // Exact (non-regex) first — cheaper and more predictable
-        $exact = $rules->first(fn ($r) => !$r->is_regex && $r->from_path === $path);
+        $exact = $rules->first(fn ($r) => ! $r->is_regex && $r->from_path === $path);
         if ($exact) {
             return $exact;
         }
 
         // Regex rules — first match wins
         foreach ($rules as $rule) {
-            if (!$rule->is_regex) {
+            if (! $rule->is_regex) {
                 continue;
             }
             $pattern = static::delimitPattern($rule->from_path);
@@ -74,7 +76,7 @@ class Redirect extends Model
 
         // Apply regex substitution if pattern uses capture groups
         if ($this->is_regex && str_contains($to, '$')) {
-            $to = @preg_replace(static::delimitPattern($this->from_path), $to, '/' . ltrim($requestPath, '/'))
+            $to = @preg_replace(static::delimitPattern($this->from_path), $to, '/'.ltrim($requestPath, '/'))
                 ?? $this->to_url;
         }
 
@@ -87,12 +89,12 @@ class Redirect extends Model
         DB::table($this->getTable())
             ->where('id', $this->id)
             ->update([
-                'hit_count'   => DB::raw('hit_count + 1'),
+                'hit_count' => DB::raw('hit_count + 1'),
                 'last_hit_at' => now(),
             ]);
     }
 
-    protected static function loadActive(): \Illuminate\Support\Collection
+    protected static function loadActive(): Collection
     {
         return Cache::remember(static::CACHE_KEY, static::CACHE_TTL, function () {
             // Tolerate missing table (fresh install before migrate) — no rules in that case.
@@ -113,6 +115,7 @@ class Redirect extends Model
         if (preg_match('/^([\/#~|!@%&]).+\1[imsxuADSUXJ]*$/', $pattern)) {
             return $pattern;
         }
-        return '#' . str_replace('#', '\\#', $pattern) . '#';
+
+        return '#'.str_replace('#', '\\#', $pattern).'#';
     }
 }

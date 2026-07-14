@@ -20,7 +20,7 @@ class CptFormTest extends TestCase
         // Ensure the user has necessary permissions if your app uses them
         // For now, just acting as the user
         $this->actingAs($user);
-        
+
         // Ensure admin path is set for tests
         config(['admin.path' => 'admin']);
     }

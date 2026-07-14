@@ -34,12 +34,12 @@ class EventGuestService
 
         DB::transaction(function () use ($event, $registration, $approvalType, $note) {
             $registration->update([
-                'status'         => 'approved',
-                'approved_at'    => now(),
-                'verified_by'    => auth()->id(),
-                'verified_at'    => now(),
-                'verified_type'  => $approvalType->type_name,
-                'verified_note'  => $note,
+                'status' => 'approved',
+                'approved_at' => now(),
+                'verified_by' => auth()->id(),
+                'verified_at' => now(),
+                'verified_type' => $approvalType->type_name,
+                'verified_note' => $note,
             ]);
 
             $event->incrementRegisteredCount();
@@ -70,12 +70,12 @@ class EventGuestService
 
         DB::transaction(function () use ($event, $registration, $approvalType, $note, $wasApproved) {
             $registration->update([
-                'status'         => 'rejected',
-                'rejected_at'    => now(),
-                'verified_by'    => auth()->id(),
-                'verified_at'    => now(),
-                'verified_type'  => $approvalType->type_name,
-                'verified_note'  => $note,
+                'status' => 'rejected',
+                'rejected_at' => now(),
+                'verified_by' => auth()->id(),
+                'verified_at' => now(),
+                'verified_type' => $approvalType->type_name,
+                'verified_note' => $note,
             ]);
 
             if ($wasApproved) {
@@ -160,7 +160,7 @@ class EventGuestService
      */
     public function getRemainingSlots(Event $event): ?int
     {
-        if (!$event->registration_requires_approval || $event->max_participants <= 0) {
+        if (! $event->registration_requires_approval || $event->max_participants <= 0) {
             return null;
         }
 

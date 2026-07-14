@@ -6,9 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Plugins\Membership\Models\Membership;
-use Illuminate\Support\Facades\Log;
 
 class MembershipRegistrationController
 {
@@ -25,7 +25,7 @@ class MembershipRegistrationController
                     if (strlen($cleaned) < 9 || strlen($cleaned) > 13) {
                         $fail('The phone number must be between 9 and 13 digits.');
                     }
-                }
+                },
             ],
             'job_level' => 'required|string|max:100',
             'job_title' => 'required|string|max:100',
@@ -39,7 +39,7 @@ class MembershipRegistrationController
             'linkedin.regex' => 'LinkedIn account must be a valid LinkedIn URL.',
         ]);
 
-        if ($validated['domicile'] === 'Other' && !empty($validated['domicile_other'])) {
+        if ($validated['domicile'] === 'Other' && ! empty($validated['domicile_other'])) {
             $validated['domicile'] = $validated['domicile_other'];
         }
         unset($validated['domicile_other']);
@@ -49,7 +49,7 @@ class MembershipRegistrationController
 
         if ($existingUser) {
             $existingMembership = Membership::withTrashed()->where('user_id', $existingUser->id)->first();
-            if ($existingMembership && !$existingMembership->trashed()) {
+            if ($existingMembership && ! $existingMembership->trashed()) {
                 return back()->withErrors(['email' => 'Email ini sudah terdaftar sebagai member.'])->withInput();
             }
         }
@@ -57,7 +57,7 @@ class MembershipRegistrationController
         DB::beginTransaction();
         try {
             // Create or get user
-            if (!$existingUser) {
+            if (! $existingUser) {
                 $user = User::create([
                     'name' => $validated['name'],
                     'email' => $validated['email'],
@@ -84,7 +84,7 @@ class MembershipRegistrationController
             ];
 
             $existingMembership = Membership::withTrashed()->where('user_id', $user->id)->first();
-            
+
             if ($existingMembership) {
                 $existingMembership->restore();
                 $existingMembership->update($membershipData);
@@ -102,8 +102,9 @@ class MembershipRegistrationController
             return redirect()->route('membership.success')->with('success', 'Pendaftaran berhasil! Tim kami akan meninjau aplikasi Anda.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Membership Registration Error: ' . $e->getMessage());
+            Log::error('Membership Registration Error: '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
             return back()->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.'])->withInput();
         }
     }

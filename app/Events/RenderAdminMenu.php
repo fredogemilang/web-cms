@@ -14,16 +14,14 @@ class RenderAdminMenu
 
     /**
      * Menu items to be rendered.
-     * 
-     * @var array
      */
     public array $menuItems = [];
 
     /**
      * Add a menu item to the sidebar.
-     * 
-     * @param array $item Menu item with keys: title, route, icon, permission, children, badge
-     * @param string|null $after Insert after this menu item's route name (null = append to end)
+     *
+     * @param  array  $item  Menu item with keys: title, route, icon, permission, children, badge
+     * @param  string|null  $after  Insert after this menu item's route name (null = append to end)
      */
     public function addMenuItem(array $item, ?string $after = null): self
     {
@@ -32,11 +30,13 @@ class RenderAdminMenu
             $position = array_search($after, array_column($this->menuItems, 'route'));
             if ($position !== false) {
                 array_splice($this->menuItems, $position + 1, 0, [$item]);
+
                 return $this;
             }
         }
-        
+
         $this->menuItems[] = $item;
+
         return $this;
     }
 
@@ -48,6 +48,7 @@ class RenderAdminMenu
         foreach ($items as $item) {
             $this->addMenuItem($item);
         }
+
         return $this;
     }
 

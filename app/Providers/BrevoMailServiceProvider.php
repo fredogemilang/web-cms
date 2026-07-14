@@ -21,9 +21,9 @@ class BrevoMailServiceProvider extends ServiceProvider
         $this->app->afterResolving(MailFactory::class, function (MailFactory $mailer) {
             $mailer->extend('brevo', function (array $config = []) {
                 return new BrevoApiTransport(
-                    apiKey:             (string) Setting::get('brevo_api_key', ''),
+                    apiKey: (string) Setting::get('brevo_api_key', ''),
                     defaultSenderEmail: Setting::get('brevo_sender_email') ?: null,
-                    defaultSenderName:  Setting::get('brevo_sender_name') ?: null,
+                    defaultSenderName: Setting::get('brevo_sender_name') ?: null,
                 );
             });
         });
@@ -50,11 +50,11 @@ class BrevoMailServiceProvider extends ServiceProvider
 
         // Override From if sender configured
         $senderEmail = Setting::get('brevo_sender_email');
-        $senderName  = Setting::get('brevo_sender_name');
+        $senderName = Setting::get('brevo_sender_name');
         if ($senderEmail) {
             config([
                 'mail.from.address' => $senderEmail,
-                'mail.from.name'    => $senderName ?: config('mail.from.name'),
+                'mail.from.name' => $senderName ?: config('mail.from.name'),
             ]);
         }
     }

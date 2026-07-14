@@ -17,7 +17,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true)->after('plugin_slug');
             $table->string('icon', 50)->nullable()->after('is_active');
             $table->integer('sort_order')->default(0)->after('icon');
-            
+
             $table->index('source');
             $table->index('plugin_slug');
             $table->index('is_active');
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->dropIndex(['source']);
             $table->dropIndex(['plugin_slug']);
             $table->dropIndex(['is_active']);
-            
+
             $table->dropColumn(['source', 'plugin_slug', 'is_active', 'icon', 'sort_order']);
         });
     }

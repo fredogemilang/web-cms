@@ -8,14 +8,14 @@ class RobotsController extends Controller
 {
     public function index(): Response
     {
-        $allow      = (bool) setting('seo_allow_indexing', true);
-        $sitemapOn  = (bool) setting('seo_sitemap_enabled', true);
-        $extra      = (string) setting('seo_robots_extra', '');
-        $adminPath  = '/' . trim(config('admin.path', 'admin'), '/');
+        $allow = (bool) setting('seo_allow_indexing', true);
+        $sitemapOn = (bool) setting('seo_sitemap_enabled', true);
+        $extra = (string) setting('seo_robots_extra', '');
+        $adminPath = '/'.trim(config('admin.path', 'admin'), '/');
 
         $lines = ['User-agent: *'];
 
-        if (!$allow) {
+        if (! $allow) {
             $lines[] = 'Disallow: /';
         } else {
             $lines[] = "Disallow: {$adminPath}";
@@ -29,10 +29,10 @@ class RobotsController extends Controller
 
         if ($allow && $sitemapOn) {
             $lines[] = '';
-            $lines[] = 'Sitemap: ' . url('/sitemap.xml');
+            $lines[] = 'Sitemap: '.url('/sitemap.xml');
         }
 
-        return response(implode("\n", $lines) . "\n", 200, [
+        return response(implode("\n", $lines)."\n", 200, [
             'Content-Type' => 'text/plain; charset=UTF-8',
         ]);
     }

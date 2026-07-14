@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 
 trait HasRoles
 {
@@ -26,7 +27,7 @@ trait HasRoles
             $role = Role::findOrFail($role);
         }
 
-        if (!$this->roles->contains($role->id)) {
+        if (! $this->roles->contains($role->id)) {
             $this->roles()->attach($role->id);
             $this->load('roles');
         }
@@ -65,6 +66,7 @@ trait HasRoles
             if (is_int($role)) {
                 return $role;
             }
+
             return Role::where('slug', $role)->orWhere('name', $role)->first()?->id;
         })->filter()->toArray();
 
@@ -103,6 +105,7 @@ trait HasRoles
         // Super admin bypass
         if ($this->isSuperAdmin()) {
             \Log::info('User is super admin - permission granted');
+
             return true;
         }
 
@@ -113,12 +116,13 @@ trait HasRoles
                 'role_slug' => $role->slug,
                 'permission' => $permission,
             ]);
-            
+
             if ($role->hasPermission($permission)) {
                 \Log::info('Permission found in role', [
                     'role_name' => $role->name,
                     'permission' => $permission,
                 ]);
+
                 return true;
             }
         }
@@ -152,7 +156,7 @@ trait HasRoles
     public function hasAllPermissions(array $permissions): bool
     {
         foreach ($permissions as $permission) {
-            if (!$this->hasPermission($permission)) {
+            if (! $this->hasPermission($permission)) {
                 return false;
             }
         }
@@ -171,7 +175,7 @@ trait HasRoles
     /**
      * Get all permissions for the user.
      */
-    public function getAllPermissions(): \Illuminate\Support\Collection
+    public function getAllPermissions(): Collection
     {
         return $this->roles->flatMap(function ($role) {
             return $role->permissions;

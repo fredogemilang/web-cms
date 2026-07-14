@@ -1,9 +1,21 @@
 <?php
 
+use App\Http\Middleware\ApiAuth;
+use App\Http\Middleware\ApiCors;
+use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CompressResponse;
+use App\Http\Middleware\EnforceTwoFactor;
+use App\Http\Middleware\HandleRedirects;
+use App\Http\Middleware\OptimizeHtml;
+use App\Http\Middleware\PageCache;
+use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetLocale;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Console\Scheduling\Schedule;
+use Plugins\Events\Models\Event;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,23 +27,23 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'permission'   => \App\Http\Middleware\CheckPermission::class,
-            'role'         => \App\Http\Middleware\CheckRole::class,
-            'enforce-2fa'  => \App\Http\Middleware\EnforceTwoFactor::class,
-            'api.auth'     => \App\Http\Middleware\ApiAuth::class,
-            'api.cors'     => \App\Http\Middleware\ApiCors::class,
+            'permission' => CheckPermission::class,
+            'role' => CheckRole::class,
+            'enforce-2fa' => EnforceTwoFactor::class,
+            'api.auth' => ApiAuth::class,
+            'api.cors' => ApiCors::class,
         ]);
 
         // Run redirect rules before route matching (so 404 paths can still redirect).
-        $middleware->prepend(\App\Http\Middleware\HandleRedirects::class);
+        $middleware->prepend(HandleRedirects::class);
 
         // Set app locale from query → session → cookie → setting.
         $middleware->web(append: [
-            \App\Http\Middleware\SetLocale::class,
-            \App\Http\Middleware\PageCache::class,
-            \App\Http\Middleware\OptimizeHtml::class,
-            \App\Http\Middleware\CompressResponse::class,
-            \App\Http\Middleware\SecurityHeaders::class,
+            SetLocale::class,
+            PageCache::class,
+            OptimizeHtml::class,
+            CompressResponse::class,
+            SecurityHeaders::class,
         ]);
 
         $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
@@ -39,7 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule): void {
         // Auto-complete events that have ended
         $schedule->call(function () {
-            \Plugins\Events\Models\Event::where('status', 'published')
+            Event::where('status', 'published')
                 ->where('end_date', '<', now())
                 ->update(['status' => 'completed']);
         })->daily()->at('00:01');

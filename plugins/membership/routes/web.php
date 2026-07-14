@@ -1,65 +1,73 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Plugins\Membership\Models\Membership;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Plugins\Membership\Http\Controllers\MembershipRegistrationController;
+use Plugins\Membership\Models\Membership;
 
 // Admin Routes
 Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web', 'auth'])->group(function () {
-    
+
     Route::prefix('membership')->name('membership.')->middleware('permission:memberships.view')->group(function () {
         // Members Management
         Route::get('/', function () {
             return view('membership::admin.index');
         })->name('index');
-        
+
         Route::get('/pending', function () {
             return view('membership::admin.index');
         })->name('pending');
-        
+
         Route::get('/{membership}', function (Membership $membership) {
             $membership->load('user');
+
             return view('membership::admin.show', compact('membership'));
         })->name('show');
 
         // Membership Actions
         Route::post('/{membership}/approve', function (Membership $membership) {
             $membership->approve(auth()->id());
+
             return back()->with('success', 'Membership approved successfully.');
         })->name('approve')->middleware('permission:memberships.edit');
 
         Route::post('/{membership}/reject', function (Membership $membership) {
             $membership->reject();
+
             return back()->with('success', 'Membership rejected.');
         })->name('reject')->middleware('permission:memberships.edit');
 
         Route::post('/{membership}/suspend', function (Membership $membership) {
             $membership->suspend();
+
             return back()->with('success', 'Membership suspended.');
         })->name('suspend')->middleware('permission:memberships.edit');
 
         Route::post('/{membership}/reactivate', function (Membership $membership) {
             $membership->reactivate();
+
             return back()->with('success', 'Membership reactivated.');
         })->name('reactivate')->middleware('permission:memberships.edit');
 
         Route::delete('/{membership}', function (Membership $membership) {
             $membership->delete();
+
             return redirect()->route('admin.membership.index')->with('success', 'Membership deleted successfully.');
         })->name('destroy')->middleware('permission:memberships.delete');
 
         // Export
         Route::get('/export/excel', function () {
             $memberships = Membership::with('user')->get();
-            
-            $filename = 'members-' . now()->format('Y-m-d') . '.xlsx';
-            
-            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+            $filename = 'members-'.now()->format('Y-m-d').'.xlsx';
+
+            $spreadsheet = new Spreadsheet;
             $sheet = $spreadsheet->getActiveSheet();
-            
+
             // Write header row
             $sheet->fromArray(['ID', 'Name', 'Email', 'Status', 'Joined Date', 'Registered Date'], null, 'A1');
-            
+
             // Write data rows
             $rowNumber = 2;
             foreach ($memberships as $membership) {
@@ -70,12 +78,12 @@ Route::prefix(config('admin.path', 'admin'))->name('admin.')->middleware(['web',
                     ucfirst($membership->status),
                     $membership->joined_at ? $membership->joined_at->format('Y-m-d') : 'N/A',
                     $membership->created_at->format('Y-m-d H:i:s'),
-                ], null, 'A' . $rowNumber);
+                ], null, 'A'.$rowNumber);
                 $rowNumber++;
             }
-            
-            return response()->streamDownload(function() use ($spreadsheet) {
-                $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+            return response()->streamDownload(function () use ($spreadsheet) {
+                $writer = new Xlsx($spreadsheet);
                 $writer->save('php://output');
             }, $filename, [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Page;
 use App\Models\Theme;
-use Illuminate\Support\Facades\File;
+use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use ZipArchive;
-use Exception;
 
 class ThemeManager
 {
@@ -17,7 +18,7 @@ class ThemeManager
     {
         $this->themePath = base_path('themes');
 
-        if (!File::exists($this->themePath)) {
+        if (! File::exists($this->themePath)) {
             File::makeDirectory($this->themePath, 0755, true);
         }
     }
@@ -27,25 +28,25 @@ class ThemeManager
      */
     public function install(string $zipPath): Theme
     {
-        if (!class_exists('ZipArchive')) {
-            throw new Exception("The PHP Zip extension is not enabled. Please enable it in your php.ini configuration.");
+        if (! class_exists('ZipArchive')) {
+            throw new Exception('The PHP Zip extension is not enabled. Please enable it in your php.ini configuration.');
         }
 
         // Validate file size (10MB max)
         if (filesize($zipPath) > 10 * 1024 * 1024) {
-            throw new Exception("Theme file is too large. Maximum size is 10MB.");
+            throw new Exception('Theme file is too large. Maximum size is 10MB.');
         }
 
         $zip = new ZipArchive;
         if ($zip->open($zipPath) !== true) {
-            throw new Exception("Failed to open zip file.");
+            throw new Exception('Failed to open zip file.');
         }
 
         // Validate zip structure and scan for malicious code
         $this->validateThemeZip($zip);
 
         // Extract to temporary location to read manifest
-        $tempPath = storage_path('app/temp/themes/' . uniqid());
+        $tempPath = storage_path('app/temp/themes/'.uniqid());
         $zip->extractTo($tempPath);
         $zip->close();
 
@@ -59,22 +60,22 @@ class ThemeManager
             }
         }
 
-        if (!$manifestFile) {
+        if (! $manifestFile) {
             File::deleteDirectory($tempPath);
-            throw new Exception("theme.json not found in the zip file.");
+            throw new Exception('theme.json not found in the zip file.');
         }
 
         $manifest = json_decode(file_get_contents($manifestFile->getPathname()), true);
-        if (!$manifest) {
+        if (! $manifest) {
             File::deleteDirectory($tempPath);
-            throw new Exception("Invalid theme.json manifest.");
+            throw new Exception('Invalid theme.json manifest.');
         }
 
         // Validate manifest
         $this->validateManifest($manifest);
 
         $slug = $manifest['slug'];
-        $targetPath = $this->themePath . '/' . $slug;
+        $targetPath = $this->themePath.'/'.$slug;
 
         if (File::exists($targetPath)) {
             File::deleteDirectory($tempPath);
@@ -123,7 +124,7 @@ class ThemeManager
             $content = $zip->getFromIndex($i);
 
             // Only check text files (PHP, JS, JSON)
-            if (!preg_match('/\.(php|js|json)$/i', $filename)) {
+            if (! preg_match('/\.(php|js|json)$/i', $filename)) {
                 continue;
             }
 
@@ -143,24 +144,24 @@ class ThemeManager
         $required = ['name', 'slug', 'version'];
 
         foreach ($required as $field) {
-            if (!isset($manifest[$field])) {
+            if (! isset($manifest[$field])) {
                 throw new Exception("Missing required field in theme.json: {$field}");
             }
         }
 
         // Validate slug format (alphanumeric and dashes only)
-        if (!preg_match('/^[a-z0-9-]+$/', $manifest['slug'])) {
-            throw new Exception("Theme slug must contain only lowercase letters, numbers, and dashes.");
+        if (! preg_match('/^[a-z0-9-]+$/', $manifest['slug'])) {
+            throw new Exception('Theme slug must contain only lowercase letters, numbers, and dashes.');
         }
 
         // Validate name length
         if (strlen($manifest['name']) < 1 || strlen($manifest['name']) > 100) {
-            throw new Exception("Theme name must be between 1 and 100 characters.");
+            throw new Exception('Theme name must be between 1 and 100 characters.');
         }
 
         // Validate version format (simple semver check)
-        if (!preg_match('/^\d+\.\d+\.\d+$/', $manifest['version'])) {
-            throw new Exception("Theme version must follow semantic versioning (e.g., 1.0.0).");
+        if (! preg_match('/^\d+\.\d+\.\d+$/', $manifest['version'])) {
+            throw new Exception('Theme version must follow semantic versioning (e.g., 1.0.0).');
         }
     }
 
@@ -177,9 +178,9 @@ class ThemeManager
             return;
         }
 
-        $manifestPath = $this->themePath . '/' . $theme->slug . '/theme.json';
-        if (!File::exists($manifestPath)) {
-            throw new Exception("Theme files not found.");
+        $manifestPath = $this->themePath.'/'.$theme->slug.'/theme.json';
+        if (! File::exists($manifestPath)) {
+            throw new Exception('Theme files not found.');
         }
 
         $manifest = json_decode(file_get_contents($manifestPath), true);
@@ -210,12 +211,12 @@ class ThemeManager
 
     public function publishAssets(Theme $theme): void
     {
-        $sourcePath = $this->themePath . '/' . $theme->slug . '/assets';
-        $destPath = public_path('themes/' . $theme->slug . '/assets');
+        $sourcePath = $this->themePath.'/'.$theme->slug.'/assets';
+        $destPath = public_path('themes/'.$theme->slug.'/assets');
 
         if (File::exists($sourcePath)) {
             // Create destination directory if it doesn't exist
-            if (!File::exists(dirname($destPath))) {
+            if (! File::exists(dirname($destPath))) {
                 File::makeDirectory(dirname($destPath), 0755, true);
             }
 
@@ -229,19 +230,19 @@ class ThemeManager
 
         // Handle screenshot (Move to public for Admin Panel)
         // Read theme.json to get the correct screenshot filename
-        $manifestPath = $this->themePath . '/' . $theme->slug . '/theme.json';
-        
+        $manifestPath = $this->themePath.'/'.$theme->slug.'/theme.json';
+
         if (File::exists($manifestPath)) {
             $manifest = json_decode(file_get_contents($manifestPath), true);
             $screenshotFile = $manifest['screenshot'] ?? null;
 
             if ($screenshotFile) {
-                $sourceScreenshot = $this->themePath . '/' . $theme->slug . '/' . $screenshotFile;
-                $destScreenshot = public_path('themes/' . $theme->slug . '/' . $screenshotFile);
+                $sourceScreenshot = $this->themePath.'/'.$theme->slug.'/'.$screenshotFile;
+                $destScreenshot = public_path('themes/'.$theme->slug.'/'.$screenshotFile);
 
                 if (File::exists($sourceScreenshot)) {
                     // Create destination directory if it doesn't exist
-                    if (!File::exists(dirname($destScreenshot))) {
+                    if (! File::exists(dirname($destScreenshot))) {
                         File::makeDirectory(dirname($destScreenshot), 0755, true);
                     }
 
@@ -264,7 +265,7 @@ class ThemeManager
             $requiredPhp = $requires['php'];
             $currentPhp = PHP_VERSION;
 
-            if (!$this->versionSatisfies($currentPhp, $requiredPhp)) {
+            if (! $this->versionSatisfies($currentPhp, $requiredPhp)) {
                 throw new Exception(
                     "Theme '{$themeName}' requires PHP {$requiredPhp}, but current version is {$currentPhp}."
                 );
@@ -276,7 +277,7 @@ class ThemeManager
             $requiredCms = $requires['cms'];
             $currentCms = config('cms.version', '1.0.0');
 
-            if (!$this->versionSatisfies($currentCms, $requiredCms)) {
+            if (! $this->versionSatisfies($currentCms, $requiredCms)) {
                 throw new Exception(
                     "Theme '{$themeName}' requires CMS {$requiredCms}, but current version is {$currentCms}."
                 );
@@ -308,7 +309,8 @@ class ThemeManager
                 case '^':
                     $parts = explode('.', $version);
                     $major = (int) ($parts[0] ?? 0);
-                    $nextMajor = ($major + 1) . '.0.0';
+                    $nextMajor = ($major + 1).'.0.0';
+
                     return version_compare($current, $version, '>=')
                         && version_compare($current, $nextMajor, '<');
                 default:
@@ -330,17 +332,17 @@ class ThemeManager
 
         // Prevent deleting active theme
         if ($theme->is_active) {
-            throw new Exception("Cannot delete the active theme. Please activate a different theme first.");
+            throw new Exception('Cannot delete the active theme. Please activate a different theme first.');
         }
 
         // Delete files
-        $path = $this->themePath . '/' . $theme->slug;
+        $path = $this->themePath.'/'.$theme->slug;
         if (File::exists($path)) {
             File::deleteDirectory($path);
         }
 
         // Delete public assets
-        $publicAssetsPath = public_path('themes/' . $theme->slug);
+        $publicAssetsPath = public_path('themes/'.$theme->slug);
         if (File::exists($publicAssetsPath)) {
             File::deleteDirectory($publicAssetsPath);
         }
@@ -349,7 +351,7 @@ class ThemeManager
         $theme->delete();
 
         // Clear theme cache
-        Cache::forget('theme.' . $theme->slug);
+        Cache::forget('theme.'.$theme->slug);
     }
 
     /**
@@ -371,7 +373,7 @@ class ThemeManager
         $directories = File::directories($this->themePath);
 
         foreach ($directories as $directory) {
-            $manifestPath = $directory . '/theme.json';
+            $manifestPath = $directory.'/theme.json';
             if (File::exists($manifestPath)) {
                 $manifest = json_decode(file_get_contents($manifestPath), true);
                 if ($manifest && isset($manifest['slug'])) {
@@ -392,17 +394,19 @@ class ThemeManager
     protected function seedTemplatePages(Theme $theme): void
     {
         $pageTemplates = $theme->getPageTemplates();
-        if (empty($pageTemplates)) return;
+        if (empty($pageTemplates)) {
+            return;
+        }
 
         $templateService = app(PageTemplateService::class);
 
         foreach ($pageTemplates as $templateKey => $templateDef) {
-            $page = \App\Models\Page::firstOrCreate(
+            $page = Page::firstOrCreate(
                 ['slug' => $templateKey],
                 [
-                    'title'     => $templateDef['label'] ?? ucfirst($templateKey),
-                    'status'    => 'published',
-                    'template'  => $templateKey,
+                    'title' => $templateDef['label'] ?? ucfirst($templateKey),
+                    'status' => 'published',
+                    'template' => $templateKey,
                     'author_id' => 1,
                 ]
             );

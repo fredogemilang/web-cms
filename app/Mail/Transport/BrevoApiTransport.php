@@ -29,29 +29,29 @@ class BrevoApiTransport extends AbstractTransport
 
     public function __toString(): string
     {
-        return 'brevo+api://' . substr($this->apiKey, 0, 12) . '...';
+        return 'brevo+api://'.substr($this->apiKey, 0, 12).'...';
     }
 
     protected function doSend(SentMessage $message): void
     {
-        $email    = MessageConverter::toEmail($message->getOriginalMessage());
+        $email = MessageConverter::toEmail($message->getOriginalMessage());
         $envelope = $message->getEnvelope();
 
         $payload = $this->buildPayload($email, $envelope);
 
         $response = Http::withHeaders([
-                'api-key'      => $this->apiKey,
-                'accept'       => 'application/json',
-                'content-type' => 'application/json',
-            ])
+            'api-key' => $this->apiKey,
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])
             ->timeout(30)
             ->retry(2, 250, throw: false)
             ->post(self::ENDPOINT, $payload);
 
         if ($response->failed()) {
             $body = $response->json() ?: ['error' => $response->body()];
-            $code = $body['code'] ?? 'http_' . $response->status();
-            $msg  = $body['message'] ?? 'Unknown Brevo error';
+            $code = $body['code'] ?? 'http_'.$response->status();
+            $msg = $body['message'] ?? 'Unknown Brevo error';
 
             throw new TransportException(
                 "Brevo API send failed [{$code}]: {$msg}",
@@ -72,8 +72,8 @@ class BrevoApiTransport extends AbstractTransport
         $to = $email->getTo() ?: $envelope->getRecipients();
 
         $payload = [
-            'sender'  => $this->resolveSender($email, $envelope),
-            'to'      => $this->mapAddresses($to),
+            'sender' => $this->resolveSender($email, $envelope),
+            'to' => $this->mapAddresses($to),
             'subject' => $email->getSubject() ?? '(no subject)',
         ];
 
@@ -101,7 +101,7 @@ class BrevoApiTransport extends AbstractTransport
         if ($text = $email->getTextBody()) {
             $payload['textContent'] = (string) $text;
         }
-        if (!isset($payload['htmlContent']) && !isset($payload['textContent'])) {
+        if (! isset($payload['htmlContent']) && ! isset($payload['textContent'])) {
             // Brevo requires at least one — fall back to subject as body
             $payload['textContent'] = $payload['subject'];
         }
@@ -109,10 +109,10 @@ class BrevoApiTransport extends AbstractTransport
         // Attachments
         $attachments = [];
         foreach ($email->getAttachments() as $part) {
-            $headers  = $part->getPreparedHeaders();
+            $headers = $part->getPreparedHeaders();
             $filename = $headers->getHeaderParameter('Content-Disposition', 'filename') ?: 'attachment';
             $attachments[] = [
-                'name'    => $filename,
+                'name' => $filename,
                 'content' => base64_encode($part->getBody()),
             ];
         }
@@ -148,7 +148,7 @@ class BrevoApiTransport extends AbstractTransport
             $out['name'] = $name;
         }
 
-        if (!$out['email']) {
+        if (! $out['email']) {
             throw new TransportException('Brevo API send failed: no sender email configured.');
         }
 
@@ -156,8 +156,8 @@ class BrevoApiTransport extends AbstractTransport
     }
 
     /**
-     * @param Address[] $addresses
-     * @param Address[] $excluding
+     * @param  Address[]  $addresses
+     * @param  Address[]  $excluding
      */
     protected function mapAddresses(array $addresses, array $excluding = []): array
     {
@@ -174,6 +174,7 @@ class BrevoApiTransport extends AbstractTransport
             }
             $out[] = $entry;
         }
+
         return $out;
     }
 }

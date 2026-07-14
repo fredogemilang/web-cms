@@ -42,8 +42,8 @@ class MediaController extends Controller
             'file' => [
                 'required',
                 'file',
-                'max:' . config('media.max_file_size'),
-                'mimes:' . implode(',', config('media.allowed_extensions')),
+                'max:'.config('media.max_file_size'),
+                'mimes:'.implode(',', config('media.allowed_extensions')),
             ],
             'alt_text' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
@@ -77,11 +77,11 @@ class MediaController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            \Log::error('Media upload failed: ' . $e->getMessage());
-            
+            \Log::error('Media upload failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Upload failed: ' . $e->getMessage(),
+                'message' => 'Upload failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -119,7 +119,7 @@ class MediaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Update failed: ' . $e->getMessage(),
+                'message' => 'Update failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -139,7 +139,7 @@ class MediaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Delete failed: ' . $e->getMessage(),
+                'message' => 'Delete failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -172,7 +172,7 @@ class MediaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Bulk delete failed: ' . $e->getMessage(),
+                'message' => 'Bulk delete failed: '.$e->getMessage(),
             ], 500);
         }
     }

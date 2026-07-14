@@ -12,7 +12,9 @@ class DomicileManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $filterType = '';
+
     public int $perPage = 15;
 
     /** id being edited (0 = adding new, null = not editing) */
@@ -20,29 +22,29 @@ class DomicileManager extends Component
 
     /** form payload used for both add & edit */
     public array $form = [
-        'code'        => '',
-        'name'        => '',
+        'code' => '',
+        'name' => '',
         'parent_code' => '',
-        'type'        => 'regency',
+        'type' => 'regency',
     ];
 
     protected function rules(): array
     {
         return [
-            'form.code'        => ['required', 'string', 'max:50'],
-            'form.name'        => ['required', 'string', 'max:255'],
+            'form.code' => ['required', 'string', 'max:50'],
+            'form.name' => ['required', 'string', 'max:255'],
             'form.parent_code' => ['required_if:form.type,regency', 'nullable', 'string', 'max:50'],
-            'form.type'        => ['required', 'string', 'in:province,regency'],
+            'form.type' => ['required', 'string', 'in:province,regency'],
         ];
     }
 
     protected function validationAttributes(): array
     {
         return [
-            'form.code'        => 'code',
-            'form.name'        => 'name',
+            'form.code' => 'code',
+            'form.name' => 'name',
             'form.parent_code' => 'parent province',
-            'form.type'        => 'type',
+            'form.type' => 'type',
         ];
     }
 
@@ -66,10 +68,10 @@ class DomicileManager extends Component
     {
         $row = Domicile::findOrFail($id);
         $this->form = [
-            'code'        => $row->code,
-            'name'        => $row->name,
+            'code' => $row->code,
+            'name' => $row->name,
             'parent_code' => $row->parent_code ?? '',
-            'type'        => $row->type,
+            'type' => $row->type,
         ];
         $this->editingId = $id;
     }
@@ -99,6 +101,7 @@ class DomicileManager extends Component
         }
         if ($dupQuery->exists()) {
             $this->addError('form.code', 'A domicile with this code already exists.');
+
             return;
         }
 
@@ -138,14 +141,14 @@ class DomicileManager extends Component
             Artisan::call('domicile:import');
 
             $this->dispatch('notify', [
-                'type'    => 'success',
+                'type' => 'success',
                 'message' => 'Domicile data imported successfully from wilayah.id!',
             ]);
             $this->resetPage();
         } catch (\Throwable $e) {
             $this->dispatch('notify', [
-                'type'    => 'error',
-                'message' => 'Failed to import from API: ' . $e->getMessage(),
+                'type' => 'error',
+                'message' => 'Failed to import from API: '.$e->getMessage(),
             ]);
         }
     }
@@ -153,10 +156,10 @@ class DomicileManager extends Component
     protected function resetForm(): void
     {
         $this->form = [
-            'code'        => '',
-            'name'        => '',
+            'code' => '',
+            'name' => '',
             'parent_code' => '',
-            'type'        => 'regency',
+            'type' => 'regency',
         ];
     }
 
@@ -167,8 +170,8 @@ class DomicileManager extends Component
         $domiciles = Domicile::query()
             ->when($this->search, function ($q) {
                 $q->where(function ($w) {
-                    $w->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('code', 'like', '%' . $this->search . '%');
+                    $w->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('code', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->filterType, function ($q) {

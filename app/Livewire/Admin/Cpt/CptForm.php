@@ -3,42 +3,62 @@
 namespace App\Livewire\Admin\Cpt;
 
 use App\Models\CustomPostType;
+use App\Models\CustomTaxonomy;
 use App\Models\MetaField;
-use Livewire\Component;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Component;
 
 class CptForm extends Component
 {
     public ?int $cptId = null;
+
     public bool $isEdit = false;
 
     // General Tab
     public string $name = '';
+
     public string $singularLabel = '';
+
     public string $pluralLabel = '';
+
     public string $slug = '';
+
     public string $description = '';
+
     public string $icon = 'article';
 
     // Settings Tab
     public bool $isHierarchical = false;
+
     public bool $showInMenu = true;
+
     public bool $showInRest = true;
+
     public bool $hasArchive = true;
+
     public array $supports = ['title', 'editor', 'thumbnail', 'excerpt', 'author'];
+
     public array $taxonomies = [];
+
     public array $metaBoxes = [];
+
     public array $newMetaBox = [
         'id' => '',
         'title' => '',
         'context' => 'normal',
     ];
+
     public bool $showMetaBoxModal = false;
+
     public ?int $editingMetaBoxIndex = null;
+
     public array $openMetaBoxes = [];
+
     public bool $showDeleteMetaBoxModal = false;
+
     public ?int $metaBoxToDeleteIndex = null;
+
     public bool $manualMetaBoxId = false;
 
     // Meta Fields
@@ -51,7 +71,7 @@ class CptForm extends Component
     {
         if ($this->showMetaBoxModal) {
             if ($key === 'title') {
-                if (!$this->manualMetaBoxId) {
+                if (! $this->manualMetaBoxId) {
                     $this->newMetaBox['id'] = Str::slug($value, '_');
                 }
             } elseif ($key === 'id') {
@@ -64,9 +84,9 @@ class CptForm extends Component
     {
         return [
             'name' => [
-                'required', 
-                'string', 
-                'max:50', 
+                'required',
+                'string',
+                'max:50',
                 'regex:/^[a-z][a-z0-9_]*$/',
                 Rule::unique('custom_post_types', 'name')->ignore($this->cptId),
             ],
@@ -114,7 +134,7 @@ class CptForm extends Component
     protected function loadCpt()
     {
         $cpt = CustomPostType::with('metaFields')->findOrFail($this->cptId);
-        
+
         $this->name = $cpt->name;
         $this->singularLabel = $cpt->singular_label;
         $this->pluralLabel = $cpt->plural_label;
@@ -126,7 +146,7 @@ class CptForm extends Component
         $this->showInRest = $cpt->show_in_rest;
         $this->hasArchive = $cpt->has_archive;
         $this->supports = $cpt->supports ?? [];
-        
+
         $this->metaFields = $cpt->metaFields->map(function ($field) {
             return [
                 'id' => $field->id,
@@ -139,8 +159,8 @@ class CptForm extends Component
                     'conditional_logic' => [
                         'enabled' => false,
                         'relation' => 'all',
-                        'rules' => []
-                    ]
+                        'rules' => [],
+                    ],
                 ], $field->options ?? []),
                 'field_group' => $field->field_group ?? '',
                 'order' => $field->order,
@@ -149,7 +169,7 @@ class CptForm extends Component
 
         $this->taxonomies = $cpt->taxonomies()->pluck('slug')->toArray();
         $this->metaBoxes = $cpt->settings['meta_boxes'] ?? [];
-        
+
         // Initialize open metaboxes
         foreach ($this->metaBoxes as $box) {
             $this->openMetaBoxes[$box['id']] = false;
@@ -158,7 +178,9 @@ class CptForm extends Component
 
     // Auto-generation flags
     public bool $manualName = false;
+
     public bool $manualPlural = false;
+
     public bool $manualSlug = false;
 
     public function updatedName($value)
@@ -185,18 +207,18 @@ class CptForm extends Component
         }
 
         // Auto-generate Plural Name if not manually edited
-        if (!$this->manualPlural && !empty($value)) {
+        if (! $this->manualPlural && ! empty($value)) {
             $this->pluralLabel = Str::plural($value);
         }
 
         // Auto-generate Name (Internal) if not manually edited
-        if (!$this->manualName && !empty($value)) {
+        if (! $this->manualName && ! empty($value)) {
             $this->name = Str::slug($value, '_');
             $this->validateOnly('name');
         }
 
         // Auto-generate Slug if not manually edited
-        if (!$this->manualSlug && !empty($value)) {
+        if (! $this->manualSlug && ! empty($value)) {
             $this->slug = Str::slug($value);
             $this->validateOnly('slug');
         }
@@ -210,7 +232,7 @@ class CptForm extends Component
     public function toggleSupport(string $feature)
     {
         if (in_array($feature, $this->supports)) {
-            $this->supports = array_values(array_filter($this->supports, fn($s) => $s !== $feature));
+            $this->supports = array_values(array_filter($this->supports, fn ($s) => $s !== $feature));
         } else {
             $this->supports[] = $feature;
         }
@@ -219,7 +241,7 @@ class CptForm extends Component
     public function toggleTaxonomy(string $slug)
     {
         if (in_array($slug, $this->taxonomies)) {
-            $this->taxonomies = array_values(array_filter($this->taxonomies, fn($s) => $s !== $slug));
+            $this->taxonomies = array_values(array_filter($this->taxonomies, fn ($s) => $s !== $slug));
         } else {
             $this->taxonomies[] = $slug;
         }
@@ -286,7 +308,9 @@ class CptForm extends Component
 
     public function deleteMetaBox(bool $keepFields = false)
     {
-        if ($this->metaBoxToDeleteIndex === null) return;
+        if ($this->metaBoxToDeleteIndex === null) {
+            return;
+        }
 
         $boxId = $this->metaBoxes[$this->metaBoxToDeleteIndex]['id'];
 
@@ -314,7 +338,7 @@ class CptForm extends Component
 
     public function toggleMetaBoxSettings(string $boxId)
     {
-        $this->openMetaBoxes[$boxId] = !($this->openMetaBoxes[$boxId] ?? false);
+        $this->openMetaBoxes[$boxId] = ! ($this->openMetaBoxes[$boxId] ?? false);
     }
 
     // Meta Fields Management
@@ -331,10 +355,10 @@ class CptForm extends Component
                 'conditional_logic' => [
                     'enabled' => false,
                     'relation' => 'all',
-                    'rules' => []
+                    'rules' => [],
                 ],
                 'options_list' => [],
-                'repeater_fields' => []
+                'repeater_fields' => [],
             ],
             'order' => count($this->metaFields),
         ];
@@ -342,18 +366,18 @@ class CptForm extends Component
 
     public function addConditionalRule(int $fieldIndex)
     {
-        if (!isset($this->metaFields[$fieldIndex]['options']['conditional_logic'])) {
+        if (! isset($this->metaFields[$fieldIndex]['options']['conditional_logic'])) {
             $this->metaFields[$fieldIndex]['options']['conditional_logic'] = [
                 'enabled' => true,
                 'relation' => 'all',
-                'rules' => []
+                'rules' => [],
             ];
         }
-        
+
         $this->metaFields[$fieldIndex]['options']['conditional_logic']['rules'][] = [
             'field' => '',
             'operator' => 'equals',
-            'value' => ''
+            'value' => '',
         ];
     }
 
@@ -369,7 +393,7 @@ class CptForm extends Component
     {
         unset($this->metaFields[$index]);
         $this->metaFields = array_values($this->metaFields);
-        
+
         // Re-order
         foreach ($this->metaFields as $i => &$field) {
             $field['order'] = $i;
@@ -379,9 +403,9 @@ class CptForm extends Component
     public function moveFieldUp(int $index)
     {
         if ($index > 0) {
-            [$this->metaFields[$index - 1], $this->metaFields[$index]] = 
+            [$this->metaFields[$index - 1], $this->metaFields[$index]] =
             [$this->metaFields[$index], $this->metaFields[$index - 1]];
-            
+
             $this->metaFields[$index - 1]['order'] = $index - 1;
             $this->metaFields[$index]['order'] = $index;
         }
@@ -390,9 +414,9 @@ class CptForm extends Component
     public function moveFieldDown(int $index)
     {
         if ($index < count($this->metaFields) - 1) {
-            [$this->metaFields[$index], $this->metaFields[$index + 1]] = 
+            [$this->metaFields[$index], $this->metaFields[$index + 1]] =
             [$this->metaFields[$index + 1], $this->metaFields[$index]];
-            
+
             $this->metaFields[$index]['order'] = $index;
             $this->metaFields[$index + 1]['order'] = $index + 1;
         }
@@ -401,7 +425,7 @@ class CptForm extends Component
     // Field Options Management (Select, Radio, Checkbox)
     public function addFieldOption(int $fieldIndex)
     {
-        if (!isset($this->metaFields[$fieldIndex]['options']['options_list'])) {
+        if (! isset($this->metaFields[$fieldIndex]['options']['options_list'])) {
             $this->metaFields[$fieldIndex]['options']['options_list'] = [];
         }
 
@@ -423,7 +447,7 @@ class CptForm extends Component
     // Repeater Fields Management
     public function addRepeaterField(int $parentFetcherIndex)
     {
-        if (!isset($this->metaFields[$parentFetcherIndex]['options']['repeater_fields'])) {
+        if (! isset($this->metaFields[$parentFetcherIndex]['options']['repeater_fields'])) {
             $this->metaFields[$parentFetcherIndex]['options']['repeater_fields'] = [];
         }
 
@@ -434,7 +458,7 @@ class CptForm extends Component
             'width' => '100', // width in percentage
             'options' => [
                 'options_list' => [], // ensure nested options work if we go recursive later (simple for now)
-            ], 
+            ],
         ];
     }
 
@@ -449,9 +473,9 @@ class CptForm extends Component
     public function addRepeaterFieldOption(int $fieldIndex, int $subFieldIndex)
     {
         // Ensure options array exists
-        if (!isset($this->metaFields[$fieldIndex]['options']['repeater_fields'][$subFieldIndex]['options']['options_list'])) {
-             // If options is just a string or missing, initialize it
-             $this->metaFields[$fieldIndex]['options']['repeater_fields'][$subFieldIndex]['options']['options_list'] = [];
+        if (! isset($this->metaFields[$fieldIndex]['options']['repeater_fields'][$subFieldIndex]['options']['options_list'])) {
+            // If options is just a string or missing, initialize it
+            $this->metaFields[$fieldIndex]['options']['repeater_fields'][$subFieldIndex]['options']['options_list'] = [];
         }
 
         $this->metaFields[$fieldIndex]['options']['repeater_fields'][$subFieldIndex]['options']['options_list'][] = [
@@ -468,7 +492,6 @@ class CptForm extends Component
             $this->metaFields[$fieldIndex]['options']['repeater_fields'][$subFieldIndex]['options']['options_list']
         );
     }
-
 
     public function save()
     {
@@ -507,13 +530,12 @@ class CptForm extends Component
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => $this->isEdit 
+            'message' => $this->isEdit
                 ? "Post type '{$this->pluralLabel}' updated successfully."
                 : "Post type '{$this->pluralLabel}' created successfully.",
         ]);
 
-
-        if (!$this->isEdit) {
+        if (! $this->isEdit) {
             return redirect()->route('admin.cpt.index');
         }
     }
@@ -561,8 +583,8 @@ class CptForm extends Component
 
     protected function syncTaxonomies(CustomPostType $cpt)
     {
-        $allTaxonomies = \App\Models\CustomTaxonomy::all();
-        
+        $allTaxonomies = CustomTaxonomy::all();
+
         foreach ($allTaxonomies as $taxonomy) {
             if (in_array($taxonomy->slug, $this->taxonomies)) {
                 $taxonomy->attachToPostType($cpt->slug);
@@ -574,13 +596,13 @@ class CptForm extends Component
 
     public function delete()
     {
-        if (!$this->isEdit || !$this->cptId) {
+        if (! $this->isEdit || ! $this->cptId) {
             return;
         }
 
         $cpt = CustomPostType::findOrFail($this->cptId);
         $name = $cpt->plural_label;
-        
+
         // Delete associated meta fields
         $cpt->metaFields()->delete();
         $cpt->delete();
@@ -597,7 +619,7 @@ class CptForm extends Component
     {
         return view('livewire.admin.cpt.cpt-form', [
             'availableSupports' => CustomPostType::$availableSupports,
-            'availableTaxonomies' => \App\Models\CustomTaxonomy::active()->get(),
+            'availableTaxonomies' => CustomTaxonomy::active()->get(),
             'fieldTypes' => MetaField::$fieldTypes,
         ]);
     }

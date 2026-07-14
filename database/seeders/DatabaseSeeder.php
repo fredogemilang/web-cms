@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -36,7 +37,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Assign Administrator role to admin user
-        $adminRole = \App\Models\Role::where('slug', 'administrator')->first();
+        $adminRole = Role::where('slug', 'administrator')->first();
         $admin->roles()->attach($adminRole->id);
 
         // Create test users for other roles
@@ -45,7 +46,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'editor@example.com',
             'password' => bcrypt('password'),
         ]);
-        $editorRole = \App\Models\Role::where('slug', 'editor')->first();
+        $editorRole = Role::where('slug', 'editor')->first();
         $editor->roles()->attach($editorRole->id);
 
         $author = User::create([
@@ -53,7 +54,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'author@example.com',
             'password' => bcrypt('password'),
         ]);
-        $authorRole = \App\Models\Role::where('slug', 'author')->first();
+        $authorRole = Role::where('slug', 'author')->first();
         $author->roles()->attach($authorRole->id);
     }
 }

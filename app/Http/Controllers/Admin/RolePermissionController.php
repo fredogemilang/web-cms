@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Services\PermissionRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -25,25 +25,25 @@ class RolePermissionController extends Controller
     public function index(Request $request)
     {
         $roles = Role::withCount(['users', 'permissions'])->get();
-        
+
         // Get permissions grouped by source (core vs plugins)
         $groupedPermissions = $this->permissionRegistry->getGroupedBySource();
-        
+
         // Get all active permissions for matrix
         $permissions = Permission::active()
             ->orderBy('sort_order')
             ->orderBy('module')
             ->get()
             ->groupBy('module');
-        
+
         $modules = Permission::getModulesGroupedBySource();
-        
+
         // Get selected role (default to first role if none selected)
         $selectedRoleId = $request->get('role');
-        $selectedRole = $selectedRoleId 
+        $selectedRole = $selectedRoleId
             ? Role::with('permissions')->find($selectedRoleId)
             : $roles->first();
-            
+
         if ($selectedRole) {
             $selectedRole->load('permissions');
         }
@@ -75,7 +75,7 @@ class RolePermissionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Role created successfully.',
-                'role' => $role->load('permissions')->loadCount(['users', 'permissions'])
+                'role' => $role->load('permissions')->loadCount(['users', 'permissions']),
             ]);
         }
 
@@ -102,7 +102,7 @@ class RolePermissionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Role updated successfully.',
-                'role' => $role->fresh()->load('permissions')->loadCount(['users', 'permissions'])
+                'role' => $role->fresh()->load('permissions')->loadCount(['users', 'permissions']),
             ]);
         }
 
@@ -121,9 +121,10 @@ class RolePermissionController extends Controller
             if ($request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot delete role that has assigned users.'
+                    'message' => 'Cannot delete role that has assigned users.',
                 ], 422);
             }
+
             return redirect()
                 ->route('admin.role-permission.index')
                 ->with('error', 'Cannot delete role that has assigned users.');
@@ -134,7 +135,7 @@ class RolePermissionController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Role deleted successfully.'
+                'message' => 'Role deleted successfully.',
             ]);
         }
 
@@ -153,7 +154,7 @@ class RolePermissionController extends Controller
         ]);
 
         $permissionId = $validated['permission_id'];
-        
+
         // Check if permission is currently attached
         if ($role->permissions()->where('permissions.id', $permissionId)->exists()) {
             $role->permissions()->detach($permissionId);
@@ -166,9 +167,9 @@ class RolePermissionController extends Controller
         return response()->json([
             'success' => true,
             'attached' => $attached,
-            'message' => $attached 
-                ? 'Permission granted successfully.' 
-                : 'Permission revoked successfully.'
+            'message' => $attached
+                ? 'Permission granted successfully.'
+                : 'Permission revoked successfully.',
         ]);
     }
 
@@ -178,8 +179,8 @@ class RolePermissionController extends Controller
     public function cloneRole(Request $request, Role $role)
     {
         $newRole = Role::create([
-            'name' => $role->name . ' (Copy)',
-            'slug' => Str::slug($role->name . ' Copy'),
+            'name' => $role->name.' (Copy)',
+            'slug' => Str::slug($role->name.' Copy'),
             'description' => $role->description,
             'is_super_admin' => false, // Never clone super admin status
         ]);
@@ -191,7 +192,7 @@ class RolePermissionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Role cloned successfully.',
-                'role' => $newRole->load('permissions')->loadCount(['users', 'permissions'])
+                'role' => $newRole->load('permissions')->loadCount(['users', 'permissions']),
             ]);
         }
 

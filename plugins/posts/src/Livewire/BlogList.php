@@ -4,14 +4,15 @@ namespace Plugins\Posts\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use Plugins\Posts\Models\Post;
 use Plugins\Posts\Models\Category;
+use Plugins\Posts\Models\Post;
 
 class BlogList extends Component
 {
     use WithPagination;
 
     public $category = '';
+
     public $tag = '';
 
     protected $queryString = [
@@ -28,12 +29,11 @@ class BlogList extends Component
         $this->tag = request()->query('tag', '');
     }
 
-
     public function setCategory($slug)
     {
         $this->category = $slug;
         $this->resetPage();
-        
+
         // Build the new URL
         $url = $slug ? route('posts.category', $slug) : route('posts.index');
         $this->dispatch('update-url', url: $url);
@@ -66,7 +66,7 @@ class BlogList extends Component
         // Use custom pagination view
         return view('posts::livewire.blog-list', [
             'posts' => $posts,
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
 

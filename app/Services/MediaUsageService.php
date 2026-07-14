@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\CptEntry;
+use App\Models\CustomPostType;
 use App\Models\Media;
+use App\Models\MetaField;
 use App\Models\Page;
 use App\Models\PageBlock;
 use Illuminate\Support\Facades\Cache;
@@ -26,10 +28,12 @@ use Illuminate\Support\Facades\DB;
 class MediaUsageService
 {
     protected const CACHE_KEY = 'media:usage-map';
+
     protected const CACHE_TTL = 300; // 5 minutes
 
     /**
      * Map of media_id => total references count.
+     *
      * @return array<int, int>
      */
     public function usageMap(): array
@@ -37,7 +41,9 @@ class MediaUsageService
         return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
             $map = [];
             $bump = function (int|string|null $id) use (&$map) {
-                if (!$id || !is_numeric($id)) return;
+                if (! $id || ! is_numeric($id)) {
+                    return;
+                }
                 $id = (int) $id;
                 $map[$id] = ($map[$id] ?? 0) + 1;
             };
@@ -46,14 +52,18 @@ class MediaUsageService
             // can be referenced by content rows, so include both.
             $pathToId = [];
             foreach (Media::query()->get(['id', 'path', 'webp_path']) as $m) {
-                if ($m->path)      $pathToId[$m->path]      = $m->id;
-                if ($m->webp_path) $pathToId[$m->webp_path] = $m->id;
+                if ($m->path) {
+                    $pathToId[$m->path] = $m->id;
+                }
+                if ($m->webp_path) {
+                    $pathToId[$m->webp_path] = $m->id;
+                }
             }
             $resolveByPath = fn ($v) => is_string($v) ? ($pathToId[ltrim($v, '/')] ?? $pathToId[$v] ?? null) : null;
 
             foreach (Page::select('featured_image', 'seo')->get() as $p) {
                 $bump($resolveByPath($p->featured_image));
-                if (is_array($p->seo) && !empty($p->seo['og_image'])) {
+                if (is_array($p->seo) && ! empty($p->seo['og_image'])) {
                     $bump($resolveByPath($p->seo['og_image']));
                 }
             }
@@ -77,8 +87,8 @@ class MediaUsageService
             }
 
             // Map of post_type_id => [field_names that hold media references]
-            $mediaFieldsByCpt = \App\Models\MetaField::query()
-                ->where('fieldable_type', \App\Models\CustomPostType::class)
+            $mediaFieldsByCpt = MetaField::query()
+                ->where('fieldable_type', CustomPostType::class)
                 ->whereIn('type', ['media', 'gallery', 'image'])
                 ->get(['fieldable_id', 'name', 'type'])
                 ->groupBy('fieldable_id')
@@ -101,7 +111,9 @@ class MediaUsageService
                 if (is_array($e->meta) && isset($mediaFieldsByCpt[$e->post_type_id])) {
                     foreach ($mediaFieldsByCpt[$e->post_type_id] as $field => $type) {
                         $value = $e->meta[$field] ?? null;
-                        if ($value === null || $value === '') continue;
+                        if ($value === null || $value === '') {
+                            continue;
+                        }
 
                         if ($type === 'gallery' && is_array($value)) {
                             foreach ($value as $v) {
@@ -133,6 +145,7 @@ class MediaUsageService
     public function orphanIds(): array
     {
         $used = array_keys($this->usageMap());
+
         return Media::whereNotIn('id', $used)->pluck('id')->all();
     }
 
@@ -146,9 +159,11 @@ class MediaUsageService
         foreach ($meta as $value) {
             if (is_array($value)) {
                 // Possibly a gallery field (array of ids) or a repeater (nested)
-                $allInt = !empty($value) && array_filter($value, fn ($v) => is_int($v) || (is_string($v) && ctype_digit($v))) === array_values($value);
+                $allInt = ! empty($value) && array_filter($value, fn ($v) => is_int($v) || (is_string($v) && ctype_digit($v))) === array_values($value);
                 if ($allInt) {
-                    foreach ($value as $id) $bump($id);
+                    foreach ($value as $id) {
+                        $bump($id);
+                    }
                 } else {
                     $this->scanMetaForMediaIds($value, $bump);
                 }

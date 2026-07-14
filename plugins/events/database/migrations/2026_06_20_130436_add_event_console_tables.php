@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // Add limit_by_quota to events table
-        if (!Schema::hasColumn('events', 'limit_by_quota')) {
+        if (! Schema::hasColumn('events', 'limit_by_quota')) {
             Schema::table('events', function (Blueprint $table) {
                 $table->boolean('limit_by_quota')->default(false)->after('max_participants');
             });

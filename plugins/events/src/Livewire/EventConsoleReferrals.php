@@ -2,11 +2,11 @@
 
 namespace Plugins\Events\Livewire;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Plugins\Events\Models\Event;
-use Plugins\Events\Models\TrackingCode;
 use Plugins\Events\Models\EventRegistration;
-use Illuminate\Support\Str;
+use Plugins\Events\Models\TrackingCode;
 
 class EventConsoleReferrals extends Component
 {
@@ -14,14 +14,20 @@ class EventConsoleReferrals extends Component
 
     // Form/Modal state
     public bool $showCreateModal = false;
+
     public ?int $editingId = null;
+
     public string $trackingCode = '';
+
     public string $source = '';
+
     public string $description = '';
+
     public bool $isActive = true;
 
     // Delete Modal state
     public bool $showDeleteModal = false;
+
     public ?int $deletingId = null;
 
     protected array $rules = [
@@ -61,14 +67,14 @@ class EventConsoleReferrals extends Component
     public function getSummaryStatsProperty()
     {
         $referralRegs = EventRegistration::where('event_id', $this->event->id)
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNotNull('referral_code')
-                  ->orWhere(function($sq) {
-                      $sq->whereNotNull('referral_source')->where('referral_source', '!=', 'Direct');
-                  });
+                    ->orWhere(function ($sq) {
+                        $sq->whereNotNull('referral_source')->where('referral_source', '!=', 'Direct');
+                    });
             })->get();
 
-        $top = collect($this->referralStats)->reject(fn($s) => ($s->referral_source ?? 'Direct') === 'Direct')->first();
+        $top = collect($this->referralStats)->reject(fn ($s) => ($s->referral_source ?? 'Direct') === 'Direct')->first();
 
         return [
             'total' => $referralRegs->count(),
@@ -92,7 +98,7 @@ class EventConsoleReferrals extends Component
         } else {
             $this->editingId = null;
             // Generate a random referral/tracking code prefix
-            $this->trackingCode = 'REF-' . strtoupper(Str::random(6));
+            $this->trackingCode = 'REF-'.strtoupper(Str::random(6));
             $this->source = '';
             $this->description = '';
             $this->isActive = true;
@@ -111,6 +117,7 @@ class EventConsoleReferrals extends Component
         }
         if ($query->exists()) {
             $this->addError('trackingCode', 'This tracking code is already in use.');
+
             return;
         }
 
@@ -148,7 +155,7 @@ class EventConsoleReferrals extends Component
     public function toggleActive(int $id): void
     {
         $record = TrackingCode::findOrFail($id);
-        $record->update(['is_active' => !$record->is_active]);
+        $record->update(['is_active' => ! $record->is_active]);
         $this->dispatch('notify', message: 'Status updated successfully.');
     }
 

@@ -17,12 +17,12 @@ class DashboardController extends Controller
         $sinceWeek = now()->subDays(7);
 
         $stats = [
-            'total_users'      => User::count(),
-            'users_change'     => User::where('created_at', '>=', $sinceWeek)->count(),
-            'total_pages'      => Page::where('status', 'published')->count(),
-            'pages_change'     => Page::where('created_at', '>=', $sinceWeek)->count(),
-            'total_entries'    => FormEntry::count(),
-            'entries_change'   => FormEntry::where('created_at', '>=', $sinceWeek)->count(),
+            'total_users' => User::count(),
+            'users_change' => User::where('created_at', '>=', $sinceWeek)->count(),
+            'total_pages' => Page::where('status', 'published')->count(),
+            'pages_change' => Page::where('created_at', '>=', $sinceWeek)->count(),
+            'total_entries' => FormEntry::count(),
+            'entries_change' => FormEntry::where('created_at', '>=', $sinceWeek)->count(),
         ];
 
         // Content created per day for last 7 days (pages + cpt entries + form submissions)
@@ -32,11 +32,12 @@ class DashboardController extends Controller
             $count = Page::whereDate('created_at', $date)->count()
                 + CptEntry::whereDate('created_at', $date)->count()
                 + FormEntry::whereDate('created_at', $date)->count();
+
             return ['day' => $day->format('D'), 'value' => $count];
         });
         $maxVal = max($performance->pluck('value')->max() ?: 1, 1);
         $performance = $performance->map(fn ($d) => $d + [
-            'height' => round(max($d['value'] / $maxVal * 100, 4)) . '%',
+            'height' => round(max($d['value'] / $maxVal * 100, 4)).'%',
         ])->all();
 
         // Recent activity — pull directly from audit log
@@ -46,22 +47,23 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($a) {
                 $color = match (true) {
-                    str_contains($a->action, 'created')  => 'text-emerald-500 bg-emerald-500/15',
-                    str_contains($a->action, 'updated')  => 'text-blue-500 bg-blue-500/15',
-                    str_contains($a->action, 'deleted')  => 'text-red-500 bg-red-500/15',
-                    str_contains($a->action, 'login')    => 'text-purple-500 bg-purple-500/15',
-                    str_contains($a->action, 'logout')   => 'text-gray-500 bg-gray-500/15',
-                    default                              => 'text-[#6F767E] bg-gray-500/15',
+                    str_contains($a->action, 'created') => 'text-emerald-500 bg-emerald-500/15',
+                    str_contains($a->action, 'updated') => 'text-blue-500 bg-blue-500/15',
+                    str_contains($a->action, 'deleted') => 'text-red-500 bg-red-500/15',
+                    str_contains($a->action, 'login') => 'text-purple-500 bg-purple-500/15',
+                    str_contains($a->action, 'logout') => 'text-gray-500 bg-gray-500/15',
+                    default => 'text-[#6F767E] bg-gray-500/15',
                 };
+
                 return [
                     // Show name as "Administrator —" then the full sentence
-                    'name'       => $a->user?->name ?? 'System',
-                    'action'     => '',
-                    'target'     => $a->description ?? $a->action,
-                    'time'       => $a->created_at,
+                    'name' => $a->user?->name ?? 'System',
+                    'action' => '',
+                    'target' => $a->description ?? $a->action,
+                    'time' => $a->created_at,
                     'time_human' => $a->created_at->diffForHumans(),
-                    'type'       => ucfirst(explode('.', $a->action)[0] ?? 'event'),
-                    'typeColor'  => $color,
+                    'type' => ucfirst(explode('.', $a->action)[0] ?? 'event'),
+                    'typeColor' => $color,
                 ];
             })
             ->all();
@@ -70,19 +72,25 @@ class DashboardController extends Controller
         $inquiries = FormEntry::with('form')->latest()->take(3)->get()->map(function ($e) {
             $data = is_array($e->data) ? $e->data : [];
             // Try to find a name-ish & message-ish value
-            $name = null; $message = null;
+            $name = null;
+            $message = null;
             foreach ($data as $k => $v) {
-                if (!is_string($v)) continue;
+                if (! is_string($v)) {
+                    continue;
+                }
                 $key = strtolower((string) $k);
-                if (!$name && str_contains($key, 'name')) $name = $v;
-                if (!$message && (str_contains($key, 'message') || str_contains($key, 'inquir') || str_contains($key, 'note'))) {
+                if (! $name && str_contains($key, 'name')) {
+                    $name = $v;
+                }
+                if (! $message && (str_contains($key, 'message') || str_contains($key, 'inquir') || str_contains($key, 'note'))) {
                     $message = $v;
                 }
             }
+
             return [
-                'name'    => $name ?: ($e->form?->name ?? 'Submission #' . $e->id),
+                'name' => $name ?: ($e->form?->name ?? 'Submission #'.$e->id),
                 'message' => $message ?: 'New form submission',
-                'time'    => $e->created_at->diffForHumans(),
+                'time' => $e->created_at->diffForHumans(),
             ];
         })->all();
 

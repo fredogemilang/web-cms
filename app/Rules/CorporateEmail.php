@@ -30,17 +30,20 @@ class CorporateEmail implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$value) return;
+        if (! $value) {
+            return;
+        }
 
         // Delegate to the Events plugin's canonical implementation if available
         if (class_exists(\Plugins\Events\Rules\CorporateEmail::class)) {
             $rule = new \Plugins\Events\Rules\CorporateEmail($this->eventId);
             $rule->validate($attribute, $value, $fail);
+
             return;
         }
 
         // Fallback: hardcoded domain check only (no DB lookup)
-        if (!$this->isCorporateEmail($value)) {
+        if (! $this->isCorporateEmail($value)) {
             $fail('Corporate email required. Free email providers (gmail.com, yahoo.com, etc.) are not allowed for this event.');
         }
     }
@@ -52,7 +55,9 @@ class CorporateEmail implements ValidationRule
     {
         $domain = strtolower(explode('@', $email)[1] ?? '');
 
-        if (empty($domain)) return false;
+        if (empty($domain)) {
+            return false;
+        }
 
         $freeDomains = [
             'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
@@ -63,6 +68,6 @@ class CorporateEmail implements ValidationRule
             'tempmail.org', '10minutemail.com', 'guerrillamail.com',
         ];
 
-        return !in_array($domain, $freeDomains);
+        return ! in_array($domain, $freeDomains);
     }
 }

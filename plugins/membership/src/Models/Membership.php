@@ -2,9 +2,9 @@
 
 namespace Plugins\Membership\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\User;
 
 class Membership extends Model
 {
@@ -87,7 +87,7 @@ class Membership extends Model
      */
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'active' => 'success',
             'pending' => 'warning',
             'rejected' => 'danger',

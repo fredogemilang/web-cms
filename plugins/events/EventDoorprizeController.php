@@ -1,40 +1,47 @@
 <?php
+
 namespace App\Controllers\Backend\Events;
 
 use App\Controllers\BaseController;
-use App\Models\EventsModel;
-use App\Models\EventAccessModel;
-use App\Models\RegistrantModel;
-use App\Models\DoorprizeRoundModel;
 use App\Models\DoorprizePrizeModel;
-use App\Models\DoorprizeWinnerModel;
+use App\Models\DoorprizeRoundModel;
 use App\Models\DoorprizeSettingsModel;
+use App\Models\DoorprizeWinnerModel;
+use App\Models\EventAccessModel;
+use App\Models\EventsModel;
+use App\Models\RegistrantModel;
 
 class EventDoorprizeController extends BaseController
 {
     protected $eventsModel;
+
     protected $eventAccessModel;
+
     protected $registrantModel;
+
     protected $doorprizeRoundModel;
+
     protected $doorprizePrizeModel;
+
     protected $doorprizeWinnerModel;
+
     protected $doorprizeSettingsModel;
 
     public function __construct()
     {
-        $this->eventsModel = new EventsModel();
-        $this->eventAccessModel = new EventAccessModel();
-        $this->registrantModel = new RegistrantModel();
-        $this->doorprizeRoundModel = new DoorprizeRoundModel();
-        $this->doorprizePrizeModel = new DoorprizePrizeModel();
-        $this->doorprizeWinnerModel = new DoorprizeWinnerModel();
-        $this->doorprizeSettingsModel = new DoorprizeSettingsModel();
+        $this->eventsModel = new EventsModel;
+        $this->eventAccessModel = new EventAccessModel;
+        $this->registrantModel = new RegistrantModel;
+        $this->doorprizeRoundModel = new DoorprizeRoundModel;
+        $this->doorprizePrizeModel = new DoorprizePrizeModel;
+        $this->doorprizeWinnerModel = new DoorprizeWinnerModel;
+        $this->doorprizeSettingsModel = new DoorprizeSettingsModel;
     }
 
     public function doorprize($eventId)
     {
         $data['event_id'] = $eventId;
-        $data['title'] = "doorprize";
+        $data['title'] = 'doorprize';
         $data['event'] = $this->eventsModel->find($eventId);
         $data['rounds'] = $this->doorprizeRoundModel->where('event_id', $eventId)->findAll();
         $data['settings'] = $this->doorprizeSettingsModel->where('event_id', $eventId)->first();
@@ -66,10 +73,10 @@ class EventDoorprizeController extends BaseController
         // Find the round by ID
         $round = $this->doorprizeRoundModel->find($roundId);
 
-        if (!$round) {
+        if (! $round) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'Round not found.'
+                'message' => 'Round not found.',
             ]);
         }
 
@@ -94,10 +101,10 @@ class EventDoorprizeController extends BaseController
         // Find the round
         $round = $this->doorprizeRoundModel->find($roundId);
 
-        if (!$round) {
+        if (! $round) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'Round not found.'
+                'message' => 'Round not found.',
             ]);
         }
 
@@ -112,7 +119,7 @@ class EventDoorprizeController extends BaseController
 
         return $this->response->setJSON([
             'status' => 'success',
-            'message' => 'Round and its associated prizes deleted successfully.'
+            'message' => 'Round and its associated prizes deleted successfully.',
         ]);
     }
 
@@ -129,13 +136,13 @@ class EventDoorprizeController extends BaseController
         if ($prizeCount >= 6) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'Maximum 6 prizes can be added for each round.'
+                'message' => 'Maximum 6 prizes can be added for each round.',
             ]);
         }
 
         // Handle image upload
         if ($file = $this->request->getFile('prize_image')) {
-            if ($file->isValid() && !$file->hasMoved()) {
+            if ($file->isValid() && ! $file->hasMoved()) {
                 $file->move('uploads/prizes', $file->getRandomName());
                 $prizeImage = $file->getName();
             }
@@ -162,13 +169,13 @@ class EventDoorprizeController extends BaseController
     {
         $prize = $this->doorprizePrizeModel->find($prizeId);
 
-        if (!$prize) {
+        if (! $prize) {
             return false; // Return false if prize not found
         }
 
         // Delete the image file if exists
-        if (!empty($prize['prize_image'])) {
-            $imagePath = 'uploads/prizes/' . $prize['prize_image'];
+        if (! empty($prize['prize_image'])) {
+            $imagePath = 'uploads/prizes/'.$prize['prize_image'];
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
@@ -185,13 +192,13 @@ class EventDoorprizeController extends BaseController
         if ($this->removePrizeUnit($prizeId)) {
             return $this->response->setJSON([
                 'status' => 'success',
-                'message' => 'Prize deleted successfully.'
+                'message' => 'Prize deleted successfully.',
             ]);
         }
 
         return $this->response->setJSON([
             'status' => 'error',
-            'message' => 'Prize not found.'
+            'message' => 'Prize not found.',
         ]);
     }
 
@@ -212,10 +219,10 @@ class EventDoorprizeController extends BaseController
     {
         $prize = $this->doorprizePrizeModel->find($prizeId);
 
-        if (!$prize) {
+        if (! $prize) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'Prize not found.'
+                'message' => 'Prize not found.',
             ]);
         }
 
@@ -225,10 +232,10 @@ class EventDoorprizeController extends BaseController
 
         // Check if a new image is uploaded
         if ($file = $this->request->getFile('prize_image')) {
-            if ($file->isValid() && !$file->hasMoved()) {
+            if ($file->isValid() && ! $file->hasMoved()) {
                 // Delete old image if exists
-                if (!empty($prize['prize_image'])) {
-                    $oldImagePath = 'uploads/prizes/' . $prize['prize_image'];
+                if (! empty($prize['prize_image'])) {
+                    $oldImagePath = 'uploads/prizes/'.$prize['prize_image'];
                     if (file_exists($oldImagePath)) {
                         unlink($oldImagePath);
                     }
@@ -260,20 +267,20 @@ class EventDoorprizeController extends BaseController
     }
 
     public function getDoorprizeGuests($eventID)
-    { 
+    {
         try {
             $settings = $this->doorprizeSettingsModel->where('event_id', $eventID)->first();
 
             $query = $this->registrantModel
-                    ->select('registrant.*, doorprize_prizes.prize_name as hadiah') // Adjust the columns as needed
-                    ->join('doorprize_prizes', 'doorprize_prizes.id = registrant.prize_id', 'left') // Join the related table
-                    ->where('registrant.event_id', $eventID);
-            
+                ->select('registrant.*, doorprize_prizes.prize_name as hadiah') // Adjust the columns as needed
+                ->join('doorprize_prizes', 'doorprize_prizes.id = registrant.prize_id', 'left') // Join the related table
+                ->where('registrant.event_id', $eventID);
+
             $event = $this->eventsModel->find($eventID);
-            if($event['is_approval']){
+            if ($event['is_approval']) {
                 $query->where('registrant.status', 'approved');
             }
-            
+
             foreach (['checkin' => 'check_in', 'feedback' => 'feedback', 'mission' => 'mission'] as $key => $column) {
                 if (isset($settings[$key]) && $settings[$key] == 1) {
                     $query->where($column, 1);
@@ -289,7 +296,8 @@ class EventDoorprizeController extends BaseController
             return $this->response->setJSON(['data' => $guests]); // DataTables needs { "data": [...] }
 
         } catch (\Exception $e) {
-            log_message('error', 'DataTables Error: ' . $e->getMessage()); // Log error
+            log_message('error', 'DataTables Error: '.$e->getMessage()); // Log error
+
             return $this->response->setJSON(['error' => $e->getMessage()])->setStatusCode(500);
         }
     }
@@ -302,14 +310,14 @@ class EventDoorprizeController extends BaseController
         $data_rounds = $this->doorprizeRoundModel->where('event_id', $eventId)->findAll();
 
         // Loop through each round and fetch its prizes
-        foreach ($data_rounds as $round) { 
+        foreach ($data_rounds as $round) {
             $round_prizes = $this->doorprizePrizeModel->where('round_id', $round['id'])->findAll();
-            
+
             // Add round and its prizes to the response array
             $prizes[] = [
-                'round_id'   => $round['id'],
+                'round_id' => $round['id'],
                 'round_name' => $round['round_name'],
-                'prizes'     => $round_prizes
+                'prizes' => $round_prizes,
             ];
         }
 
@@ -320,8 +328,8 @@ class EventDoorprizeController extends BaseController
     {
         $guestId = $this->request->getPost('guest_id');
         $prizeId = $this->request->getPost('prize_id');
-        
-        if (!$guestId || !$prizeId) {
+
+        if (! $guestId || ! $prizeId) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Invalid data']);
         }
 
@@ -339,7 +347,7 @@ class EventDoorprizeController extends BaseController
         try {
             $guestId = $this->request->getJSON()->guest_id;
 
-            if (!$guestId) {
+            if (! $guestId) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Invalid guest ID'])->setStatusCode(400);
             }
 
@@ -354,7 +362,8 @@ class EventDoorprizeController extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to remove prize']);
             }
         } catch (\Exception $e) {
-            log_message('error', 'Remove Prize Error: ' . $e->getMessage());
+            log_message('error', 'Remove Prize Error: '.$e->getMessage());
+
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()])->setStatusCode(500);
         }
     }
@@ -367,10 +376,10 @@ class EventDoorprizeController extends BaseController
         $data['checkin'] = $this->request->getPost('checkin') ? 1 : 0;
         $data['feedback'] = $this->request->getPost('feedback') ? 1 : 0;
         $data['mission'] = $this->request->getPost('mission') ? 1 : 0;
-        
-        $newName = "";
+
+        $newName = '';
         $uploadPath = 'uploads/events/';
-        
+
         // Fetch existing settings
         $settings = $this->doorprizeSettingsModel->where('event_id', $eventId)->first();
 
@@ -378,21 +387,21 @@ class EventDoorprizeController extends BaseController
         if ($this->request->getFile('doorprize_banner')) {
             $file = $this->request->getFile('doorprize_banner');
 
-            if ($file->isValid() && !$file->hasMoved()) {
+            if ($file->isValid() && ! $file->hasMoved()) {
                 // Validate file size (max 500KB)
                 if ($file->getSize() > 500 * 1024) { // 500KB
                     return $this->response->setJSON(['status' => 'error', 'message' => 'File size must be 500KB or less.']);
                 }
 
                 // Validate image dimensions (max width 1920px)
-                list($width, $height) = getimagesize($file->getTempName());
+                [$width, $height] = getimagesize($file->getTempName());
                 if ($width > 1920) {
                     return $this->response->setJSON(['status' => 'error', 'message' => 'Image width must be 1920px or less.']);
                 }
 
                 // Delete old banner if it exists
-                if ($settings && !empty($settings['doorprize_background'])) {
-                    $oldFile = $uploadPath . $settings['doorprize_background'];
+                if ($settings && ! empty($settings['doorprize_background'])) {
+                    $oldFile = $uploadPath.$settings['doorprize_background'];
                     if (file_exists($oldFile)) {
                         unlink($oldFile); // Delete old file
                     }
@@ -400,8 +409,8 @@ class EventDoorprizeController extends BaseController
 
                 // Move new file if valid
                 $newName = $file->getRandomName();
-                if (!$file->move($uploadPath, $newName)) {
-                    return $this->response->setJSON(['status' => 'error', 'message' => 'File upload failed: ' . $file->getErrorString()]);
+                if (! $file->move($uploadPath, $newName)) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'File upload failed: '.$file->getErrorString()]);
                 }
 
                 $data['doorprize_background'] = $newName;
@@ -409,7 +418,7 @@ class EventDoorprizeController extends BaseController
         }
 
         // Set the new or existing banner name
-        $doorprize_background = $newName ?: ($settings['doorprize_background'] ?? "");
+        $doorprize_background = $newName ?: ($settings['doorprize_background'] ?? '');
 
         // Update or insert settings
         if ($settings) {
@@ -422,7 +431,7 @@ class EventDoorprizeController extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'message' => 'Settings updated successfully',
-            'doorprize_background' => $doorprize_background
+            'doorprize_background' => $doorprize_background,
         ]);
     }
 }

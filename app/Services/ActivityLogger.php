@@ -25,15 +25,15 @@ class ActivityLogger
     public function log(string $action, ?Model $subject = null, ?string $description = null, array $properties = []): Activity
     {
         return Activity::create([
-            'user_id'      => auth()->id(),
-            'action'       => $action,
+            'user_id' => auth()->id(),
+            'action' => $action,
             'subject_type' => $subject ? $subject->getMorphClass() : null,
-            'subject_id'   => $subject?->getKey(),
-            'description'  => $description,
-            'properties'   => static::redactSensitive($properties) ?: null,
-            'ip_address'   => request()?->ip(),
-            'user_agent'   => substr((string) request()?->userAgent(), 0, 500),
-            'created_at'   => now(),
+            'subject_id' => $subject?->getKey(),
+            'description' => $description,
+            'properties' => static::redactSensitive($properties) ?: null,
+            'ip_address' => request()?->ip(),
+            'user_agent' => substr((string) request()?->userAgent(), 0, 500),
+            'created_at' => now(),
         ]);
     }
 
@@ -68,6 +68,7 @@ class ActivityLogger
                 $values[$key] = static::redactSensitive($value);
             }
         }
+
         return $values;
     }
 }

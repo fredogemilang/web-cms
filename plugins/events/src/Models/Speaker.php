@@ -2,14 +2,14 @@
 
 namespace Plugins\Events\Models;
 
+use App\Models\Media;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Media;
 
 class Speaker extends Model
 {
-    use SoftDeletes, HasTranslations;
+    use HasTranslations, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -54,7 +54,7 @@ class Speaker extends Model
     public function events()
     {
         return $this->belongsToMany(Event::class, 'event_speaker')
-                    ->withPivot('order')
-                    ->orderByPivot('order');
+            ->withPivot('order')
+            ->orderByPivot('order');
     }
 }

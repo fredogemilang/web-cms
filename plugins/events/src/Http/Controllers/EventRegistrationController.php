@@ -3,10 +3,12 @@
 namespace Plugins\Events\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Plugins\Events\Models\Event;
-use Plugins\Events\Models\EventRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventRegistration;
 
 class EventRegistrationController extends Controller
 {
@@ -19,38 +21,40 @@ class EventRegistrationController extends Controller
         $isAjax = $request->ajax() || $request->wantsJson();
 
         // Check if registration is open
-        if (!$event->is_registration_open) {
+        if (! $event->is_registration_open) {
             if ($isAjax) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Registration is closed for this event.',
                 ], 400);
             }
+
             return back()->with('error', 'Registration is closed for this event.');
         }
 
         // Validate request
         $validator = Validator::make($request->all(), [
-            'name'              => 'required|string|max:255',
-            'email'             => 'required|email|max:255',
-            'phone'             => 'nullable|string|max:20',
-            'institution'       => 'nullable|string|max:255',
-            'job_level'         => 'nullable|string|max:100',
-            'domicile'          => 'nullable|string|max:100',
-            'job_title'         => 'nullable|string|max:100',
-            'linkedin'          => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'institution' => 'nullable|string|max:255',
+            'job_level' => 'nullable|string|max:100',
+            'domicile' => 'nullable|string|max:100',
+            'job_title' => 'nullable|string|max:100',
+            'linkedin' => 'nullable|string|max:255',
             'highest_education' => 'nullable|string|max:100',
-            'industry'          => 'nullable|string|max:100',
-            'notes'             => 'nullable|string',
+            'industry' => 'nullable|string|max:100',
+            'notes' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
             if ($isAjax) {
                 return response()->json([
                     'success' => false,
-                    'errors'  => $validator->errors(),
+                    'errors' => $validator->errors(),
                 ], 422);
             }
+
             return back()->withErrors($validator)->withInput();
         }
 
@@ -68,42 +72,43 @@ class EventRegistrationController extends Controller
                         'message' => 'You have already registered for this event.',
                     ], 400);
                 }
+
                 return back()->with('error', 'You have already registered for this event.');
             }
 
             // Check if event requires approval for registrations
             $requiresApproval = $event->registration_requires_approval ?? false;
-            $status           = $requiresApproval ? 'pending' : 'approved';
-            $approvedAt       = $requiresApproval ? null : now();
+            $status = $requiresApproval ? 'pending' : 'approved';
+            $approvedAt = $requiresApproval ? null : now();
 
             // Collect extra fields into custom_fields JSON
             $customFields = array_filter([
-                'job_level'         => $request->job_level,
-                'domicile'          => $request->domicile,
-                'job_title'         => $request->job_title,
-                'linkedin'          => $request->linkedin,
-                'institution'       => $request->institution,
+                'job_level' => $request->job_level,
+                'domicile' => $request->domicile,
+                'job_title' => $request->job_title,
+                'linkedin' => $request->linkedin,
+                'institution' => $request->institution,
                 'highest_education' => $request->highest_education,
-                'industry'          => $request->industry,
-            ], fn($value) => !is_null($value) && $value !== '');
+                'industry' => $request->industry,
+            ], fn ($value) => ! is_null($value) && $value !== '');
 
             $registration = EventRegistration::create([
-                'event_id'      => $event->id,
-                'user_id'       => auth()->id(),
-                'name'          => $request->name,
-                'email'         => $request->email,
-                'phone'         => $request->phone,
-                'organization'  => $request->institution, // map institution → organization
-                'notes'         => $request->notes,
-                'status'        => $status,
-                'approved_at'   => $approvedAt,
-                'custom_fields' => !empty($customFields) ? $customFields : null,
-                'ip_address'    => $request->ip(),
-                'user_agent'    => $request->userAgent(),
+                'event_id' => $event->id,
+                'user_id' => auth()->id(),
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'organization' => $request->institution, // map institution → organization
+                'notes' => $request->notes,
+                'status' => $status,
+                'approved_at' => $approvedAt,
+                'custom_fields' => ! empty($customFields) ? $customFields : null,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
             ]);
 
             // Only increment count if auto-approved
-            if (!$requiresApproval) {
+            if (! $requiresApproval) {
                 $event->incrementRegisteredCount();
             }
 
@@ -116,21 +121,22 @@ class EventRegistrationController extends Controller
 
             if ($isAjax) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => $message,
+                    'success' => true,
+                    'message' => $message,
                     'redirect' => route('events.register.success'),
                 ]);
             }
 
             return redirect()->route('events.register.success')->with('success', $message);
         } catch (\Exception $e) {
-            \Log::error('Event registration failed: ' . $e->getMessage());
+            \Log::error('Event registration failed: '.$e->getMessage());
             if ($isAjax) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Registration failed. Please try again.',
                 ], 500);
             }
+
             return back()->with('error', 'Registration failed. Please try again.');
         }
     }
@@ -141,7 +147,7 @@ class EventRegistrationController extends Controller
     public function cancel(Request $request, $slug)
     {
         $event = Event::where('slug', $slug)->firstOrFail();
-        
+
         $registration = EventRegistration::where('event_id', $event->id)
             ->where('email', $request->email)
             ->whereIn('status', ['pending', 'approved'])
@@ -158,6 +164,7 @@ class EventRegistrationController extends Controller
     public function index($eventId)
     {
         $event = Event::with('registrations.user')->findOrFail($eventId);
+
         return view('events::admin.registrations.event', compact('event'));
     }
 
@@ -168,14 +175,14 @@ class EventRegistrationController extends Controller
     {
         $event = Event::findOrFail($eventId);
         $registrations = $event->registrations()->with('user')->get();
-        
+
         if ($registrations->isEmpty()) {
             return back()->with('error', 'No registrations to export.');
         }
 
-        $filename = \Str::slug($event->title) . '-registrations-' . now()->format('Y-m-d') . '.xlsx';
+        $filename = \Str::slug($event->title).'-registrations-'.now()->format('Y-m-d').'.xlsx';
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         $firstRegistration = $registrations->first();
@@ -189,12 +196,12 @@ class EventRegistrationController extends Controller
             foreach ($headers as $header) {
                 $rowData[] = $exportArray[$header] ?? '';
             }
-            $sheet->fromArray($rowData, null, 'A' . $rowNumber);
+            $sheet->fromArray($rowData, null, 'A'.$rowNumber);
             $rowNumber++;
         }
 
-        return response()->streamDownload(function() use ($spreadsheet) {
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
         }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

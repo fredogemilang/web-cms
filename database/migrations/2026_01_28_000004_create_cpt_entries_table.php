@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * This creates a universal content entries table that stores all CPT entries
      * with a flexible meta storage approach (JSON column for meta values)
      */

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->unsignedInteger('views_count')->default(0);
             $table->json('meta')->nullable();
             $table->timestamps();
-            
+
             $table->index(['status', 'published_at']);
             $table->index('author_id');
         });

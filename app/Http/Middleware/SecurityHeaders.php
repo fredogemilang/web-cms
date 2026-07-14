@@ -4,7 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Defensive HTTP response headers applied to every web response.
@@ -20,8 +22,8 @@ class SecurityHeaders
         $response = $next($request);
 
         // Don't decorate downloads / streamed responses
-        if ($response instanceof \Symfony\Component\HttpFoundation\BinaryFileResponse
-            || $response instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
+        if ($response instanceof BinaryFileResponse
+            || $response instanceof StreamedResponse) {
             return $response;
         }
 

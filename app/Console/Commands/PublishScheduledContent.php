@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class PublishScheduledContent extends Command
 {
     protected $signature = 'content:publish-scheduled';
+
     protected $description = 'Flip scheduled pages/CPT entries to published when their published_at time arrives';
 
     public function handle(): int
@@ -33,7 +34,7 @@ class PublishScheduledContent extends Command
 
             $count = $items->count();
             if ($count > 0) {
-                $this->info(class_basename($model) . ": {$count} scheduled items published.");
+                $this->info(class_basename($model).": {$count} scheduled items published.");
                 $total += $count;
             }
         }

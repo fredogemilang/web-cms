@@ -2,23 +2,27 @@
 
 namespace Plugins\ArticleSubmission\Livewire;
 
-use Plugins\ArticleSubmission\Models\ArticleSubmission;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Plugins\ArticleSubmission\Models\ArticleSubmission;
 
 class ArticleSubmissionsTable extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $perPage = 10;
-    
+
     // Sorting
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
-    
+
     public $selectedSubmissions = [];
+
     public $selectAll = false;
 
     protected $queryString = [
@@ -57,7 +61,7 @@ class ArticleSubmissionsTable extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedSubmissions = $this->submissions->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selectedSubmissions = $this->submissions->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedSubmissions = [];
         }
@@ -68,9 +72,9 @@ class ArticleSubmissionsTable extends Component
         return ArticleSubmission::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%')
-                      ->orWhere('phone', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%')
+                        ->orWhere('phone', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->statusFilter, function ($query) {
@@ -89,8 +93,8 @@ class ArticleSubmissionsTable extends Component
         $baseQuery = ArticleSubmission::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%');
                 });
             });
 
@@ -120,31 +124,31 @@ class ArticleSubmissionsTable extends Component
     public function deleteSubmission($id)
     {
         $submission = ArticleSubmission::find($id);
-        
+
         if ($submission) {
             $submission->delete();
             session()->flash('success', 'Submission deleted successfully.');
         }
-        
+
         $this->selectedSubmissions = array_diff($this->selectedSubmissions, [(string) $id]);
     }
 
     public function deleteSelected()
     {
         $count = ArticleSubmission::whereIn('id', $this->selectedSubmissions)->delete();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' submission(s) deleted successfully.');
+
+        session()->flash('success', $count.' submission(s) deleted successfully.');
     }
 
     public function updateStatus($id, $status)
     {
         $submission = ArticleSubmission::find($id);
-        
+
         if ($submission) {
             $submission->update(['status' => $status]);
-            session()->flash('success', 'Submission status updated to ' . ucfirst($status) . '.');
+            session()->flash('success', 'Submission status updated to '.ucfirst($status).'.');
         }
     }
 
@@ -152,16 +156,16 @@ class ArticleSubmissionsTable extends Component
     {
         $count = ArticleSubmission::whereIn('id', $this->selectedSubmissions)
             ->update(['status' => $status]);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' submission(s) marked as ' . ucfirst($status) . '.');
+
+        session()->flash('success', $count.' submission(s) marked as '.ucfirst($status).'.');
     }
 
     public function restore($id)
     {
         $submission = ArticleSubmission::onlyTrashed()->find($id);
-        
+
         if ($submission) {
             $submission->restore();
             session()->flash('success', 'Submission restored successfully.');
@@ -171,7 +175,7 @@ class ArticleSubmissionsTable extends Component
     public function forceDelete($id)
     {
         $submission = ArticleSubmission::onlyTrashed()->find($id);
-        
+
         if ($submission) {
             // Delete the file if exists
             if ($submission->article_file && \Storage::disk('public')->exists($submission->article_file)) {
@@ -185,26 +189,26 @@ class ArticleSubmissionsTable extends Component
     public function restoreSelected()
     {
         $count = ArticleSubmission::onlyTrashed()->whereIn('id', $this->selectedSubmissions)->restore();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' submission(s) restored successfully.');
+
+        session()->flash('success', $count.' submission(s) restored successfully.');
     }
 
     public function forceDeleteSelected()
     {
         $submissions = ArticleSubmission::onlyTrashed()->whereIn('id', $this->selectedSubmissions)->get();
-        
+
         foreach ($submissions as $submission) {
             if ($submission->article_file && \Storage::disk('public')->exists($submission->article_file)) {
                 \Storage::disk('public')->delete($submission->article_file);
             }
             $submission->forceDelete();
         }
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', count($submissions) . ' submission(s) deleted permanently.');
+
+        session()->flash('success', count($submissions).' submission(s) deleted permanently.');
     }
 
     public function render()

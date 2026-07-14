@@ -2,14 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\SeoMeta;
 use Illuminate\Database\Eloquent\Model;
 
 class SeoRenderer
 {
-    public function __construct(protected SchemaBuilder $schemaBuilder)
-    {
-    }
+    public function __construct(protected SchemaBuilder $schemaBuilder) {}
 
     /**
      * Resolve final SEO data for an entity (merged with site defaults).
@@ -73,8 +70,11 @@ class SeoRenderer
 
     protected function ogType(?Model $entity): string
     {
-        if (! $entity) return 'website';
+        if (! $entity) {
+            return 'website';
+        }
         $class = class_basename($entity);
+
         return match ($class) {
             'Post' => 'article',
             'Event' => 'event',

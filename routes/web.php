@@ -1,32 +1,53 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FormController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\PluginController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\ThemesController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\FormSubmissionController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\PartnershipController;
+use App\Http\Controllers\RobotsController;
+use App\Http\Controllers\SitemapController;
+use App\Models\CustomPostType;
+use App\Models\CustomTaxonomy;
+use App\Services\SettingsRegistry;
 use Illuminate\Support\Facades\Route;
 
 // Get admin path from config
 $adminPath = config('admin.path', 'admin');
 
 // Public homepage
-Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Public SEO
-Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
-Route::get('/robots.txt', [\App\Http\Controllers\RobotsController::class, 'index'])->name('robots');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
 // Public Form Submission
 Route::prefix('forms')->name('forms.')->group(function () {
-    Route::get('/{slug}', [\App\Http\Controllers\FormSubmissionController::class, 'show'])->name('show');
-    Route::post('/{slug}/submit', [\App\Http\Controllers\FormSubmissionController::class, 'submit'])->name('submit');
-    Route::post('/{slug}/ajax', [\App\Http\Controllers\FormSubmissionController::class, 'submitAjax'])->name('submit.ajax');
-    Route::get('/{slug}/success', [\App\Http\Controllers\FormSubmissionController::class, 'success'])->name('success');
+    Route::get('/{slug}', [FormSubmissionController::class, 'show'])->name('show');
+    Route::post('/{slug}/submit', [FormSubmissionController::class, 'submit'])->name('submit');
+    Route::post('/{slug}/ajax', [FormSubmissionController::class, 'submitAjax'])->name('submit.ajax');
+    Route::get('/{slug}/success', [FormSubmissionController::class, 'success'])->name('success');
 });
 
 // Public Partnership Inquiry
-Route::post('/partner', [\App\Http\Controllers\PartnershipController::class, 'store'])->name('partner.store');
+Route::post('/partner', [PartnershipController::class, 'store'])->name('partner.store');
 
 // Admin base path redirect
-Route::get("/{$adminPath}", [\App\Http\Controllers\Admin\AdminController::class, 'index'])->name('admin.index');
+Route::get("/{$adminPath}", [AdminController::class, 'index'])->name('admin.index');
 
 // Authentication Routes (under admin path)
 Route::prefix($adminPath)->group(function () {
@@ -34,18 +55,18 @@ Route::prefix($adminPath)->group(function () {
         Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
         Route::post('/login', [AuthController::class, 'login']);
 
-        Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showForm'])
+        Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
             ->name('password.request');
-        Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'send'])
+        Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])
             ->name('password.email');
-        Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showForm'])
+        Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showForm'])
             ->name('password.reset');
-        Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
+        Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
             ->name('password.update');
 
-        Route::get('/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'showChallenge'])
+        Route::get('/two-factor', [TwoFactorController::class, 'showChallenge'])
             ->name('two-factor.challenge');
-        Route::post('/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'verify'])
+        Route::post('/two-factor', [TwoFactorController::class, 'verify'])
             ->name('two-factor.verify');
     });
 
@@ -60,12 +81,12 @@ Route::prefix($adminPath)->name('admin.')->middleware(['auth', 'enforce-2fa'])->
         ->middleware('permission:dashboard.view');
 
     // Profile
-    Route::get('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])
+    Route::get('/profile', [ProfileController::class, 'index'])
         ->name('profile.index');
 
     // Users Management
     Route::middleware('permission:users.view')->group(function () {
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::resource('users', UserController::class);
     });
 
     // Roles Management
@@ -81,21 +102,21 @@ Route::prefix($adminPath)->name('admin.')->middleware(['auth', 'enforce-2fa'])->
 
     // Role & Permission Merged View
     Route::middleware('permission:roles.view')->group(function () {
-        Route::get('role-permission', [\App\Http\Controllers\Admin\RolePermissionController::class, 'index'])
+        Route::get('role-permission', [RolePermissionController::class, 'index'])
             ->name('role-permission.index');
-        Route::post('role-permission/role', [\App\Http\Controllers\Admin\RolePermissionController::class, 'storeRole'])
+        Route::post('role-permission/role', [RolePermissionController::class, 'storeRole'])
             ->name('role-permission.store-role')
             ->middleware('permission:roles.create');
-        Route::put('role-permission/role/{role}', [\App\Http\Controllers\Admin\RolePermissionController::class, 'updateRole'])
+        Route::put('role-permission/role/{role}', [RolePermissionController::class, 'updateRole'])
             ->name('role-permission.update-role')
             ->middleware('permission:roles.edit');
-        Route::delete('role-permission/role/{role}', [\App\Http\Controllers\Admin\RolePermissionController::class, 'deleteRole'])
+        Route::delete('role-permission/role/{role}', [RolePermissionController::class, 'deleteRole'])
             ->name('role-permission.delete-role')
             ->middleware('permission:roles.delete');
-        Route::post('role-permission/clone/{role}', [\App\Http\Controllers\Admin\RolePermissionController::class, 'cloneRole'])
+        Route::post('role-permission/clone/{role}', [RolePermissionController::class, 'cloneRole'])
             ->name('role-permission.clone-role')
             ->middleware('permission:roles.create');
-        Route::post('role-permission/toggle/{role}', [\App\Http\Controllers\Admin\RolePermissionController::class, 'togglePermission'])
+        Route::post('role-permission/toggle/{role}', [RolePermissionController::class, 'togglePermission'])
             ->name('role-permission.toggle-permission')
             ->middleware('permission:roles.assign-permissions');
     });
@@ -107,46 +128,46 @@ Route::prefix($adminPath)->name('admin.')->middleware(['auth', 'enforce-2fa'])->
 
     // Menus Management
     Route::middleware('permission:menus.view')->group(function () {
-        Route::resource('menus', \App\Http\Controllers\Admin\MenuController::class);
-        Route::post('menus/reorder', [\App\Http\Controllers\Admin\MenuController::class, 'reorder'])
+        Route::resource('menus', MenuController::class);
+        Route::post('menus/reorder', [MenuController::class, 'reorder'])
             ->name('menus.reorder');
     });
 
     // Media Management
     Route::middleware('permission:media.view')->group(function () {
-        Route::get('media', [\App\Http\Controllers\Admin\MediaController::class, 'index'])->name('media.index');
-        Route::get('media/create', [\App\Http\Controllers\Admin\MediaController::class, 'create'])
+        Route::get('media', [MediaController::class, 'index'])->name('media.index');
+        Route::get('media/create', [MediaController::class, 'create'])
             ->name('media.create')
             ->middleware('permission:media.upload');
-        Route::post('media/upload', [\App\Http\Controllers\Admin\MediaController::class, 'upload'])
+        Route::post('media/upload', [MediaController::class, 'upload'])
             ->name('media.upload')
             ->middleware('permission:media.upload');
-        Route::put('media/{media}', [\App\Http\Controllers\Admin\MediaController::class, 'update'])
+        Route::put('media/{media}', [MediaController::class, 'update'])
             ->name('media.update')
             ->middleware('permission:media.edit');
-        Route::delete('media/{media}', [\App\Http\Controllers\Admin\MediaController::class, 'destroy'])
+        Route::delete('media/{media}', [MediaController::class, 'destroy'])
             ->name('media.destroy')
             ->middleware('permission:media.delete');
-        Route::post('media/bulk-delete', [\App\Http\Controllers\Admin\MediaController::class, 'bulkDelete'])
+        Route::post('media/bulk-delete', [MediaController::class, 'bulkDelete'])
             ->name('media.bulk-delete')
             ->middleware('permission:media.delete');
     });
 
     // Plugin Management
     Route::middleware('permission:plugins.view')->group(function () {
-        Route::get('plugins', [\App\Http\Controllers\Admin\PluginController::class, 'index'])->name('plugins.index');
-        Route::post('plugins', [\App\Http\Controllers\Admin\PluginController::class, 'store'])->name('plugins.store');
-        Route::post('plugins/{plugin}/activate', [\App\Http\Controllers\Admin\PluginController::class, 'activate'])->name('plugins.activate');
-        Route::post('plugins/{plugin}/deactivate', [\App\Http\Controllers\Admin\PluginController::class, 'deactivate'])->name('plugins.deactivate');
-        Route::delete('plugins/{plugin}', [\App\Http\Controllers\Admin\PluginController::class, 'destroy'])->name('plugins.destroy');
+        Route::get('plugins', [PluginController::class, 'index'])->name('plugins.index');
+        Route::post('plugins', [PluginController::class, 'store'])->name('plugins.store');
+        Route::post('plugins/{plugin}/activate', [PluginController::class, 'activate'])->name('plugins.activate');
+        Route::post('plugins/{plugin}/deactivate', [PluginController::class, 'deactivate'])->name('plugins.deactivate');
+        Route::delete('plugins/{plugin}', [PluginController::class, 'destroy'])->name('plugins.destroy');
     });
 
     // Theme Management
     Route::prefix('appearance')->name('themes.')->middleware('permission:themes.view')->group(function () {
-        Route::get('/themes', [\App\Http\Controllers\Admin\ThemesController::class, 'index'])->name('index');
-        Route::post('/themes/upload', [\App\Http\Controllers\Admin\ThemesController::class, 'upload'])->name('upload');
-        Route::post('/themes/{theme}/activate', [\App\Http\Controllers\Admin\ThemesController::class, 'activate'])->name('activate');
-        Route::delete('/themes/{theme}', [\App\Http\Controllers\Admin\ThemesController::class, 'destroy'])->name('destroy');
+        Route::get('/themes', [ThemesController::class, 'index'])->name('index');
+        Route::post('/themes/upload', [ThemesController::class, 'upload'])->name('upload');
+        Route::post('/themes/{theme}/activate', [ThemesController::class, 'activate'])->name('activate');
+        Route::delete('/themes/{theme}', [ThemesController::class, 'destroy'])->name('destroy');
     });
 
     // Custom Post Types Management
@@ -165,24 +186,26 @@ Route::prefix($adminPath)->name('admin.')->middleware(['auth', 'enforce-2fa'])->
         Route::get('/migration/wordpress', function () {
             return view('admin.cpt.wordpress-migration');
         })->name('wordpress-migration');
-        
+
         // CPT Entries (Content) Management
         Route::prefix('entries/{postTypeSlug}')->name('entries.')->group(function () {
             Route::get('/', function ($postTypeSlug) {
-                $postType = \App\Models\CustomPostType::where('slug', $postTypeSlug)->firstOrFail();
+                $postType = CustomPostType::where('slug', $postTypeSlug)->firstOrFail();
+
                 return view('admin.cpt.entries.index', ['postType' => $postType]);
             })->name('index');
             Route::get('/create', function ($postTypeSlug) {
-                $postType = \App\Models\CustomPostType::where('slug', $postTypeSlug)->firstOrFail();
+                $postType = CustomPostType::where('slug', $postTypeSlug)->firstOrFail();
+
                 return view('admin.cpt.entries.create', ['postType' => $postType]);
             })->name('create');
             Route::get('/{id}/edit', function ($postTypeSlug, $id) {
-                $postType = \App\Models\CustomPostType::where('slug', $postTypeSlug)->firstOrFail();
+                $postType = CustomPostType::where('slug', $postTypeSlug)->firstOrFail();
+
                 return view('admin.cpt.entries.edit', ['postType' => $postType, 'id' => $id]);
             })->name('edit');
         });
     });
-
 
     // Pages Management
     Route::prefix('pages')->name('pages.')->middleware('permission:pages.view')->group(function () {
@@ -195,37 +218,37 @@ Route::prefix($adminPath)->name('admin.')->middleware(['auth', 'enforce-2fa'])->
         Route::get('/{id}/edit', function ($id) {
             return view('admin.pages.edit', ['id' => $id]);
         })->name('edit')->middleware('permission:pages.edit');
-        Route::get('/{id}/preview', [\App\Http\Controllers\PageController::class, 'preview'])
+        Route::get('/{id}/preview', [PageController::class, 'preview'])
             ->name('preview')->middleware('permission:pages.edit');
     });
 
     // Forms Management
     Route::prefix('forms')->name('forms.')->middleware('permission:forms.view')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\FormController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\Admin\FormController::class, 'create'])
+        Route::get('/', [FormController::class, 'index'])->name('index');
+        Route::get('/create', [FormController::class, 'create'])
             ->name('create')
             ->middleware('permission:forms.create');
-        Route::post('/', [\App\Http\Controllers\Admin\FormController::class, 'store'])
+        Route::post('/', [FormController::class, 'store'])
             ->name('store')
             ->middleware('permission:forms.create');
-        Route::get('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'show'])->name('show');
-        Route::get('/{form}/edit', [\App\Http\Controllers\Admin\FormController::class, 'edit'])
+        Route::get('/{form}', [FormController::class, 'show'])->name('show');
+        Route::get('/{form}/edit', [FormController::class, 'edit'])
             ->name('edit')
             ->middleware('permission:forms.edit');
-        Route::put('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'update'])
+        Route::put('/{form}', [FormController::class, 'update'])
             ->name('update')
             ->middleware('permission:forms.edit');
-        Route::delete('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'destroy'])
+        Route::delete('/{form}', [FormController::class, 'destroy'])
             ->name('destroy')
             ->middleware('permission:forms.delete');
-        Route::get('/{form}/entries', [\App\Http\Controllers\Admin\FormController::class, 'entries'])
+        Route::get('/{form}/entries', [FormController::class, 'entries'])
             ->name('entries');
-        Route::get('/{form}/export', [\App\Http\Controllers\Admin\FormController::class, 'exportEntries'])
+        Route::get('/{form}/export', [FormController::class, 'exportEntries'])
             ->name('export');
-        Route::post('/{form}/toggle', [\App\Http\Controllers\Admin\FormController::class, 'toggleStatus'])
+        Route::post('/{form}/toggle', [FormController::class, 'toggleStatus'])
             ->name('toggle')
             ->middleware('permission:forms.edit');
-        Route::delete('/entries/{entry}', [\App\Http\Controllers\Admin\FormController::class, 'deleteEntry'])
+        Route::delete('/entries/{entry}', [FormController::class, 'deleteEntry'])
             ->name('entries.delete')
             ->middleware('permission:forms.delete');
     });
@@ -281,7 +304,8 @@ Route::prefix($adminPath)->name('admin.')->middleware(['auth', 'enforce-2fa'])->
             return redirect()->route('admin.settings.show', 'general');
         })->name('index');
         Route::get('/{group}', function (string $group) {
-            abort_unless(app(\App\Services\SettingsRegistry::class)->hasGroup($group), 404);
+            abort_unless(app(SettingsRegistry::class)->hasGroup($group), 404);
+
             return view('admin.settings.show', ['group' => $group]);
         })->name('show');
     });
@@ -300,12 +324,13 @@ Route::prefix($adminPath)->name('admin.')->middleware(['auth', 'enforce-2fa'])->
 
         // Taxonomy Terms Management
         Route::prefix('{taxonomy}/terms')->name('terms.')->group(function () {
-             Route::get('/', function ($taxonomyId) {
-                 $taxonomy = \App\Models\CustomTaxonomy::findOrFail($taxonomyId);
-                 return view('admin.taxonomies.terms.index', ['taxonomy' => $taxonomy]);
-             })->name('index');
+            Route::get('/', function ($taxonomyId) {
+                $taxonomy = CustomTaxonomy::findOrFail($taxonomyId);
 
-             });
+                return view('admin.taxonomies.terms.index', ['taxonomy' => $taxonomy]);
+            })->name('index');
+
+        });
     });
 });
 

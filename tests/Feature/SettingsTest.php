@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\SettingsRegistry;
@@ -22,15 +23,15 @@ class SettingsTest extends TestCase
     #[Test]
     public function setting_roundtrip_preserves_typed_value(): void
     {
-        Setting::set('count',     5,         'test', 'integer');
-        Setting::set('enabled',   true,      'test', 'boolean');
+        Setting::set('count', 5, 'test', 'integer');
+        Setting::set('enabled', true, 'test', 'boolean');
         Setting::set('site_name', 'My Site', 'test', 'string');
-        Setting::set('tags',      ['a','b'], 'test', 'array');
+        Setting::set('tags', ['a', 'b'], 'test', 'array');
 
-        $this->assertSame(5,           Setting::get('count'));
-        $this->assertSame(true,        Setting::get('enabled'));
-        $this->assertSame('My Site',   Setting::get('site_name'));
-        $this->assertSame(['a','b'],   Setting::get('tags'));
+        $this->assertSame(5, Setting::get('count'));
+        $this->assertSame(true, Setting::get('enabled'));
+        $this->assertSame('My Site', Setting::get('site_name'));
+        $this->assertSame(['a', 'b'], Setting::get('tags'));
     }
 
     #[Test]
@@ -78,9 +79,9 @@ class SettingsTest extends TestCase
         $this->actingAs($user);
 
         Setting::set('site_name', 'Original', 'general', 'string');
-        Setting::set('site_name', 'Updated',  'general', 'string');
+        Setting::set('site_name', 'Updated', 'general', 'string');
 
-        $audits = \App\Models\Activity::where('action', 'setting.updated')->get();
+        $audits = Activity::where('action', 'setting.updated')->get();
         $this->assertGreaterThanOrEqual(1, $audits->count());
         $last = $audits->last();
         $this->assertSame('site_name', $last->properties['key']);

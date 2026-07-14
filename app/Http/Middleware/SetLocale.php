@@ -39,8 +39,11 @@ class SetLocale
 
     protected static function isAllowed(?string $candidate): bool
     {
-        if (!$candidate) return false;
+        if (! $candidate) {
+            return false;
+        }
         $available = array_filter(array_map('trim', explode(',', (string) setting('available_locales', 'id,en'))));
+
         return in_array($candidate, $available, true);
     }
 }

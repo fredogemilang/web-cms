@@ -41,7 +41,7 @@ class MembershipBenefit extends Model
     public function getFormattedValueAttribute()
     {
         if ($this->benefit_type === 'discount' && isset($this->value['percentage'])) {
-            return $this->value['percentage'] . '%';
+            return $this->value['percentage'].'%';
         }
 
         if (isset($this->value['text'])) {

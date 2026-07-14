@@ -45,8 +45,9 @@ class ThemesController extends Controller
             return redirect()->route('admin.themes.index')
                 ->with('success', "Theme '{$theme->name}' installed successfully.");
         } catch (\Exception $e) {
-            Log::error("Theme install failed: " . $e->getMessage());
-            return back()->with('error', 'Failed to install theme: ' . $e->getMessage());
+            Log::error('Theme install failed: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to install theme: '.$e->getMessage());
         }
     }
 
@@ -60,8 +61,9 @@ class ThemesController extends Controller
 
             return back()->with('success', "Theme '{$theme->name}' activated successfully. Frontend will now use this theme.");
         } catch (\Exception $e) {
-            Log::error("Theme activation failed: " . $e->getMessage());
-            return back()->with('error', 'Failed to activate theme: ' . $e->getMessage());
+            Log::error('Theme activation failed: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to activate theme: '.$e->getMessage());
         }
     }
 
@@ -81,8 +83,9 @@ class ThemesController extends Controller
 
             return back()->with('success', "Theme '{$themeName}' deleted successfully.");
         } catch (\Exception $e) {
-            Log::error("Theme deletion failed: " . $e->getMessage());
-            return back()->with('error', 'Failed to delete theme: ' . $e->getMessage());
+            Log::error('Theme deletion failed: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to delete theme: '.$e->getMessage());
         }
     }
 }

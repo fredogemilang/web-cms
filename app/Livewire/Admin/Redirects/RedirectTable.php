@@ -11,6 +11,7 @@ class RedirectTable extends Component
     use WithPagination;
 
     public string $search = '';
+
     public int $perPage = 15;
 
     /** id being edited (0 = adding new, null = not editing) */
@@ -18,23 +19,23 @@ class RedirectTable extends Component
 
     /** form payload used for both add & edit */
     public array $form = [
-        'from_path'   => '',
-        'to_url'      => '',
+        'from_path' => '',
+        'to_url' => '',
         'status_code' => 302,
-        'is_regex'    => false,
-        'is_active'   => true,
-        'notes'       => '',
+        'is_regex' => false,
+        'is_active' => true,
+        'notes' => '',
     ];
 
     protected function rules(): array
     {
         return [
-            'form.from_path'   => ['required', 'string', 'max:500'],
-            'form.to_url'      => ['required', 'string', 'max:1000'],
+            'form.from_path' => ['required', 'string', 'max:500'],
+            'form.to_url' => ['required', 'string', 'max:1000'],
             'form.status_code' => ['required', 'integer', 'in:301,302,307,308'],
-            'form.is_regex'    => ['boolean'],
-            'form.is_active'   => ['boolean'],
-            'form.notes'       => ['nullable', 'string', 'max:500'],
+            'form.is_regex' => ['boolean'],
+            'form.is_active' => ['boolean'],
+            'form.notes' => ['nullable', 'string', 'max:500'],
         ];
     }
 
@@ -42,8 +43,8 @@ class RedirectTable extends Component
     {
         return [
             'form.from_path.required' => 'From path is required.',
-            'form.to_url.required'    => 'Target URL is required.',
-            'form.status_code.in'     => 'Status must be 301, 302, 307, or 308.',
+            'form.to_url.required' => 'Target URL is required.',
+            'form.status_code.in' => 'Status must be 301, 302, 307, or 308.',
         ];
     }
 
@@ -62,12 +63,12 @@ class RedirectTable extends Component
     {
         $row = Redirect::findOrFail($id);
         $this->form = [
-            'from_path'   => $row->from_path,
-            'to_url'      => $row->to_url,
+            'from_path' => $row->from_path,
+            'to_url' => $row->to_url,
             'status_code' => $row->status_code,
-            'is_regex'    => $row->is_regex,
-            'is_active'   => $row->is_active,
-            'notes'       => $row->notes ?? '',
+            'is_regex' => $row->is_regex,
+            'is_active' => $row->is_active,
+            'notes' => $row->notes ?? '',
         ];
         $this->editingId = $id;
     }
@@ -84,8 +85,8 @@ class RedirectTable extends Component
         $validated = $this->validate()['form'];
 
         // Normalize from_path: ensure leading slash for non-regex
-        if (!$validated['is_regex'] && !str_starts_with($validated['from_path'], '/')) {
-            $validated['from_path'] = '/' . $validated['from_path'];
+        if (! $validated['is_regex'] && ! str_starts_with($validated['from_path'], '/')) {
+            $validated['from_path'] = '/'.$validated['from_path'];
         }
 
         // Validate regex compiles before persisting
@@ -93,6 +94,7 @@ class RedirectTable extends Component
             $pattern = $this->delimitPatternPreview($validated['from_path']);
             if (@preg_match($pattern, '') === false) {
                 $this->addError('form.from_path', 'Invalid regex pattern.');
+
                 return;
             }
         }
@@ -106,6 +108,7 @@ class RedirectTable extends Component
         }
         if ($dupQuery->exists()) {
             $this->addError('form.from_path', 'A redirect rule for this path already exists.');
+
             return;
         }
 
@@ -125,12 +128,14 @@ class RedirectTable extends Component
     public function toggleActive(int $id): void
     {
         $row = Redirect::find($id);
-        if (!$row) return;
+        if (! $row) {
+            return;
+        }
 
-        $row->update(['is_active' => !$row->is_active]);
+        $row->update(['is_active' => ! $row->is_active]);
         $this->dispatch('notify', [
-            'type'    => 'success',
-            'message' => 'Redirect ' . ($row->is_active ? 'enabled' : 'disabled') . '.',
+            'type' => 'success',
+            'message' => 'Redirect '.($row->is_active ? 'enabled' : 'disabled').'.',
         ]);
     }
 
@@ -143,12 +148,12 @@ class RedirectTable extends Component
     protected function resetForm(): void
     {
         $this->form = [
-            'from_path'   => '',
-            'to_url'      => '',
+            'from_path' => '',
+            'to_url' => '',
             'status_code' => 302,
-            'is_regex'    => false,
-            'is_active'   => true,
-            'notes'       => '',
+            'is_regex' => false,
+            'is_active' => true,
+            'notes' => '',
         ];
     }
 
@@ -157,7 +162,8 @@ class RedirectTable extends Component
         if (preg_match('/^([\/#~|!@%&]).+\1[imsxuADSUXJ]*$/', $pattern)) {
             return $pattern;
         }
-        return '#' . str_replace('#', '\\#', $pattern) . '#';
+
+        return '#'.str_replace('#', '\\#', $pattern).'#';
     }
 
     public function render()
@@ -165,9 +171,9 @@ class RedirectTable extends Component
         $redirects = Redirect::query()
             ->when($this->search, function ($q) {
                 $q->where(function ($w) {
-                    $w->where('from_path', 'like', '%' . $this->search . '%')
-                      ->orWhere('to_url', 'like', '%' . $this->search . '%')
-                      ->orWhere('notes', 'like', '%' . $this->search . '%');
+                    $w->where('from_path', 'like', '%'.$this->search.'%')
+                        ->orWhere('to_url', 'like', '%'.$this->search.'%')
+                        ->orWhere('notes', 'like', '%'.$this->search.'%');
                 });
             })
             ->orderByDesc('id')

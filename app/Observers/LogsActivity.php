@@ -15,7 +15,7 @@ abstract class LogsActivity
 
     protected function subjectLabel(Model $model): string
     {
-        return $model->title ?? $model->name ?? $model->getTable() . ' #' . $model->getKey();
+        return $model->title ?? $model->name ?? $model->getTable().' #'.$model->getKey();
     }
 
     public function created(Model $model): void

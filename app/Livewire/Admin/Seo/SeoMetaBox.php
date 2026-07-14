@@ -3,24 +3,33 @@
 namespace App\Livewire\Admin\Seo;
 
 use App\Models\SeoMeta;
-use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class SeoMetaBox extends Component
 {
     public string $seoableType = '';
+
     public ?int $seoableId = null;
 
     public ?string $title = null;
+
     public ?string $description = null;
+
     public ?string $canonical_url = null;
+
     public string $robots = 'index,follow';
+
     public ?string $og_title = null;
+
     public ?string $og_description = null;
+
     public ?int $og_image_id = null;
+
     public string $twitter_card = 'summary_large_image';
+
     public ?string $schema_type = null;
+
     public ?string $focus_keyword = null;
 
     public function mount(string $seoableType, ?int $seoableId = null): void
@@ -32,10 +41,14 @@ class SeoMetaBox extends Component
 
     protected function loadExisting(): void
     {
-        if (! $this->seoableId) return;
+        if (! $this->seoableId) {
+            return;
+        }
         $row = SeoMeta::where('seoable_type', $this->seoableType)
             ->where('seoable_id', $this->seoableId)->first();
-        if (! $row) return;
+        if (! $row) {
+            return;
+        }
 
         $this->fill($row->only([
             'title', 'description', 'canonical_url', 'robots',

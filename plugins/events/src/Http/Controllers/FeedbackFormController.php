@@ -3,13 +3,12 @@
 namespace Plugins\Events\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Models\EventFeedbackQuestion;
-use Plugins\Events\Models\EventFeedbackOption;
 use Plugins\Events\Models\EventFeedbackResponse;
 use Plugins\Events\Models\EventRegistration;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class FeedbackFormController extends Controller
 {
@@ -40,7 +39,7 @@ class FeedbackFormController extends Controller
             ->where('uuid', $uuid)
             ->first();
 
-        if (!$registration) {
+        if (! $registration) {
             abort(404);
         }
 
@@ -48,7 +47,7 @@ class FeedbackFormController extends Controller
         $error = $this->checkEligibility($event, $registration);
 
         // Check duplicate
-        if (!$error) {
+        if (! $error) {
             $already = EventFeedbackResponse::where('event_id', $event->id)
                 ->where('event_registration_id', $registration->id)
                 ->exists();
@@ -82,7 +81,7 @@ class FeedbackFormController extends Controller
             ->first();
 
         // Generic error — don't leak registration/approval/checkin status
-        if (!$registration) {
+        if (! $registration) {
             return back()->withErrors([
                 'email' => 'Email not eligible for feedback. Please make sure you are registered, approved, and checked in for this event.',
             ])->withInput();
@@ -138,7 +137,7 @@ class FeedbackFormController extends Controller
             if ($q->is_required) {
                 $answer = $request->input("answers.{$q->id}");
                 if (empty($answer) && $answer !== '0') {
-                    return back()->withErrors(["answers.{$q->id}" => "This question is required."])->withInput();
+                    return back()->withErrors(["answers.{$q->id}" => 'This question is required.'])->withInput();
                 }
             }
         }
@@ -207,7 +206,7 @@ class FeedbackFormController extends Controller
         }
 
         // Must be checked in (if event requires it)
-        if ($event->feedback_require_checkin && !$registration->check_in) {
+        if ($event->feedback_require_checkin && ! $registration->check_in) {
             return 'Email not eligible for feedback. Please make sure you are registered, approved, and checked in for this event.';
         }
 

@@ -2,12 +2,11 @@
 
 namespace Plugins\ArticleSubmission\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Event;
-use Livewire\Livewire;
 use App\Events\RenderAdminMenu;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Plugins\ArticleSubmission\Livewire\ArticleSubmissionsTable;
-
 
 class ArticleSubmissionServiceProvider extends ServiceProvider
 {
@@ -19,13 +18,13 @@ class ArticleSubmissionServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load Routes
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+
         // Load Views
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'article-submission');
-        
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'article-submission');
+
         // Load Migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         // Register Livewire Components
         Livewire::component('plugins.article-submissions-table', ArticleSubmissionsTable::class);

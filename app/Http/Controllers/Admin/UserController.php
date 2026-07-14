@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +30,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
+
         return view('admin.users.create', compact('roles'));
     }
 
@@ -64,7 +65,7 @@ class UserController extends Controller
             'is_active' => $request->has('is_active'),
         ]);
 
-        if (!empty($validated['roles'])) {
+        if (! empty($validated['roles'])) {
             // Template uses single select, but we support multiple roles in backend
             // For now, we'll just attach the selected role
             $user->roles()->sync([$validated['roles']]);
@@ -81,6 +82,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         $user->load('roles');
+
         return view('admin.users.show', compact('user'));
     }
 
@@ -91,6 +93,7 @@ class UserController extends Controller
     {
         $roles = Role::all();
         $user->load('roles');
+
         return view('admin.users.edit', compact('user', 'roles'));
     }
 
@@ -112,7 +115,7 @@ class UserController extends Controller
             'email' => $validated['email'],
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $user->update([
                 'password' => Hash::make($validated['password']),
             ]);
@@ -126,8 +129,6 @@ class UserController extends Controller
             ->route('admin.users.index')
             ->with('success', 'User updated successfully.');
     }
-
-
 
     /**
      * Remove the specified user from storage.

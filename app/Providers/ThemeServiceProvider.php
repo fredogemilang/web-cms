@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Blade;
 use App\Services\ThemeLoader;
 use App\Services\ThemeManager;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
 
 class ThemeServiceProvider extends ServiceProvider
 {
@@ -15,11 +15,11 @@ class ThemeServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ThemeLoader::class, function ($app) {
-            return new ThemeLoader();
+            return new ThemeLoader;
         });
 
         $this->app->singleton(ThemeManager::class, function ($app) {
-            return new ThemeManager();
+            return new ThemeManager;
         });
     }
 

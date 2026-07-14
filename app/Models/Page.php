@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
+use App\Services\ThemeLoader;
 use App\Traits\HasSeoMeta;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Page extends Model
 {
-    use SoftDeletes, HasTranslations, HasSeoMeta;
+    use HasSeoMeta, HasTranslations, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -58,15 +59,16 @@ class Page extends Model
      */
     public static function getTemplates(): array
     {
-        $theme = app(\App\Services\ThemeLoader::class)->getActiveTheme();
+        $theme = app(ThemeLoader::class)->getActiveTheme();
         if ($theme) {
             $templates = $theme->getPageTemplates();
-            if (!empty($templates)) {
+            if (! empty($templates)) {
                 return collect($templates)
-                    ->mapWithKeys(fn($t, $key) => [$key => $t['label'] ?? ucfirst($key)])
+                    ->mapWithKeys(fn ($t, $key) => [$key => $t['label'] ?? ucfirst($key)])
                     ->toArray();
             }
         }
+
         return static::$templates;
     }
 
@@ -143,13 +145,14 @@ class Page extends Model
     public function getBlockValue(string $name, $default = null)
     {
         $block = $this->getBlock($name);
+
         return $block ? $block->value : $default;
     }
 
     public function isPublished(): bool
     {
         return $this->status === 'published' &&
-            (!$this->published_at || $this->published_at->isPast());
+            (! $this->published_at || $this->published_at->isPast());
     }
 
     public function isDraft(): bool
@@ -198,7 +201,7 @@ class Page extends Model
         $ancestors = $this->ancestors();
 
         foreach ($ancestors->reverse() as $ancestor) {
-            $path = $ancestor->slug . '/' . $path;
+            $path = $ancestor->slug.'/'.$path;
         }
 
         return $path;
@@ -233,6 +236,7 @@ class Page extends Model
                 ->first();
             if ($page) {
                 app()->setLocale($locale);
+
                 return $page;
             }
         }
@@ -246,7 +250,8 @@ class Page extends Model
     public function localizedUrl(string $locale): string
     {
         $slug = $this->getTranslation('slug', $locale);
-        return url('/' . ltrim($slug, '/'));
+
+        return url('/'.ltrim($slug, '/'));
     }
 
     public function getMetaTitle(): string
@@ -273,7 +278,7 @@ class Page extends Model
             $originalSlug = $page->slug;
             $counter = 1;
             while (static::where('slug', $page->slug)->exists()) {
-                $page->slug = $originalSlug . '-' . $counter;
+                $page->slug = $originalSlug.'-'.$counter;
                 $counter++;
             }
         });
@@ -284,7 +289,7 @@ class Page extends Model
                 $originalSlug = $page->slug;
                 $counter = 1;
                 while (static::where('slug', $page->slug)->where('id', '!=', $page->id)->exists()) {
-                    $page->slug = $originalSlug . '-' . $counter;
+                    $page->slug = $originalSlug.'-'.$counter;
                     $counter++;
                 }
             }

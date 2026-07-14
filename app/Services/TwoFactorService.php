@@ -22,7 +22,7 @@ class TwoFactorService
     public function generateRecoveryCodes(int $count = 8): array
     {
         return collect(range(1, $count))
-            ->map(fn () => Str::lower(Str::random(5)) . '-' . Str::lower(Str::random(5)))
+            ->map(fn () => Str::lower(Str::random(5)).'-'.Str::lower(Str::random(5)))
             ->all();
     }
 
@@ -37,6 +37,7 @@ class TwoFactorService
             'digits' => 6,
             'period' => 30,
         ]);
+
         return "otpauth://totp/{$label}?{$params}";
     }
 
@@ -52,12 +53,15 @@ class TwoFactorService
                 return true;
             }
         }
+
         return false;
     }
 
     public function consumeRecoveryCode(User $user, string $code): bool
     {
-        if (! $user->two_factor_recovery_codes) return false;
+        if (! $user->two_factor_recovery_codes) {
+            return false;
+        }
         try {
             $codes = json_decode(Crypt::decryptString($user->two_factor_recovery_codes), true) ?: [];
         } catch (\Throwable $e) {
@@ -69,10 +73,13 @@ class TwoFactorService
         $normalized = strtolower(trim(preg_replace('/\s+/u', '', $code)));
         $codes = array_map(fn ($c) => strtolower(trim((string) $c)), $codes);
         $idx = array_search($normalized, $codes, true);
-        if ($idx === false) return false;
+        if ($idx === false) {
+            return false;
+        }
         unset($codes[$idx]);
         $user->two_factor_recovery_codes = Crypt::encryptString(json_encode(array_values($codes)));
         $user->save();
+
         return true;
     }
 
@@ -94,7 +101,9 @@ class TwoFactorService
 
     public function decryptedSecret(User $user): ?string
     {
-        if (! $user->two_factor_secret) return null;
+        if (! $user->two_factor_secret) {
+            return null;
+        }
         try {
             return Crypt::decryptString($user->two_factor_secret);
         } catch (\Throwable $e) {
@@ -111,22 +120,28 @@ class TwoFactorService
     {
         $raw = (string) setting('auth_force_2fa_roles', '');
         $roles = array_filter(array_map('trim', explode(',', $raw)));
-        if (empty($roles)) return false;
-        if (! method_exists($user, 'roles')) return false;
+        if (empty($roles)) {
+            return false;
+        }
+        if (! method_exists($user, 'roles')) {
+            return false;
+        }
+
         return $user->roles()->whereIn('name', $roles)->exists();
     }
 
     protected function computeOtp(string $secret, int|float $counter): string
     {
-        $binary = pack('N*', 0) . pack('N*', (int) $counter);
+        $binary = pack('N*', 0).pack('N*', (int) $counter);
         $hash = hash_hmac('sha1', $binary, $this->base32Decode($secret), true);
         $offset = ord($hash[19]) & 0x0F;
         $code = (
-            ((ord($hash[$offset])     & 0x7F) << 24) |
+            ((ord($hash[$offset]) & 0x7F) << 24) |
             ((ord($hash[$offset + 1]) & 0xFF) << 16) |
-            ((ord($hash[$offset + 2]) & 0xFF) << 8)  |
+            ((ord($hash[$offset + 2]) & 0xFF) << 8) |
              (ord($hash[$offset + 3]) & 0xFF)
         ) % 1000000;
+
         return str_pad((string) $code, 6, '0', STR_PAD_LEFT);
     }
 
@@ -142,6 +157,7 @@ class TwoFactorService
             $chunk = str_pad($chunk, 5, '0');
             $out .= $alphabet[bindec($chunk)];
         }
+
         return $out;
     }
 
@@ -152,7 +168,9 @@ class TwoFactorService
         $bits = '';
         foreach (str_split($b32) as $c) {
             $idx = strpos($alphabet, $c);
-            if ($idx === false) continue;
+            if ($idx === false) {
+                continue;
+            }
             $bits .= str_pad(decbin($idx), 5, '0', STR_PAD_LEFT);
         }
         $bytes = '';
@@ -161,6 +179,7 @@ class TwoFactorService
                 $bytes .= chr(bindec($chunk));
             }
         }
+
         return $bytes;
     }
 }

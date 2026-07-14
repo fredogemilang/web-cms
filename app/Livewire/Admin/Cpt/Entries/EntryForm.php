@@ -6,29 +6,40 @@ use App\Models\CptEntry;
 use App\Models\CustomPostType;
 use App\Models\CustomTaxonomy;
 use App\Models\TaxonomyTerm;
-use Livewire\Component;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
-
-use Livewire\WithFileUploads;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\On;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class EntryForm extends Component
 {
     use WithFileUploads;
 
     public CustomPostType $postType;
+
     public ?int $entryId = null;
+
     public bool $isEdit = false;
 
     // Core Fields
     public string $title = '';
+
     public string $slug = '';
+
     public string $content = '';
+
     public string $excerpt = '';
+
     public ?string $featuredImage = null;
+
     public string $status = 'draft';
+
     public ?string $publishedAt = null;
+
     public ?int $parentId = null;
+
     public int $menuOrder = 0;
 
     // Meta Fields
@@ -36,6 +47,7 @@ class EntryForm extends Component
 
     // Taxonomy Terms
     public array $selectedTerms = [];
+
     public array $newTermInput = [];
 
     // UI State
@@ -43,8 +55,10 @@ class EntryForm extends Component
 
     // === Translations state ===
     public string $editingLocale = '';
+
     /** Per-locale snapshots of translatable form fields: {locale: {title, slug, content, excerpt}} */
     public array $localizedSnapshots = [];
+
     public array $availableLocales = [];
 
     protected function rules(): array
@@ -53,7 +67,7 @@ class EntryForm extends Component
 
         $rules = [
             'title' => $isDefaultLocale ? 'required|string|max:255' : 'nullable|string|max:255',
-            'slug'  => $isDefaultLocale ? 'required|string|max:255' : 'nullable|string|max:255',
+            'slug' => $isDefaultLocale ? 'required|string|max:255' : 'nullable|string|max:255',
             'content' => 'nullable|string',
             'excerpt' => 'nullable|string|max:500',
             'status' => 'required|in:draft,published,scheduled,archived',
@@ -86,8 +100,8 @@ class EntryForm extends Component
                     if (isset($field->options['repeater_fields'])) {
                         foreach ($field->options['repeater_fields'] as $subField) {
                             $subFieldId = $subField['id'] ?? Str::snake($subField['label'] ?? '');
-                            if (!empty($subFieldId) && !empty($subField['is_required'])) {
-                                $rules['meta.' . $field->name . '.*.' . $subFieldId] = 'required';
+                            if (! empty($subFieldId) && ! empty($subField['is_required'])) {
+                                $rules['meta.'.$field->name.'.*.'.$subFieldId] = 'required';
                             }
                         }
                     }
@@ -95,7 +109,7 @@ class EntryForm extends Component
                     break;
             }
 
-            $rules['meta.' . $field->name] = $fieldRules;
+            $rules['meta.'.$field->name] = $fieldRules;
         }
 
         return $rules;
@@ -106,7 +120,7 @@ class EntryForm extends Component
         $this->postType = $postType;
         $this->availableLocales = available_locales();
         $this->editingLocale = CptEntry::defaultLocale();
-        
+
         // Initialize meta fields with defaults
         foreach ($postType->metaFields as $field) {
             $defaultValue = $field->default_value;
@@ -114,12 +128,12 @@ class EntryForm extends Component
             // Handle options-based defaults (Select, Radio, Checkbox)
             if (in_array($field->type, ['select', 'radio', 'checkbox']) && isset($field->options['options_list'])) {
                 $optionsList = $field->options['options_list'];
-                
+
                 if ($field->type === 'checkbox') {
                     // For checkbox, default is an array of selected values
                     $defaultValues = [];
                     foreach ($optionsList as $option) {
-                        if (!empty($option['is_default'])) {
+                        if (! empty($option['is_default'])) {
                             $defaultValues[] = $option['value'];
                         }
                     }
@@ -127,7 +141,7 @@ class EntryForm extends Component
                 } else {
                     // For select/radio, find the first default
                     foreach ($optionsList as $option) {
-                        if (!empty($option['is_default'])) {
+                        if (! empty($option['is_default'])) {
                             $defaultValue = $option['value'];
                             break;
                         }
@@ -138,8 +152,8 @@ class EntryForm extends Component
             $this->meta[$field->name] = $defaultValue ?? '';
 
             // Ensure array for checkbox/gallery/repeater if empty logic
-            if (($field->type === 'checkbox' || $field->type === 'gallery' || $field->type === 'repeater') && !is_array($this->meta[$field->name])) {
-                 $this->meta[$field->name] = [];
+            if (($field->type === 'checkbox' || $field->type === 'gallery' || $field->type === 'repeater') && ! is_array($this->meta[$field->name])) {
+                $this->meta[$field->name] = [];
             }
         }
 
@@ -154,13 +168,13 @@ class EntryForm extends Component
     {
         // Find the field definition
         $field = $this->postType->metaFields->where('name', $fieldName)->first();
-        
+
         if ($field && $field->type === 'repeater' && isset($field->options['repeater_fields'])) {
             $newRow = [];
             foreach ($field->options['repeater_fields'] as $subField) {
                 // Initialize based on sub-field type
-                $rowKey = $subField['id'] ?? Str::snake($subField['label'] ?? 'field_' . $loop->index);
-                
+                $rowKey = $subField['id'] ?? Str::snake($subField['label'] ?? 'field_'.$loop->index);
+
                 // Determine default value
                 $defaultValue = '';
                 if (isset($subField['options']['options_list']) && is_array($subField['options']['options_list'])) {
@@ -171,15 +185,15 @@ class EntryForm extends Component
                         }
                     }
                 }
-                
+
                 $newRow[$rowKey] = $defaultValue;
             }
-            
+
             // Ensure the meta field is an array
-            if (!isset($this->meta[$fieldName]) || !is_array($this->meta[$fieldName])) {
+            if (! isset($this->meta[$fieldName]) || ! is_array($this->meta[$fieldName])) {
                 $this->meta[$fieldName] = [];
             }
-            
+
             $this->meta[$fieldName][] = $newRow;
         }
     }
@@ -197,7 +211,7 @@ class EntryForm extends Component
     {
         if ($field === 'featured_image') {
             $this->featuredImage = $mediaPath;
-        } 
+        }
         // Handle Meta Fields
         elseif (str_starts_with($field, 'meta.')) {
             $fieldName = str_replace('meta.', '', $field);
@@ -206,7 +220,7 @@ class EntryForm extends Component
         // Handle Gallery Addition
         elseif (str_starts_with($field, 'gallery_add.')) {
             $fieldName = str_replace('gallery_add.', '', $field);
-            if (!isset($this->meta[$fieldName])) {
+            if (! isset($this->meta[$fieldName])) {
                 $this->meta[$fieldName] = [];
             }
             $this->meta[$fieldName][] = $mediaPath;
@@ -237,7 +251,7 @@ class EntryForm extends Component
     protected function loadEntry()
     {
         $entry = CptEntry::with('terms')->findOrFail($this->entryId);
-        
+
         $this->title = $entry->title;
         $this->slug = $entry->slug;
         $this->content = $entry->content ?? '';
@@ -247,7 +261,7 @@ class EntryForm extends Component
         $this->publishedAt = $entry->published_at?->format('Y-m-d\TH:i');
         $this->parentId = $entry->parent_id;
         $this->menuOrder = $entry->menu_order;
-        
+
         // Load meta values
         if ($entry->meta) {
             foreach ($entry->meta as $key => $value) {
@@ -263,10 +277,12 @@ class EntryForm extends Component
         // Hydrate per-locale snapshots from the translations JSON column.
         $translations = $entry->translations ?? [];
         foreach ($translations as $locale => $fields) {
-            if ($locale === CptEntry::defaultLocale()) continue;
+            if ($locale === CptEntry::defaultLocale()) {
+                continue;
+            }
             $this->localizedSnapshots[$locale] = [
-                'title'   => $fields['title']   ?? '',
-                'slug'    => $fields['slug']    ?? '',
+                'title' => $fields['title'] ?? '',
+                'slug' => $fields['slug'] ?? '',
                 'content' => $fields['content'] ?? '',
                 'excerpt' => $fields['excerpt'] ?? '',
             ];
@@ -276,16 +292,20 @@ class EntryForm extends Component
     /** Switch the form between locale tabs (mirrors PageForm pattern). */
     public function switchLocale(string $newLocale): void
     {
-        if ($newLocale === $this->editingLocale) return;
-        if (!in_array($newLocale, $this->availableLocales, true)) return;
+        if ($newLocale === $this->editingLocale) {
+            return;
+        }
+        if (! in_array($newLocale, $this->availableLocales, true)) {
+            return;
+        }
 
         // Snapshot current form into the OLD locale's slot
         $this->localizedSnapshots[$this->editingLocale] = $this->currentLocaleFormSnapshot();
 
         // Load NEW locale's snapshot (blank if none yet)
         $next = $this->localizedSnapshots[$newLocale] ?? [];
-        $this->title   = $next['title']   ?? '';
-        $this->slug    = $next['slug']    ?? '';
+        $this->title = $next['title'] ?? '';
+        $this->slug = $next['slug'] ?? '';
         $this->content = $next['content'] ?? '';
         $this->excerpt = $next['excerpt'] ?? '';
 
@@ -296,8 +316,8 @@ class EntryForm extends Component
     protected function currentLocaleFormSnapshot(): array
     {
         return [
-            'title'   => $this->title,
-            'slug'    => $this->slug,
+            'title' => $this->title,
+            'slug' => $this->slug,
             'content' => $this->content,
             'excerpt' => $this->excerpt,
         ];
@@ -305,7 +325,7 @@ class EntryForm extends Component
 
     public function updatedTitle($value)
     {
-        if (!$this->isEdit && empty($this->slug)) {
+        if (! $this->isEdit && empty($this->slug)) {
             $this->slug = $this->ensureUniqueSlug(Str::slug($value));
         }
     }
@@ -319,7 +339,7 @@ class EntryForm extends Component
     {
         $originalSlug = $slug;
         $counter = 1;
-        
+
         while (true) {
             $slugQuery = CptEntry::withTrashed()
                 ->where('post_type_id', $this->postType->id)
@@ -329,12 +349,12 @@ class EntryForm extends Component
                 $slugQuery->where('id', '!=', $this->entryId);
             }
 
-            if (!$slugQuery->exists()) {
+            if (! $slugQuery->exists()) {
                 break;
             }
 
             $counter++;
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
         }
 
         return $slug;
@@ -342,13 +362,13 @@ class EntryForm extends Component
 
     public function toggleTerm(int $taxonomyId, int $termId)
     {
-        if (!isset($this->selectedTerms[$taxonomyId])) {
+        if (! isset($this->selectedTerms[$taxonomyId])) {
             $this->selectedTerms[$taxonomyId] = [];
         }
 
         if (in_array($termId, $this->selectedTerms[$taxonomyId])) {
             $this->selectedTerms[$taxonomyId] = array_values(
-                array_filter($this->selectedTerms[$taxonomyId], fn($id) => $id !== $termId)
+                array_filter($this->selectedTerms[$taxonomyId], fn ($id) => $id !== $termId)
             );
         } else {
             $this->selectedTerms[$taxonomyId][] = $termId;
@@ -373,7 +393,7 @@ class EntryForm extends Component
 
         try {
             $this->validate();
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->dispatch('notify', [
                 'type' => 'error',
                 'message' => 'There are validation errors. Please check the form.',
@@ -385,39 +405,41 @@ class EntryForm extends Component
         $defaultSnap = $this->localizedSnapshots[$defaultLocale] ?? $this->currentLocaleFormSnapshot();
 
         // Default-locale slug uniqueness — only enforce when we have a real slug to dedupe
-        if (!empty($defaultSnap['slug'])) {
+        if (! empty($defaultSnap['slug'])) {
             $defaultSnap['slug'] = $this->ensureUniqueSlug($defaultSnap['slug']);
         }
 
         // Build translations JSON from non-default locale snapshots
         $translations = [];
         foreach ($this->localizedSnapshots as $locale => $snap) {
-            if ($locale === $defaultLocale) continue;
+            if ($locale === $defaultLocale) {
+                continue;
+            }
             $localeFields = array_filter([
-                'title'   => ($snap['title']   ?? '') ?: null,
-                'slug'    => ($snap['slug']    ?? '') ?: null,
+                'title' => ($snap['title'] ?? '') ?: null,
+                'slug' => ($snap['slug'] ?? '') ?: null,
                 'content' => ($snap['content'] ?? '') ?: null,
                 'excerpt' => ($snap['excerpt'] ?? '') ?: null,
             ], fn ($v) => $v !== null);
-            if (!empty($localeFields)) {
+            if (! empty($localeFields)) {
                 $translations[$locale] = $localeFields;
             }
         }
 
         $data = [
             'post_type_id' => $this->postType->id,
-            'title'        => $defaultSnap['title']   ?? '',
-            'slug'         => $defaultSnap['slug']    ?? '',
-            'content'      => ($defaultSnap['content'] ?? '') ?: null,
-            'excerpt'      => ($defaultSnap['excerpt'] ?? '') ?: null,
+            'title' => $defaultSnap['title'] ?? '',
+            'slug' => $defaultSnap['slug'] ?? '',
+            'content' => ($defaultSnap['content'] ?? '') ?: null,
+            'excerpt' => ($defaultSnap['excerpt'] ?? '') ?: null,
             'featured_image' => $this->featuredImage,
             'status' => $this->status,
-            'published_at' => $this->status === 'published' && !$this->publishedAt
+            'published_at' => $this->status === 'published' && ! $this->publishedAt
                 ? now()
-                : ($this->publishedAt ? \Carbon\Carbon::parse($this->publishedAt) : null),
-            'parent_id'  => $this->parentId,
+                : ($this->publishedAt ? Carbon::parse($this->publishedAt) : null),
+            'parent_id' => $this->parentId,
             'menu_order' => $this->menuOrder,
-            'meta'       => $this->meta,
+            'meta' => $this->meta,
             'translations' => $translations ?: null,
         ];
 
@@ -438,7 +460,7 @@ class EntryForm extends Component
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => $this->isEdit 
+            'message' => $this->isEdit
                 ? "'{$this->title}' updated successfully."
                 : "'{$this->title}' created successfully.",
         ]);
@@ -448,9 +470,9 @@ class EntryForm extends Component
             // User requested to "move to ... edit", which implies they want to be on the edit page.
             // If we are already there, we can just return null or redirect to self.
             // Redirecting to self ensures the URL is correct if they came from somewhere else and keeps logic consistent.
-             return redirect()->route('admin.cpt.entries.edit', ['postTypeSlug' => $this->postType->slug, 'id' => $entry->id]);
+            return redirect()->route('admin.cpt.entries.edit', ['postTypeSlug' => $this->postType->slug, 'id' => $entry->id]);
         }
-        
+
         // If creating, we MUST redirect to the edit page
         return redirect()->route('admin.cpt.entries.edit', ['postTypeSlug' => $this->postType->slug, 'id' => $entry->id]);
     }
@@ -459,7 +481,7 @@ class EntryForm extends Component
     {
         $originalStatus = $this->status;
         $this->status = 'draft';
-        
+
         try {
             $this->save();
         } catch (\Exception $e) {
@@ -475,7 +497,7 @@ class EntryForm extends Component
 
         $this->status = 'published';
         $this->publishedAt = now()->format('Y-m-d\TH:i');
-        
+
         try {
             $this->save();
         } catch (\Exception $e) {
@@ -488,7 +510,7 @@ class EntryForm extends Component
     public function createTerm(int $taxonomyId)
     {
         $name = trim($this->newTermInput[$taxonomyId] ?? '');
-        
+
         if (empty($name)) {
             return;
         }
@@ -503,6 +525,7 @@ class EntryForm extends Component
                 'type' => 'error',
                 'message' => "Term '{$name}' already exists.",
             ]);
+
             return;
         }
 
@@ -510,7 +533,7 @@ class EntryForm extends Component
         // Assuming slug should be unique per taxonomy
         $slug = Str::slug($name);
         // Handle slug collision simplistically if needed, but for now simple slug
-        
+
         $term = TaxonomyTerm::create([
             'taxonomy_id' => $taxonomyId,
             'name' => $name,
@@ -519,7 +542,7 @@ class EntryForm extends Component
         ]);
 
         // Auto-select the new term
-        if (!isset($this->selectedTerms[$taxonomyId])) {
+        if (! isset($this->selectedTerms[$taxonomyId])) {
             $this->selectedTerms[$taxonomyId] = [];
         }
         // Assuming selectedTerms is array of IDs
@@ -553,7 +576,7 @@ class EntryForm extends Component
                 $taxonomyTerms[$taxonomy->id] = $this->flattenTerms($allTerms);
             } else {
                 $taxonomyTerms[$taxonomy->id] = $allTerms;
-                foreach($taxonomyTerms[$taxonomy->id] as $term) {
+                foreach ($taxonomyTerms[$taxonomy->id] as $term) {
                     $term->depth = 0;
                 }
             }
@@ -565,18 +588,18 @@ class EntryForm extends Component
             $query = CptEntry::where('post_type_id', $this->postType->id)
                 ->where('status', '!=', 'archived')
                 ->orderBy('title');
-            
+
             if ($this->isEdit) {
                 $query->where('id', '!=', $this->entryId);
             }
-            
+
             $possibleParents = $query->get();
         }
 
         // Get metaboxes and group fields
         $metaBoxes = $this->postType->settings['meta_boxes'] ?? [];
         $groupedFields = [];
-        
+
         foreach ($this->postType->metaFields as $field) {
             $group = $field->field_group ?: 'default';
             $groupedFields[$group][] = $field;

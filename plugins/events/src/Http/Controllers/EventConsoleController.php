@@ -3,9 +3,8 @@
 namespace Plugins\Events\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Plugins\Events\Models\Event;
 use Plugins\Events\Models\ApprovalType;
-use Illuminate\Http\Request;
+use Plugins\Events\Models\Event;
 
 class EventConsoleController extends Controller
 {
@@ -16,9 +15,9 @@ class EventConsoleController extends Controller
     {
         $event->loadCount([
             'registrations',
-            'registrations as pending_count' => fn($q) => $q->where('status', 'pending'),
-            'registrations as approved_count' => fn($q) => $q->where('status', 'approved'),
-            'registrations as checkedin_count' => fn($q) => $q->where('check_in', true),
+            'registrations as pending_count' => fn ($q) => $q->where('status', 'pending'),
+            'registrations as approved_count' => fn ($q) => $q->where('status', 'approved'),
+            'registrations as checkedin_count' => fn ($q) => $q->where('check_in', true),
         ]);
 
         return [

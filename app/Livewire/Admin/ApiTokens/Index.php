@@ -8,13 +8,16 @@ use Livewire\Component;
 class Index extends Component
 {
     public string $name = '';
+
     public string $allowedIps = '';
+
     public int $rateLimit = 60;
+
     public ?string $newPlaintextToken = null;
 
     public function create(): void
     {
-        $this->authorize();
+        $this->checkPermission();
         $this->validate([
             'name' => ['required', 'string', 'max:100'],
             'rateLimit' => ['required', 'integer', 'min:1', 'max:6000'],
@@ -47,7 +50,7 @@ class Index extends Component
         session()->flash('success', 'Token revoked.');
     }
 
-    protected function authorize(): void
+    protected function checkPermission(): void
     {
         abort_unless(auth()->user()?->hasPermission('api-tokens.create'), 403);
     }

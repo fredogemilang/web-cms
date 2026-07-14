@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('event_doorprize_winners', 'status')) {
+        if (! Schema::hasColumn('event_doorprize_winners', 'status')) {
             Schema::table('event_doorprize_winners', function (Blueprint $table) {
                 $table->string('status')->default('active')->after('registration_id');
             });

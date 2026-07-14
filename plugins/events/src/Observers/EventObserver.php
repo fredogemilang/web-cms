@@ -2,6 +2,7 @@
 
 namespace Plugins\Events\Observers;
 
+use Plugins\EmailTemplates\Models\ApprovalType;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Services\ApprovalTypeService;
 
@@ -30,8 +31,8 @@ class EventObserver
      */
     public function deleted(Event $event): void
     {
-        if (class_exists(\Plugins\EmailTemplates\Models\ApprovalType::class)) {
-            \Plugins\EmailTemplates\Models\ApprovalType::where('event_id', $event->id)->delete();
+        if (class_exists(ApprovalType::class)) {
+            ApprovalType::where('event_id', $event->id)->delete();
         }
     }
 }

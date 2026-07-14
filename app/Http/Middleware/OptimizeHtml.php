@@ -19,7 +19,7 @@ class OptimizeHtml
     {
         $response = $next($request);
 
-        if (!$this->shouldProcess($request, $response)) {
+        if (! $this->shouldProcess($request, $response)) {
             return $response;
         }
 
@@ -51,6 +51,7 @@ class OptimizeHtml
         }
 
         $response->setContent($html);
+
         return $response;
     }
 
@@ -62,20 +63,26 @@ class OptimizeHtml
             '/<script\b([^>]*\bsrc=("|\')([^"\']+)\2[^>]*)>/i',
             function ($m) use ($excludes) {
                 $attrs = $m[1];
-                $src   = $m[3];
+                $src = $m[3];
 
                 // Skip if already has defer/async
-                if (preg_match('/\b(defer|async)\b/i', $attrs)) return $m[0];
+                if (preg_match('/\b(defer|async)\b/i', $attrs)) {
+                    return $m[0];
+                }
 
                 // Skip if matches an exclude pattern
                 foreach ($excludes as $pattern) {
-                    if ($pattern !== '' && str_contains($src, $pattern)) return $m[0];
+                    if ($pattern !== '' && str_contains($src, $pattern)) {
+                        return $m[0];
+                    }
                 }
 
                 // Skip module scripts (already deferred by default)
-                if (preg_match('/type=["\']module["\']/i', $attrs)) return $m[0];
+                if (preg_match('/type=["\']module["\']/i', $attrs)) {
+                    return $m[0];
+                }
 
-                return '<script' . $attrs . ' defer>';
+                return '<script'.$attrs.' defer>';
             },
             $html,
         ) ?? $html;
@@ -84,19 +91,22 @@ class OptimizeHtml
     protected function inlineCriticalCss(string $html, string $css): string
     {
         // Strip line comments from CSS to keep payload lean, but preserve /* ... */ for safety
-        $tag = '<style data-critical>' . $css . '</style>';
+        $tag = '<style data-critical>'.$css.'</style>';
 
         // Insert just before </head>; fall back to prepend if no </head>
         if (stripos($html, '</head>') !== false) {
-            return preg_replace('/<\/head>/i', $tag . '</head>', $html, 1) ?? $html;
+            return preg_replace('/<\/head>/i', $tag.'</head>', $html, 1) ?? $html;
         }
-        return $tag . $html;
+
+        return $tag.$html;
     }
 
     protected function deferStylesheets(string $html): string
     {
         $patterns = array_filter(array_map('trim', explode("\n", (string) setting('pageopt_deferred_stylesheets', ''))));
-        if (empty($patterns)) return $html;
+        if (empty($patterns)) {
+            return $html;
+        }
 
         // Use the rel=preload + onload swap trick for non-blocking CSS
         return preg_replace_callback(
@@ -106,10 +116,12 @@ class OptimizeHtml
                 foreach ($patterns as $pat) {
                     if ($pat !== '' && str_contains($href, $pat)) {
                         $rest = preg_replace('/\brel=("|\')stylesheet\1/', 'rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"', $m[1]);
+
                         // Provide a <noscript> fallback for users without JS
-                        return '<link' . $rest . '><noscript><link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES) . '"></noscript>';
+                        return '<link'.$rest.'><noscript><link rel="stylesheet" href="'.htmlspecialchars($href, ENT_QUOTES).'"></noscript>';
                     }
                 }
+
                 return $m[0];
             },
             $html,
@@ -118,8 +130,12 @@ class OptimizeHtml
 
     protected function shouldProcess(Request $request, Response $response): bool
     {
-        if ($response->getStatusCode() !== 200) return false;
-        if (!str_contains((string) $response->headers->get('Content-Type'), 'text/html')) return false;
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+        if (! str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
+            return false;
+        }
 
         // Skip admin
         $adminPath = trim(config('admin.path', 'admin'), '/');
@@ -133,18 +149,20 @@ class OptimizeHtml
     protected function rewriteCdn(string $html): string
     {
         $base = rtrim((string) setting('cdn_base_url', ''), '/');
-        if ($base === '') return $html;
+        if ($base === '') {
+            return $html;
+        }
 
         $paths = array_filter(array_map('trim', explode("\n", (string) setting('cdn_paths_to_rewrite', ''))));
         $appUrl = rtrim((string) config('app.url'), '/');
 
         foreach ($paths as $path) {
-            $needle = $appUrl . '/' . ltrim($path, '/');
-            $html = str_replace($needle, $base . '/' . ltrim($path, '/'), $html);
+            $needle = $appUrl.'/'.ltrim($path, '/');
+            $html = str_replace($needle, $base.'/'.ltrim($path, '/'), $html);
             // Also rewrite root-relative
             $html = preg_replace(
-                '#(["\'(])(/' . preg_quote(ltrim($path, '/'), '#') . ')#',
-                '$1' . $base . '$2',
+                '#(["\'(])(/'.preg_quote(ltrim($path, '/'), '#').')#',
+                '$1'.$base.'$2',
                 $html,
             ) ?? $html;
         }
@@ -165,7 +183,7 @@ class OptimizeHtml
     {
         return preg_replace_callback(
             '/<img\b(?![^>]*\bloading=)([^>]*)>/i',
-            fn ($m) => '<img' . $m[1] . ' loading="lazy">',
+            fn ($m) => '<img'.$m[1].' loading="lazy">',
             $html,
         ) ?? $html;
     }
@@ -178,6 +196,7 @@ class OptimizeHtml
         $html = preg_replace('/>\s+</', '><', $html) ?? $html;
         // Collapse runs of whitespace inside text nodes
         $html = preg_replace('/\s{2,}/', ' ', $html) ?? $html;
+
         return trim($html);
     }
 }

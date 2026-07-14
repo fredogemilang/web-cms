@@ -2,25 +2,30 @@
 
 namespace Plugins\Events\Livewire;
 
-use Plugins\Events\Models\EventRegistration;
-use Plugins\Events\Models\Event;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventRegistration;
 
 class RegistrationsTable extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $eventFilter = '';
+
     public $statusFilter = '';
+
     public $perPage = 10;
-    
+
     // Sorting
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
-    
+
     public $selectedRegistrations = [];
+
     public $selectAll = false;
 
     protected $queryString = [
@@ -65,7 +70,7 @@ class RegistrationsTable extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedRegistrations = $this->registrations->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selectedRegistrations = $this->registrations->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedRegistrations = [];
         }
@@ -77,8 +82,8 @@ class RegistrationsTable extends Component
             ->with(['event', 'user'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->eventFilter, function ($query) {
@@ -101,8 +106,8 @@ class RegistrationsTable extends Component
         $baseQuery = EventRegistration::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->eventFilter, function ($query) {
@@ -134,7 +139,7 @@ class RegistrationsTable extends Component
     public function updateStatus($registrationId, $status)
     {
         $registration = EventRegistration::find($registrationId);
-        
+
         if ($registration) {
             $registration->update(['status' => $status]);
             session()->flash('success', 'Registration status updated successfully.');
@@ -145,26 +150,26 @@ class RegistrationsTable extends Component
     {
         $count = EventRegistration::whereIn('id', $this->selectedRegistrations)
             ->update(['status' => 'approved']);
-        
+
         $this->clearSelection();
-        session()->flash('success', $count . ' registration(s) approved.');
+        session()->flash('success', $count.' registration(s) approved.');
     }
 
     public function cancelSelected()
     {
         $count = EventRegistration::whereIn('id', $this->selectedRegistrations)
             ->update(['status' => 'rejected']);
-        
+
         $this->clearSelection();
-        session()->flash('success', $count . ' registration(s) rejected.');
+        session()->flash('success', $count.' registration(s) rejected.');
     }
 
     public function deleteSelected()
     {
         $count = EventRegistration::whereIn('id', $this->selectedRegistrations)->delete();
-        
+
         $this->clearSelection();
-        session()->flash('success', $count . ' registration(s) deleted.');
+        session()->flash('success', $count.' registration(s) deleted.');
     }
 
     public function render()

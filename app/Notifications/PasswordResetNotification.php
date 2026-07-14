@@ -22,7 +22,7 @@ class PasswordResetNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         $adminPath = trim(config('admin.path', 'admin'), '/');
-        $url = url("/{$adminPath}/reset-password/{$this->token}?email=" . urlencode($notifiable->email));
+        $url = url("/{$adminPath}/reset-password/{$this->token}?email=".urlencode($notifiable->email));
         $expires = (int) setting('auth_password_reset_expire_minutes', 60);
         $site = setting('site_name', config('app.name', 'Web CMS'));
 
@@ -49,7 +49,7 @@ class PasswordResetNotification extends Notification
         return (new MailMessage)
             ->subject("Reset Password — {$site}")
             ->greeting("Halo {$notifiable->name},")
-            ->line("Anda menerima email ini karena ada permintaan reset password untuk akun Anda.")
+            ->line('Anda menerima email ini karena ada permintaan reset password untuk akun Anda.')
             ->action('Reset Password', $url)
             ->line("Link ini akan kadaluarsa dalam {$expires} menit.")
             ->line('Jika Anda tidak meminta reset password, abaikan email ini.');

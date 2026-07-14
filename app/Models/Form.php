@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Jobs\SendFormNotificationJob;
+use App\Services\CaptchaService;
+use App\Services\FormConditionalLogic;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -82,17 +85,17 @@ class Form extends Model
 
         $attributes = array_merge($defaultAttributes, $attributes);
         $attributeString = collect($attributes)
-            ->map(fn($value, $key) => "{$key}=\"{$value}\"")
+            ->map(fn ($value, $key) => "{$key}=\"{$value}\"")
             ->implode(' ');
 
         $html = "<form {$attributeString}>";
         $html .= csrf_field();
-        
+
         // Spam protection - honeypot field
         if ($this->spam_protection['honeypot'] ?? false) {
             $html .= '<div style="display:none;"><input type="text" name="website_url" tabindex="-1" autocomplete="off"></div>';
         }
-        
+
         // Render fields with row wrapper for multi-column support
         $html .= '<div class="row">';
         foreach ($this->fields as $field) {
@@ -100,29 +103,29 @@ class Form extends Model
             $fieldHtml = $field->renderField();
             $fieldHtml = str_replace(
                 '<div class="form-group',
-                '<div data-field-id="' . $field->field_id . '" class="form-group',
+                '<div data-field-id="'.$field->field_id.'" class="form-group',
                 $fieldHtml
             );
             $html .= $fieldHtml;
         }
         $html .= '</div>';
-        
+
         // Render CAPTCHA widget if configured
         $captchaProvider = $this->spam_protection['captcha_provider'] ?? 'none';
         if ($captchaProvider !== 'none') {
-            $captchaService = new \App\Services\CaptchaService();
+            $captchaService = new CaptchaService;
             $html .= $captchaService->renderWidget($captchaProvider);
         }
 
         // Submit button with custom text
         $buttonText = $this->submit_button_text ?? 'Submit';
-        $html .= '<button type="submit" class="btn btn-primary">' . e($buttonText) . '</button>';
+        $html .= '<button type="submit" class="btn btn-primary">'.e($buttonText).'</button>';
         $html .= '</form>';
-        
+
         // Add conditional logic JavaScript if any field has conditions
-        $hasConditions = $this->fields->some(fn($f) => !empty($f->conditional_logic['conditions']));
+        $hasConditions = $this->fields->some(fn ($f) => ! empty($f->conditional_logic['conditions']));
         if ($hasConditions) {
-            $conditionalLogic = new \App\Services\FormConditionalLogic();
+            $conditionalLogic = new FormConditionalLogic;
             $html .= $conditionalLogic->renderJavaScript($this);
         }
 
@@ -136,48 +139,48 @@ class Form extends Model
     {
         $validatedData = [];
         $errors = [];
-        
+
         // Check honeypot spam protection
         if ($this->spam_protection['honeypot'] ?? false) {
             $honeypotValue = $data['website_url'] ?? null;
-            if (!empty($honeypotValue)) {
+            if (! empty($honeypotValue)) {
                 // Bot detected - silently reject
                 return ['success' => false, 'errors' => ['spam' => 'Submission rejected.']];
             }
             // Remove honeypot from data
             unset($data['website_url']);
         }
-        
+
         // Verify CAPTCHA if configured
         $captchaProvider = $this->spam_protection['captcha_provider'] ?? 'none';
         if ($captchaProvider !== 'none') {
-            $captchaService = new \App\Services\CaptchaService();
+            $captchaService = new CaptchaService;
             $responseField = $captchaService->getResponseFieldName($captchaProvider);
             $captchaResponse = $data[$responseField] ?? '';
-            
+
             $ip = $request ? $request->ip() : null;
-            if (!$captchaService->verify($captchaProvider, $captchaResponse, $ip)) {
+            if (! $captchaService->verify($captchaProvider, $captchaResponse, $ip)) {
                 return ['success' => false, 'errors' => ['captcha' => 'CAPTCHA verification failed. Please try again.']];
             }
-            
+
             // Remove captcha response from data
             unset($data[$responseField]);
         }
-        
+
         // Initialize conditional logic evaluator
-        $conditionalLogic = new \App\Services\FormConditionalLogic();
+        $conditionalLogic = new FormConditionalLogic;
 
         foreach ($this->fields as $field) {
             $value = $data[$field->field_id] ?? null;
-            
+
             // Check if field is visible based on conditional logic
             $isVisible = $conditionalLogic->evaluateVisibility($field, $data);
-            
+
             // Skip validation for hidden fields
-            if (!$isVisible) {
+            if (! $isVisible) {
                 continue;
             }
-            
+
             // Validate field
             $validation = $field->validateValue($value);
             if ($validation !== true) {
@@ -187,7 +190,7 @@ class Form extends Model
             }
         }
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return ['success' => false, 'errors' => $errors];
         }
 
@@ -198,10 +201,10 @@ class Form extends Model
             'user_agent' => $request ? $request->userAgent() : null,
             'user_id' => auth()->id(),
         ]);
-        
+
         // Dispatch notifications onto the queue so the public POST returns quickly.
         // (With QUEUE_CONNECTION=sync this still runs inline.)
-        \App\Jobs\SendFormNotificationJob::dispatch($this->id, $entry->id);
+        SendFormNotificationJob::dispatch($this->id, $entry->id);
 
         return ['success' => true, 'entry' => $entry];
     }

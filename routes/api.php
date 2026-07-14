@@ -32,7 +32,7 @@ Route::middleware('api.cors')->prefix('v1')->group(function () {
         return response()->json([
             'openapi' => '3.1.0',
             'info' => [
-                'title' => setting('site_name', config('app.name')) . ' API',
+                'title' => setting('site_name', config('app.name')).' API',
                 'version' => '1.0.0',
                 'description' => 'Public content + authenticated mutation surface.',
             ],

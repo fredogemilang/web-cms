@@ -4,17 +4,18 @@ namespace App\Livewire\Admin\Taxonomies\Terms;
 
 use App\Models\CustomTaxonomy;
 use App\Models\TaxonomyTerm;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 
 class TermTable extends Component
 {
     use WithPagination;
 
     public CustomTaxonomy $taxonomy;
-    
+
     public string $search = '';
 
     #[On('term-saved')]
@@ -24,8 +25,11 @@ class TermTable extends Component
         // Actually, just calling a method triggers re-render.
         $this->resetPage();
     }
+
     public string $sortField = 'name';
+
     public string $sortDirection = 'asc';
+
     public int $perPage = 10;
 
     protected $queryString = [
@@ -55,6 +59,7 @@ class TermTable extends Component
     }
 
     public $targetDeleteId = null;
+
     public $showDeleteModal = false;
 
     public function confirmDelete(int $id)
@@ -71,13 +76,13 @@ class TermTable extends Component
 
     public function performDelete()
     {
-        if (!$this->targetDeleteId) {
+        if (! $this->targetDeleteId) {
             return;
         }
 
         $term = TaxonomyTerm::findOrFail($this->targetDeleteId);
         $name = $term->name;
-        
+
         $term->delete();
 
         $this->dispatch('notify', [
@@ -98,20 +103,20 @@ class TermTable extends Component
         // Apply search
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('slug', 'like', '%' . $this->search . '%')
-                  ->orWhere('description', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('slug', 'like', '%'.$this->search.'%')
+                    ->orWhere('description', 'like', '%'.$this->search.'%');
             });
         }
 
-        // If taxonomy is flat or searching, or sorting by a non-name field, 
+        // If taxonomy is flat or searching, or sorting by a non-name field,
         // fallback to standard pagination (flat list)
-        if (!$this->taxonomy->is_hierarchical || $this->search || $this->sortField !== 'name') {
+        if (! $this->taxonomy->is_hierarchical || $this->search || $this->sortField !== 'name') {
             $terms = $query->orderBy($this->sortField, $this->sortDirection)
-                          ->paginate($this->perPage);
-            
+                ->paginate($this->perPage);
+
             // For searches on hierarchical taxonomies, we might want to flag they are not hierarchical view
-            foreach($terms as $term) {
+            foreach ($terms as $term) {
                 $term->depth = 0;
             }
         } else {
@@ -119,15 +124,15 @@ class TermTable extends Component
             // For very large ones, this needs a different approach (like parent_id filtering)
             $allTerms = $query->orderBy('name', $this->sortDirection)->get();
             $hierarchicalTerms = $this->flattenTerms($allTerms);
-            
+
             // Manual pagination for the hierarchical collection
             $currentPage = $this->getPage();
-            $terms = new \Illuminate\Pagination\LengthAwarePaginator(
+            $terms = new LengthAwarePaginator(
                 $hierarchicalTerms->forPage($currentPage, $this->perPage),
                 $hierarchicalTerms->count(),
                 $this->perPage,
                 $currentPage,
-                ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+                ['path' => Paginator::resolveCurrentPath()]
             );
         }
 

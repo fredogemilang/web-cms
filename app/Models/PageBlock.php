@@ -211,6 +211,7 @@ class PageBlock extends Model
     public function getColorClasses(): string
     {
         $color = $this->getTypeColor();
+
         return static::$colorClasses[$color] ?? 'bg-gray-500/10 text-gray-500';
     }
 
@@ -246,7 +247,7 @@ class PageBlock extends Model
      */
     public function localizedValue(?string $locale = null)
     {
-        if (!in_array($this->type, static::$translatableTypes, true)) {
+        if (! in_array($this->type, static::$translatableTypes, true)) {
             return $this->getDecodedValue();
         }
 
@@ -256,6 +257,7 @@ class PageBlock extends Model
         if ($this->type === 'repeater' && is_string($raw)) {
             return json_decode($raw, true) ?: [];
         }
+
         return $raw;
     }
 

@@ -2,55 +2,69 @@
 
 namespace Plugins\Events\Livewire;
 
+use App\Models\Media;
+use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\On;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Models\EventCategory;
 use Plugins\Events\Models\Speaker;
-use App\Models\Media;
-use Illuminate\Support\Str;
 
 class EventConsoleGeneral extends Component
 {
     use WithFileUploads;
 
     public $eventId;
+
     public $event;
 
     // Basic Info
     public $title = '';
+
     public $slug = '';
+
     public $description = '';
+
     public $content = '';
 
     // Publishing
     public $status = 'draft';
+
     public $category_id = null;
 
     // Location
     public $event_type = 'offline';
+
     public $location = '';
+
     public $location_address = '';
+
     public $location_url = '';
+
     public $latitude;
+
     public $longitude;
+
     public $online_meeting_url = '';
-
-
 
     // Speakers
     public $speakers = [];
 
     // Media
     public $featured_image;
+
     public $featured_image_id;
+
     public $existingFeaturedImage;
+
     public $gallery_images = [];
 
     // SEO
     public $meta_title = '';
+
     public $meta_description = '';
+
     public $meta_keywords = '';
 
     protected $listeners = ['console-save' => 'save'];
@@ -62,7 +76,7 @@ class EventConsoleGeneral extends Component
             $this->featured_image_id = $mediaId;
             $this->existingFeaturedImage = Media::find($mediaId);
         } elseif ($field === 'gallery_images') {
-            if (!in_array($mediaPath, $this->gallery_images)) {
+            if (! in_array($mediaPath, $this->gallery_images)) {
                 $this->gallery_images[] = $mediaPath;
             }
         }
@@ -104,8 +118,6 @@ class EventConsoleGeneral extends Component
         $this->longitude = $e->longitude;
         $this->online_meeting_url = $e->online_meeting_url;
 
-
-
         // Speakers
         $this->speakers = $e->speakers->pluck('id')->toArray();
 
@@ -142,13 +154,15 @@ class EventConsoleGeneral extends Component
 
     protected function makeUniqueSlug(string $slug): string
     {
-        if (empty($slug)) return '';
+        if (empty($slug)) {
+            return '';
+        }
 
         $original = $slug;
         $counter = 2;
 
         while (Event::where('slug', $slug)->where('id', '!=', $this->eventId)->exists()) {
-            $slug = $original . '-' . $counter;
+            $slug = $original.'-'.$counter;
             $counter++;
         }
 
@@ -174,7 +188,7 @@ class EventConsoleGeneral extends Component
     {
         $this->validate([
             'title' => 'required|min:3|max:255',
-            'slug' => 'required|unique:events,slug,' . $this->eventId,
+            'slug' => 'required|unique:events,slug,'.$this->eventId,
             'status' => 'required|in:draft,published,cancelled,completed',
             'category_id' => 'nullable|exists:event_categories,id',
         ]);
@@ -212,7 +226,7 @@ class EventConsoleGeneral extends Component
             'gallery_images' => $this->gallery_images,
             'meta_title' => $this->meta_title,
             'meta_description' => $this->meta_description,
-            'meta_keywords' => !empty($this->meta_keywords) ? array_map('trim', explode(',', $this->meta_keywords)) : [],
+            'meta_keywords' => ! empty($this->meta_keywords) ? array_map('trim', explode(',', $this->meta_keywords)) : [],
             'published_at' => $this->status === 'published' ? ($this->event->published_at ?? now()) : $this->event->published_at,
         ]);
 

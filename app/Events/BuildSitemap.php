@@ -26,10 +26,10 @@ class BuildSitemap
     public function add(string $loc, mixed $lastmod = null, ?string $changefreq = null, ?float $priority = null): self
     {
         $this->urls[] = array_filter([
-            'loc'        => $loc,
-            'lastmod'    => $lastmod,
+            'loc' => $loc,
+            'lastmod' => $lastmod,
             'changefreq' => $changefreq,
-            'priority'   => $priority,
+            'priority' => $priority,
         ], fn ($v) => $v !== null);
 
         return $this;

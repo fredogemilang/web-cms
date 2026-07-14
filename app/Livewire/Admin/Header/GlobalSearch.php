@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin\Header;
 
 use App\Models\CptEntry;
-use App\Models\CustomPostType;
 use App\Models\Form;
 use App\Models\Page;
 use App\Models\User;
@@ -12,6 +11,7 @@ use Livewire\Component;
 class GlobalSearch extends Component
 {
     public string $query = '';
+
     public bool $open = false;
 
     public function updatedQuery(): void
@@ -32,7 +32,7 @@ class GlobalSearch extends Component
 
         if ($q !== '' && strlen($q) >= 2) {
             $user = auth()->user();
-            $like = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $q) . '%';
+            $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
 
             if ($user?->hasPermission('pages.view') || $user?->isSuperAdmin()) {
                 $results['pages'] = Page::query()
@@ -69,10 +69,10 @@ class GlobalSearch extends Component
         $totalResults = array_sum(array_map(fn ($r) => $r instanceof \Countable || is_array($r) ? count($r) : $r->count(), $results));
 
         return view('livewire.admin.header.global-search', [
-            'results'       => $results,
-            'totalResults'  => $totalResults,
-            'isSearching'   => $q !== '',
-            'isTooShort'    => $q !== '' && strlen($q) < 2,
+            'results' => $results,
+            'totalResults' => $totalResults,
+            'isSearching' => $q !== '',
+            'isTooShort' => $q !== '' && strlen($q) < 2,
         ]);
     }
 }

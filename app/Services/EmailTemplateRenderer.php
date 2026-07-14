@@ -39,6 +39,7 @@ class EmailTemplateRenderer
                 return '';
             }
             $string = (string) $value;
+
             return $escape ? e($string) : $string;
         }, $template);
     }
@@ -52,6 +53,7 @@ class EmailTemplateRenderer
         $tpl = EmailTemplate::findByKey($key);
         if (! $tpl) {
             \Log::warning("EmailTemplate not found: {$key}");
+
             return false;
         }
 
@@ -59,19 +61,21 @@ class EmailTemplateRenderer
         $variables = array_replace_recursive([
             'site' => [
                 'name' => setting('site_name', config('app.name')),
-                'url'  => url('/'),
+                'url' => url('/'),
             ],
         ], $variables);
 
         // Subject and plain-text body are non-HTML contexts → no escaping.
         $subject = $this->renderRaw($tpl->subject, $variables);
-        $html    = $this->render($tpl->body_html, $variables);
-        $text    = $tpl->body_text ? $this->renderRaw($tpl->body_text, $variables) : null;
+        $html = $this->render($tpl->body_html, $variables);
+        $text = $tpl->body_text ? $this->renderRaw($tpl->body_text, $variables) : null;
 
         Mail::send([], [], function ($message) use ($to, $subject, $html, $text) {
             $message->to($to)->subject($subject);
             $message->html($html);
-            if ($text) $message->text($text);
+            if ($text) {
+                $message->text($text);
+            }
         });
 
         return true;

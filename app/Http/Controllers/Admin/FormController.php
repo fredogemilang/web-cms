@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Form;
-use App\Models\FormField;
+use App\Models\FormEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class FormController extends Controller
 {
@@ -90,11 +92,11 @@ class FormController extends Controller
                 'data' => $form->load('fields'),
             ]);
         } catch (\Exception $e) {
-            \Log::error('Form creation failed: ' . $e->getMessage());
-            
+            \Log::error('Form creation failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Form creation failed: ' . $e->getMessage(),
+                'message' => 'Form creation failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -105,6 +107,7 @@ class FormController extends Controller
     public function show(Form $form)
     {
         $form->load(['fields', 'entries']);
+
         return view('admin.forms.show', compact('form'));
     }
 
@@ -114,6 +117,7 @@ class FormController extends Controller
     public function edit(Form $form)
     {
         $form->load('fields');
+
         return view('admin.forms.edit', compact('form'));
     }
 
@@ -124,7 +128,7 @@ class FormController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:forms,slug,' . $form->id,
+            'slug' => 'nullable|string|max:255|unique:forms,slug,'.$form->id,
             'description' => 'nullable|string',
             'is_active' => 'boolean',
             'settings' => 'nullable|array',
@@ -180,7 +184,7 @@ class FormController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Form update failed: ' . $e->getMessage(),
+                'message' => 'Form update failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -200,7 +204,7 @@ class FormController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Form deletion failed: ' . $e->getMessage(),
+                'message' => 'Form deletion failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -211,15 +215,15 @@ class FormController extends Controller
     public function entries(Form $form, Request $request)
     {
         $query = $form->entries()->with('user')->latest();
-        
+
         // Search across all fields
         if ($search = $request->get('search')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('data', 'like', "%{$search}%")
-                  ->orWhere('ip_address', 'like', "%{$search}%");
+                    ->orWhere('ip_address', 'like', "%{$search}%");
             });
         }
-        
+
         // Date range filter
         if ($dateFrom = $request->get('date_from')) {
             $query->whereDate('created_at', '>=', $dateFrom);
@@ -227,7 +231,7 @@ class FormController extends Controller
         if ($dateTo = $request->get('date_to')) {
             $query->whereDate('created_at', '<=', $dateTo);
         }
-        
+
         // Get stats before pagination
         $stats = [
             'total' => $form->entries()->count(),
@@ -235,9 +239,9 @@ class FormController extends Controller
             'this_week' => $form->entries()->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
             'this_month' => $form->entries()->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
         ];
-        
+
         $entries = $query->paginate(25)->withQueryString();
-        
+
         return view('admin.forms.entries', compact('form', 'entries', 'stats'));
     }
 
@@ -248,53 +252,54 @@ class FormController extends Controller
     {
         $entries = $form->entries()->with('user')->get();
         $format = $request->get('format', 'xlsx');
-        
+
         if ($entries->isEmpty()) {
             return back()->with('error', 'No entries to export');
         }
-        
-        $baseFilename = Str::slug($form->name) . '-entries-' . now()->format('Y-m-d');
-        
+
+        $baseFilename = Str::slug($form->name).'-entries-'.now()->format('Y-m-d');
+
         switch ($format) {
             case 'pdf':
                 // Generate simple HTML table for PDF
                 $html = $this->generatePdfHtml($form, $entries);
+
                 return response($html, 200, [
                     'Content-Type' => 'text/html',
                     'Content-Disposition' => "attachment; filename=\"{$baseFilename}.html\"",
                 ]);
-                
+
             default: // xlsx, excel, csv
-                $filename = $baseFilename . '.xlsx';
-                
-                $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                $filename = $baseFilename.'.xlsx';
+
+                $spreadsheet = new Spreadsheet;
                 $sheet = $spreadsheet->getActiveSheet();
-                
+
                 // Header row
                 $headers = ['ID', 'Submitted At', 'IP Address'];
                 foreach ($form->fields as $field) {
-                    if (!in_array($field->type, ['section', 'divider', 'html'])) {
+                    if (! in_array($field->type, ['section', 'divider', 'html'])) {
                         $headers[] = $field->label;
                     }
                 }
                 $sheet->fromArray($headers, null, 'A1');
-                
+
                 // Data rows
                 $rowNumber = 2;
                 foreach ($entries as $entry) {
                     $row = [$entry->id, $entry->created_at->format('Y-m-d H:i:s'), $entry->ip_address];
                     foreach ($form->fields as $field) {
-                        if (!in_array($field->type, ['section', 'divider', 'html'])) {
+                        if (! in_array($field->type, ['section', 'divider', 'html'])) {
                             $value = $entry->getFieldValue($field->field_id);
                             $row[] = is_array($value) ? implode(', ', $value) : $value;
                         }
                     }
-                    $sheet->fromArray($row, null, 'A' . $rowNumber);
+                    $sheet->fromArray($row, null, 'A'.$rowNumber);
                     $rowNumber++;
                 }
-                
-                return response()->streamDownload(function() use ($spreadsheet) {
-                    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+                return response()->streamDownload(function () use ($spreadsheet) {
+                    $writer = new Xlsx($spreadsheet);
                     $writer->save('php://output');
                 }, $filename, [
                     'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -302,37 +307,38 @@ class FormController extends Controller
                 ]);
         }
     }
-    
+
     /**
      * Generate PDF-ready HTML for entries.
      */
     protected function generatePdfHtml(Form $form, $entries)
     {
-        $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' . e($form->name) . ' - Entries</title>';
+        $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'.e($form->name).' - Entries</title>';
         $html .= '<style>body{font-family:Arial,sans-serif;font-size:12px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f5f5f5}h1{color:#333}</style></head><body>';
-        $html .= '<h1>' . e($form->name) . ' - Form Entries</h1>';
-        $html .= '<p>Exported: ' . now()->format('F j, Y g:i A') . ' | Total: ' . $entries->count() . ' entries</p>';
+        $html .= '<h1>'.e($form->name).' - Form Entries</h1>';
+        $html .= '<p>Exported: '.now()->format('F j, Y g:i A').' | Total: '.$entries->count().' entries</p>';
         $html .= '<table><thead><tr><th>ID</th><th>Submitted</th>';
-        
+
         foreach ($form->fields as $field) {
-            if (!in_array($field->type, ['section', 'divider', 'html'])) {
-                $html .= '<th>' . e($field->label) . '</th>';
+            if (! in_array($field->type, ['section', 'divider', 'html'])) {
+                $html .= '<th>'.e($field->label).'</th>';
             }
         }
         $html .= '</tr></thead><tbody>';
-        
+
         foreach ($entries as $entry) {
-            $html .= '<tr><td>#' . $entry->id . '</td><td>' . $entry->created_at->format('M d, Y H:i') . '</td>';
+            $html .= '<tr><td>#'.$entry->id.'</td><td>'.$entry->created_at->format('M d, Y H:i').'</td>';
             foreach ($form->fields as $field) {
-                if (!in_array($field->type, ['section', 'divider', 'html'])) {
+                if (! in_array($field->type, ['section', 'divider', 'html'])) {
                     $value = $entry->getFieldValue($field->field_id);
-                    $html .= '<td>' . e(is_array($value) ? implode(', ', $value) : $value) . '</td>';
+                    $html .= '<td>'.e(is_array($value) ? implode(', ', $value) : $value).'</td>';
                 }
             }
             $html .= '</tr>';
         }
-        
+
         $html .= '</tbody></table></body></html>';
+
         return $html;
     }
 
@@ -342,7 +348,7 @@ class FormController extends Controller
     public function toggleStatus(Form $form)
     {
         try {
-            $form->update(['is_active' => !$form->is_active]);
+            $form->update(['is_active' => ! $form->is_active]);
 
             return response()->json([
                 'success' => true,
@@ -352,20 +358,20 @@ class FormController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Status update failed: ' . $e->getMessage(),
+                'message' => 'Status update failed: '.$e->getMessage(),
             ], 500);
         }
     }
-    
+
     /**
      * Delete a form entry.
      */
     public function deleteEntry($entryId)
     {
         try {
-            $entry = \App\Models\FormEntry::findOrFail($entryId);
+            $entry = FormEntry::findOrFail($entryId);
             $entry->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Entry deleted successfully',
@@ -373,7 +379,7 @@ class FormController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete entry: ' . $e->getMessage(),
+                'message' => 'Failed to delete entry: '.$e->getMessage(),
             ], 500);
         }
     }

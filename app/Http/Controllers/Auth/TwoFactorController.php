@@ -19,6 +19,7 @@ class TwoFactorController extends Controller
         if (! $request->session()->has('2fa.user_id')) {
             return redirect()->route('login');
         }
+
         return view('auth.two-factor');
     }
 
@@ -31,7 +32,7 @@ class TwoFactorController extends Controller
 
         $user = User::findOrFail($userId);
 
-        $key = '2fa|' . $user->id . '|' . $request->ip();
+        $key = '2fa|'.$user->id.'|'.$request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             throw ValidationException::withMessages([
                 'code' => 'Terlalu banyak percobaan. Coba lagi nanti.',

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use App\Services\ThemeLoader;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
 class PageController extends Controller
@@ -13,7 +12,7 @@ class PageController extends Controller
     {
         // Locale-aware slug lookup — auto-switches app locale if matched on a translated slug.
         $page = Page::findByLocalizedSlug($slug);
-        abort_if(!$page, 404);
+        abort_if(! $page, 404);
 
         // Load blocks (shared across locales for now)
         $page->load(['blocks' => function ($q) {
@@ -35,7 +34,7 @@ class PageController extends Controller
         // Use active theme's slug as namespace, fallback to 'iccom'
         $theme = app(ThemeLoader::class)->getActiveTheme();
         $themeNamespace = $theme?->slug ?? 'iccom';
-        
+
         $candidates = [
             // Theme Specific
             "{$themeNamespace}::pages.{$slug}",
@@ -45,8 +44,8 @@ class PageController extends Controller
             // Default
             "pages.{$slug}",                    // page-about-us.blade.php
             "pages.template-{$template}",       // page-template-landing.blade.php
-            "pages.single",                     // pages/single.blade.php
-            "layouts.page",                     // layouts/page.blade.php
+            'pages.single',                     // pages/single.blade.php
+            'layouts.page',                     // layouts/page.blade.php
         ];
 
         foreach ($candidates as $view) {
@@ -65,7 +64,7 @@ class PageController extends Controller
     public function preview(int $id)
     {
         // Only allow preview for authenticated users with permission
-        if (!auth()->check() || !auth()->user()->hasPermission('pages.edit')) {
+        if (! auth()->check() || ! auth()->user()->hasPermission('pages.edit')) {
             abort(403);
         }
 

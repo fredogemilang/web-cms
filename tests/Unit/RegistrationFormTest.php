@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Rules\CorporateEmail;
 use App\Rules\PhoneNumberFormat;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Unit Tests for PRD 02 — Registration Form
@@ -27,12 +27,13 @@ class RegistrationFormTest extends TestCase
     private function detectCompanyType(string $companyName): ?string
     {
         $types = ['PT', 'CV', 'Firma', 'UD', 'Yayasan', 'Koperasi',
-                  'Ltd', 'LLC', 'Inc', 'Corp', 'Pte Ltd', 'GmbH', 'SA', 'AG'];
+            'Ltd', 'LLC', 'Inc', 'Corp', 'Pte Ltd', 'GmbH', 'SA', 'AG'];
         foreach ($types as $type) {
             if (stripos($companyName, $type) === 0) {
                 return $type;
             }
         }
+
         return null;
     }
 
@@ -40,8 +41,9 @@ class RegistrationFormTest extends TestCase
     {
         $cleaned = preg_replace('/[^\d]/', '', $phone);
         if (str_starts_with($cleaned, '0')) {
-            return '62' . substr($cleaned, 1);
+            return '62'.substr($cleaned, 1);
         }
+
         return $cleaned;
     }
 
@@ -52,7 +54,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function corporate_email_passes_for_corporate_domain(): void
     {
-        $rule = new CorporateEmail(); // no event ID = always validates domain
+        $rule = new CorporateEmail; // no event ID = always validates domain
         $failed = false;
 
         $rule->validate('email', 'john.doe@company.co.id', function () use (&$failed) {
@@ -65,7 +67,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function corporate_email_fails_for_gmail(): void
     {
-        $rule   = new CorporateEmail();
+        $rule = new CorporateEmail;
         $failed = false;
 
         $rule->validate('email', 'john.doe@gmail.com', function () use (&$failed) {
@@ -85,7 +87,7 @@ class RegistrationFormTest extends TestCase
             'mailinator.com', 'tempmail.org', '10minutemail.com', 'guerrillamail.com',
         ];
 
-        $rule = new CorporateEmail();
+        $rule = new CorporateEmail;
 
         foreach ($freeDomains as $domain) {
             $failed = false;
@@ -103,7 +105,7 @@ class RegistrationFormTest extends TestCase
         // Without eventId, rule skips the check (no event to check requires_corporate_email)
         // But when constructed without an eventId, it STILL validates the domain.
         // With eventId=null and no matching Event, the guard returns early (allowed).
-        $rule   = new CorporateEmail(null);
+        $rule = new CorporateEmail(null);
         $passed = true;
 
         // This should pass because eventId is null → guard returns early
@@ -119,7 +121,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function corporate_email_passes_empty_value(): void
     {
-        $rule   = new CorporateEmail();
+        $rule = new CorporateEmail;
         $failed = false;
 
         $rule->validate('email', '', function () use (&$failed) {
@@ -136,7 +138,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function phone_passes_valid_indonesian_number(): void
     {
-        $rule   = new PhoneNumberFormat();
+        $rule = new PhoneNumberFormat;
         $failed = false;
 
         $rule->validate('mobile_phone', '628123456789', function () use (&$failed) {
@@ -149,7 +151,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function phone_passes_with_plus_prefix(): void
     {
-        $rule   = new PhoneNumberFormat();
+        $rule = new PhoneNumberFormat;
         $failed = false;
 
         $rule->validate('mobile_phone', '+628123456789', function () use (&$failed) {
@@ -164,7 +166,7 @@ class RegistrationFormTest extends TestCase
     {
         // formatPhoneNumber converts 0 → 62, but the validation rule itself
         // checks the cleaned number. 0812 → cleaned = 0812... → no valid code match.
-        $rule   = new PhoneNumberFormat();
+        $rule = new PhoneNumberFormat;
         $failed = false;
 
         $rule->validate('mobile_phone', '08123456789', function () use (&$failed) {
@@ -180,7 +182,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function phone_fails_for_too_short_number(): void
     {
-        $rule   = new PhoneNumberFormat();
+        $rule = new PhoneNumberFormat;
         $failed = false;
 
         $rule->validate('mobile_phone', '6281', function () use (&$failed) {
@@ -193,7 +195,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function phone_fails_for_too_long_number(): void
     {
-        $rule   = new PhoneNumberFormat();
+        $rule = new PhoneNumberFormat;
         $failed = false;
 
         $rule->validate('mobile_phone', '628123456789012345678', function () use (&$failed) {
@@ -206,7 +208,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function phone_passes_singapore_number(): void
     {
-        $rule   = new PhoneNumberFormat();
+        $rule = new PhoneNumberFormat;
         $failed = false;
 
         $rule->validate('mobile_phone', '6591234567', function () use (&$failed) {
@@ -219,7 +221,7 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function phone_passes_empty_value(): void
     {
-        $rule   = new PhoneNumberFormat();
+        $rule = new PhoneNumberFormat;
         $failed = false;
 
         $rule->validate('mobile_phone', '', function () use (&$failed) {
@@ -293,7 +295,7 @@ class RegistrationFormTest extends TestCase
     public function capacity_check_logic_rejects_when_full(): void
     {
         $maxParticipants = 5;
-        $currentCount    = 5;
+        $currentCount = 5;
         $isFull = $currentCount >= $maxParticipants;
         $this->assertTrue($isFull, 'Event at max capacity should be detected as full');
     }
@@ -302,7 +304,7 @@ class RegistrationFormTest extends TestCase
     public function capacity_check_logic_allows_when_space_available(): void
     {
         $maxParticipants = 10;
-        $currentCount    = 7;
+        $currentCount = 7;
         $isFull = $currentCount >= $maxParticipants;
         $this->assertFalse($isFull, 'Event with space should not be full');
     }
@@ -322,18 +324,18 @@ class RegistrationFormTest extends TestCase
     #[Test]
     public function duplicate_detection_considers_cancelled_as_non_duplicate(): void
     {
-        $statuses       = ['cancelled'];
+        $statuses = ['cancelled'];
         $activeStatuses = ['pending', 'confirmed'];
-        $isDuplicate = !empty(array_intersect($statuses, $activeStatuses));
+        $isDuplicate = ! empty(array_intersect($statuses, $activeStatuses));
         $this->assertFalse($isDuplicate, 'Cancelled registration should allow re-registration');
     }
 
     #[Test]
     public function duplicate_detection_blocks_pending_registration(): void
     {
-        $statuses       = ['pending'];
+        $statuses = ['pending'];
         $activeStatuses = ['pending', 'confirmed'];
-        $isDuplicate = !empty(array_intersect($statuses, $activeStatuses));
+        $isDuplicate = ! empty(array_intersect($statuses, $activeStatuses));
         $this->assertTrue($isDuplicate, 'Pending registration should block re-registration');
     }
 }

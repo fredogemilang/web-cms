@@ -70,7 +70,7 @@ class CustomTaxonomy extends Model
      */
     public function getTermsTableName(): string
     {
-        return 'taxonomy_' . $this->slug;
+        return 'taxonomy_'.$this->slug;
     }
 
     /**
@@ -111,7 +111,7 @@ class CustomTaxonomy extends Model
     public function attachToPostType(string $postTypeSlug): void
     {
         $postTypes = $this->post_types ?? [];
-        if (!in_array($postTypeSlug, $postTypes)) {
+        if (! in_array($postTypeSlug, $postTypes)) {
             $postTypes[] = $postTypeSlug;
             $this->update(['post_types' => $postTypes]);
         }
@@ -122,7 +122,7 @@ class CustomTaxonomy extends Model
      */
     public function detachFromPostType(string $postTypeSlug): void
     {
-        $postTypes = array_filter($this->post_types ?? [], fn($slug) => $slug !== $postTypeSlug);
+        $postTypes = array_filter($this->post_types ?? [], fn ($slug) => $slug !== $postTypeSlug);
         $this->update(['post_types' => array_values($postTypes)]);
     }
 }

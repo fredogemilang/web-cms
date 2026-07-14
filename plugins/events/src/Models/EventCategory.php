@@ -2,6 +2,7 @@
 
 namespace Plugins\Events\Models;
 
+use App\Models\Media;
 use App\Traits\FindsByLocalizedSlug;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class EventCategory extends Model
 {
-    use SoftDeletes, HasTranslations, FindsByLocalizedSlug;
+    use FindsByLocalizedSlug, HasTranslations, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -49,7 +50,7 @@ class EventCategory extends Model
      */
     public function image()
     {
-        return $this->belongsTo(\App\Models\Media::class, 'image_id');
+        return $this->belongsTo(Media::class, 'image_id');
     }
 
     /**

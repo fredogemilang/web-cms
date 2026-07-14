@@ -2,27 +2,34 @@
 
 namespace Plugins\Events\Livewire;
 
-use Plugins\Events\Models\Event;
-use Plugins\Events\Models\EventCategory;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Plugins\Events\Models\Event;
+use Plugins\Events\Models\EventCategory;
 
 class EventsTable extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $categoryFilter = '';
+
     public $typeFilter = '';
+
     public $timeFilter = '';
+
     public $perPage = 10;
-    
+
     // Sorting
     public $sortField = 'start_date';
+
     public $sortDirection = 'desc';
-    
+
     public $selectedEvents = [];
+
     public $selectAll = false;
 
     protected $queryString = [
@@ -79,7 +86,7 @@ class EventsTable extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedEvents = $this->events->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selectedEvents = $this->events->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedEvents = [];
         }
@@ -91,8 +98,8 @@ class EventsTable extends Component
             ->with(['category', 'author', 'featuredImage'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->statusFilter, function ($query) {
@@ -135,8 +142,8 @@ class EventsTable extends Component
         $baseQuery = Event::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->categoryFilter, function ($query) {
@@ -188,22 +195,22 @@ class EventsTable extends Component
     public function deleteEvent($eventId)
     {
         $event = Event::find($eventId);
-        
+
         if ($event) {
             $event->delete();
             session()->flash('success', 'Event deleted successfully.');
         }
-        
+
         $this->selectedEvents = array_diff($this->selectedEvents, [(string) $eventId]);
     }
 
     public function deleteSelected()
     {
         $count = Event::whereIn('id', $this->selectedEvents)->delete();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' event(s) deleted successfully.');
+
+        session()->flash('success', $count.' event(s) deleted successfully.');
     }
 
     public function publishSelected()
@@ -213,36 +220,36 @@ class EventsTable extends Component
                 'status' => 'published',
                 'published_at' => now(),
             ]);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' event(s) published successfully.');
+
+        session()->flash('success', $count.' event(s) published successfully.');
     }
 
     public function draftSelected()
     {
         $count = Event::whereIn('id', $this->selectedEvents)
             ->update(['status' => 'draft']);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' event(s) moved to draft.');
+
+        session()->flash('success', $count.' event(s) moved to draft.');
     }
 
     public function cancelSelected()
     {
         $count = Event::whereIn('id', $this->selectedEvents)
             ->update(['status' => 'cancelled']);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' event(s) cancelled.');
+
+        session()->flash('success', $count.' event(s) cancelled.');
     }
 
     public function restore($eventId)
     {
         $event = Event::onlyTrashed()->find($eventId);
-        
+
         if ($event) {
             $event->restore();
             session()->flash('success', 'Event restored successfully.');
@@ -252,7 +259,7 @@ class EventsTable extends Component
     public function forceDelete($eventId)
     {
         $event = Event::onlyTrashed()->find($eventId);
-        
+
         if ($event) {
             $event->forceDelete();
             session()->flash('success', 'Event deleted permanently.');
@@ -262,19 +269,19 @@ class EventsTable extends Component
     public function restoreSelected()
     {
         $count = Event::onlyTrashed()->whereIn('id', $this->selectedEvents)->restore();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' event(s) restored successfully.');
+
+        session()->flash('success', $count.' event(s) restored successfully.');
     }
 
     public function forceDeleteSelected()
     {
         $count = Event::onlyTrashed()->whereIn('id', $this->selectedEvents)->forceDelete();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' event(s) deleted permanently.');
+
+        session()->flash('success', $count.' event(s) deleted permanently.');
     }
 
     public function render()

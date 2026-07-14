@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('event_speaker')) {
+        if (! Schema::hasTable('event_speaker')) {
             Schema::create('event_speaker', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('event_id');
@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->timestamps();
 
                 $table->unique(['event_id', 'speaker_id']);
-                
+
                 // Foreign keys
                 $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
                 $table->foreign('speaker_id')->references('id')->on('speakers')->onDelete('cascade');

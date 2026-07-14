@@ -1,38 +1,41 @@
 <?php
+
 namespace App\Controllers\Backend\Events;
 
 use App\Controllers\BaseController;
-use App\Models\EventsModel;
-use App\Models\EventAccessModel;
 use App\Models\ApprovalTypeModel;
+use App\Models\EventAccessModel;
+use App\Models\EventsModel;
 use App\Models\SubsidiariesModel;
-
-use CodeIgniter\Config\Services;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class EventSettingsController extends BaseController
 {
     protected $eventsModel;
+
     protected $eventAccessModel;
+
     protected $approvalTypeModel;
+
     protected $subsidiariesModel;
 
     public function __construct()
     {
-        $this->eventsModel = new EventsModel();
-        $this->eventAccessModel = new EventAccessModel();
-        $this->approvalTypeModel = new ApprovalTypeModel();
-        $this->subsidiariesModel = new SubsidiariesModel();
+        $this->eventsModel = new EventsModel;
+        $this->eventAccessModel = new EventAccessModel;
+        $this->approvalTypeModel = new ApprovalTypeModel;
+        $this->subsidiariesModel = new SubsidiariesModel;
     }
 
     public function edit_settings($id)
     {
         $event = $this->eventsModel->find($id);
-        if (!$event) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Event not found");
+        if (! $event) {
+            throw new PageNotFoundException('Event not found');
         }
         $currentUser = auth()->user();
         $canEdit = $this->eventAccessModel->hasAccess($currentUser->id, $id, 'edit');
-        if (!$canEdit) {
+        if (! $canEdit) {
             return redirect()->to('/adminpanel/all-events')->with('error', "you didn't have enough credentials to edit this event!");
         }
 
@@ -41,20 +44,20 @@ class EventSettingsController extends BaseController
         $rejectEmail = $this->approvalTypeModel->where('event_id', $id)->where('cat', 'rejected')->findAll();
         $defaultEmail = $this->approvalTypeModel->where('event_id', $id)->where('cat', 'default')->first();
         $event_access = $this->eventAccessModel->where('event_id', $id)->findAll();
-        
+
         $users = auth()->getProvider();
         foreach ($event_access as $key => $access) {
             $user = $users->findById($access['admin_id']);
-            if($access['access_type'] == "edit"){
-                $akses = "Approval - Edit Event - Delete Event";
-            }else{
-                $akses = "Approval";
+            if ($access['access_type'] == 'edit') {
+                $akses = 'Approval - Edit Event - Delete Event';
+            } else {
+                $akses = 'Approval';
             }
             $event_access[$key] = [
                 'id' => $access['id'],
                 'email' => $user->getEmail(),
                 'akses' => $akses,
-                'access_type' => $access['access_type']
+                'access_type' => $access['access_type'],
             ];
         }
 
@@ -87,9 +90,10 @@ class EventSettingsController extends BaseController
     public function getAvailableUser($eventId)
     {
         // Check if eventId is provided
-        if (!$eventId) {
+        if (! $eventId) {
             http_response_code(400);
             echo json_encode(['error' => 'Missing event_id']);
+
             return;
         }
 
@@ -100,30 +104,30 @@ class EventSettingsController extends BaseController
         $eventAccess = $this->eventAccessModel->where('event_id', $eventId)->findAll();
 
         // Extract admin IDs that already have access to the current event
-        $excludedUsers = array_map(fn($access) => $access['admin_id'], $eventAccess);
+        $excludedUsers = array_map(fn ($access) => $access['admin_id'], $eventAccess);
 
         // Fetch all users
         $allUsers = $users->findAll();
 
         // Filter out users that are in the current event
         $availableUsers = array_filter($allUsers, function ($user) use ($excludedUsers) {
-            return !in_array($user->id, $excludedUsers);
+            return ! in_array($user->id, $excludedUsers);
         });
 
         // Format user list for Tagify
         $userList = array_values(array_map(function ($user) {
             return [
-                'value'  => $user->id,
-                'name'   => $user->username,
-                'email'  => $user->getEmail(),
-                'avatar' => "https://ui-avatars.com/api/?name=" . urlencode($user->username) . "&background=random&size=32",
+                'value' => $user->id,
+                'name' => $user->username,
+                'email' => $user->getEmail(),
+                'avatar' => 'https://ui-avatars.com/api/?name='.urlencode($user->username).'&background=random&size=32',
             ];
         }, $availableUsers));
-        
+
         return $this->response->setJSON($userList);
     }
 
-    public function updateEventSettings($eventId = NULL)
+    public function updateEventSettings($eventId = null)
     {
         if ($this->request->isAJAX()) {
             $useCase = $this->request->getPost('useCase');
@@ -139,7 +143,7 @@ class EventSettingsController extends BaseController
 
                     $dataHTML = [
                         'event' => $event['name'],
-                        'email' => $event['sender_email']
+                        'email' => $event['sender_email'],
                     ];
                     $htmlTemplate = $parser->setData($dataHTML)->render('emails/approve');
 
@@ -147,7 +151,7 @@ class EventSettingsController extends BaseController
                         'event_id' => $eventId,
                         'cat' => 'approved',
                         'type_name' => $reason,
-                        'email_subject' => 'Approved Notification - ' . $event['name'],
+                        'email_subject' => 'Approved Notification - '.$event['name'],
                         'email_banner' => $event['banner'],
                         'email_body' => $htmlTemplate,
                     ], true);
@@ -169,17 +173,17 @@ class EventSettingsController extends BaseController
                                                 </div>
                                             </div>
                                             <div class=\"flex-shrink-0\">
-                                                <button data-typeid=".$insertedId." type=\"button\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-original-title=\"Edit Approve Reason & Email\" class=\"btn btn-icon btn-light-warning btnEditApproval me-2\">
-                                                    <i data-typeid=".$insertedId." class=\"ti ti-edit f-20 btnEditApproval\"></i>
+                                                <button data-typeid=".$insertedId.' type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit Approve Reason & Email" class="btn btn-icon btn-light-warning btnEditApproval me-2">
+                                                    <i data-typeid='.$insertedId.' class="ti ti-edit f-20 btnEditApproval"></i>
                                                 </button>
-                                                <button data-typeid=".$insertedId." type=\"button\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-original-title=\"Delete Approve Reason & Email\" class=\"btn btn-icon btn-light-danger btnDeleteApproval\">
-                                                    <i data-typeid=".$insertedId." class=\"ti ti-trash f-20 btnDeleteApproval\"></i>
+                                                <button data-typeid='.$insertedId.' type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete Approve Reason & Email" class="btn btn-icon btn-light-danger btnDeleteApproval">
+                                                    <i data-typeid='.$insertedId.' class="ti ti-trash f-20 btnDeleteApproval"></i>
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>"
+                            </div>',
                     ];
 
                     return $this->response->setJSON($response);
@@ -194,7 +198,7 @@ class EventSettingsController extends BaseController
 
                     $dataHTML = [
                         'event' => $event['name'],
-                        'email' => $event['sender_email']
+                        'email' => $event['sender_email'],
                     ];
                     $htmlTemplate = $parser->setData($dataHTML)->render('emails/approve');
 
@@ -202,7 +206,7 @@ class EventSettingsController extends BaseController
                         'event_id' => $eventId,
                         'cat' => 'rejected',
                         'type_name' => $reason,
-                        'email_subject' => 'Reject Notification - ' . $event['name'],
+                        'email_subject' => 'Reject Notification - '.$event['name'],
                         'email_banner' => $event['banner'],
                         'email_body' => $htmlTemplate,
                     ], true);
@@ -224,17 +228,17 @@ class EventSettingsController extends BaseController
                                                 </div>
                                             </div>
                                             <div class=\"flex-shrink-0\">
-                                                <button data-typeid=".$insertedId." type=\"button\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-original-title=\"Edit Reject Reason & Email\" class=\"btn btn-icon btn-light-warning me-2 btnEditApproval\">
-                                                    <i data-typeid=".$insertedId." class=\"ti ti-edit f-20 btnEditApproval\"></i>
+                                                <button data-typeid=".$insertedId.' type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit Reject Reason & Email" class="btn btn-icon btn-light-warning me-2 btnEditApproval">
+                                                    <i data-typeid='.$insertedId.' class="ti ti-edit f-20 btnEditApproval"></i>
                                                 </button>
-                                                <button data-typeid=".$insertedId." type=\"button\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-original-title=\"Delete Reject Reason & Email\" class=\"btn btn-icon btn-light-danger btnDeleteApproval\">
-                                                    <i data-typeid=".$insertedId." class=\"ti ti-trash f-20 btnDeleteApproval\"></i>
+                                                <button data-typeid='.$insertedId.' type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete Reject Reason & Email" class="btn btn-icon btn-light-danger btnDeleteApproval">
+                                                    <i data-typeid='.$insertedId.' class="ti ti-trash f-20 btnDeleteApproval"></i>
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>"
+                            </div>',
                     ];
 
                     return $this->response->setJSON($response);
@@ -286,7 +290,7 @@ class EventSettingsController extends BaseController
                     $isOneCompany = $this->request->getPost('one_company') === 'on' ? 1 : 0;
                     $defaultCompany = $this->request->getPost('default_company');
 
-                    if ($isOneCompany && !$defaultCompany) {
+                    if ($isOneCompany && ! $defaultCompany) {
                         return $this->response->setJSON([
                             'success' => false,
                             'message' => 'Default Company is required when "One Company" is enabled.',
@@ -312,66 +316,66 @@ class EventSettingsController extends BaseController
 
                     $event_id = $this->request->getPost('event_id');
                     $access_level = $this->request->getPost('access_level');
-                    $newCard = "";
-                    foreach($users as $user){
+                    $newCard = '';
+                    foreach ($users as $user) {
                         $this->eventAccessModel->insert([
                             'event_id' => $event_id,
                             'admin_id' => $user['value'],
-                            'access_type' => $access_level
+                            'access_type' => $access_level,
                         ], true);
 
-                        $alvl = "Approval - Edit Event - Delete Event";
+                        $alvl = 'Approval - Edit Event - Delete Event';
 
-                        if($access_level == "view"){
-                            $alvl = "Approval";
+                        if ($access_level == 'view') {
+                            $alvl = 'Approval';
                         }
-                        $newCard .="
-                            <div class=\"col-md-6 mb-3\">
-                                <div class=\"card shadow-none border mb-0\">
-                                    <div class=\"card-body p-3\">
-                                        <div class=\"d-flex align-items-center\">
-                                            <div class=\"flex-shrink-0\">
-                                                <div class=\"avtar avtar-s bg-light-secondary\">
-                                                    <i class=\"ph-duotone ph-user f-20\"></i>
+                        $newCard .= '
+                            <div class="col-md-6 mb-3">
+                                <div class="card shadow-none border mb-0">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="avtar avtar-s bg-light-secondary">
+                                                    <i class="ph-duotone ph-user f-20"></i>
                                                 </div>
                                             </div>
-                                            <div class=\"flex-grow-1 ms-3\">
-                                                <div class=\"gap-2 text-success\">
-                                                    <p class=\"mb-0\">".$user['email']."</p>
-                                                    <small class=\"text-muted mb-0 aksesteks\">".$alvl."</small>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="gap-2 text-success">
+                                                    <p class="mb-0">'.$user['email'].'</p>
+                                                    <small class="text-muted mb-0 aksesteks">'.$alvl.'</small>
                                                 </div>
                                             </div>
-                                            <div class=\"flex-shrink-0\">
-                                            <button type=\"button\" 
-                                                data-bs-toggle=\"tooltip\" 
-                                                data-typeid=".$user['value']."
-                                                data-email=".$user['email']."
-                                                data-bs-placement=\"top\" 
-                                                data-bs-original-title=\"Edit Access\" 
-                                                class=\"btn btn-icon btn-light-warning btnEditAccess\">
-                                                <i data-typeid=".$user['value']." data-email=".$user['email']." class=\"ti ti-edit f-20 btnEditAccess\"></i>
+                                            <div class="flex-shrink-0">
+                                            <button type="button" 
+                                                data-bs-toggle="tooltip" 
+                                                data-typeid='.$user['value'].'
+                                                data-email='.$user['email'].'
+                                                data-bs-placement="top" 
+                                                data-bs-original-title="Edit Access" 
+                                                class="btn btn-icon btn-light-warning btnEditAccess">
+                                                <i data-typeid='.$user['value'].' data-email='.$user['email'].' class="ti ti-edit f-20 btnEditAccess"></i>
                                             </button>
 
-                                            <button type=\"button\" 
-                                                    data-bs-toggle=\"tooltip\" 
-                                                    data-typeid=".$user['value']." 
-                                                    data-bs-placement=\"top\" 
-                                                    data-bs-original-title=\"Delete Access\" 
-                                                    class=\"btn btn-icon btn-light-danger btnDeleteAccess\">
-                                                <i data-typeid=".$user['value']." class=\"ti ti-trash f-20 btnDeleteAccess\"></i>
+                                            <button type="button" 
+                                                    data-bs-toggle="tooltip" 
+                                                    data-typeid='.$user['value'].' 
+                                                    data-bs-placement="top" 
+                                                    data-bs-original-title="Delete Access" 
+                                                    class="btn btn-icon btn-light-danger btnDeleteAccess">
+                                                <i data-typeid='.$user['value'].' class="ti ti-trash f-20 btnDeleteAccess"></i>
                                             </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>";
+                            </div>';
                     }
                     $response = [
                         'success' => true,
                         'message' => 'Access Shared successfully.',
-                        'newCardHTML' => $newCard
+                        'newCardHTML' => $newCard,
                     ];
-                    
+
                     break;
 
                 case 'editaccess':
@@ -390,13 +394,13 @@ class EventSettingsController extends BaseController
                     } else {
                         $response = [
                             'success' => false,
-                            'message' => 'Failed to update access level.'
+                            'message' => 'Failed to update access level.',
                         ];
                     }
                     break;
-                
+
                 default:
-                break;
+                    break;
             }
 
             return $this->response->setJSON($response);
@@ -405,40 +409,42 @@ class EventSettingsController extends BaseController
 
     public function deleteApproval($id)
     {
-        if (!$id) {
+        if (! $id) {
             return $this->respond(['success' => false, 'message' => 'Invalid ID provided'], 400);
         }
 
         if ($this->approvalTypeModel->find($id)) {
             $this->approvalTypeModel->delete($id);
+
             return $this->response->setJSON([
                 'success' => true,
-                'approval_type' => "Approval deleted successfully"
+                'approval_type' => 'Approval deleted successfully',
             ]);
         } else {
             return $this->response->setJSON([
                 'success' => false,
-                'approval_type' => "Failed to delete Approval"
+                'approval_type' => 'Failed to delete Approval',
             ]);
         }
     }
 
     public function deleteAccess($id)
     {
-        if (!$id) {
+        if (! $id) {
             return $this->respond(['success' => false, 'message' => 'Invalid ID provided'], 400);
         }
 
         if ($this->eventAccessModel->find($id)) {
             $this->eventAccessModel->delete($id);
+
             return $this->response->setJSON([
                 'success' => true,
-                'approval_type' => "Access deleted successfully"
+                'approval_type' => 'Access deleted successfully',
             ]);
         } else {
             return $this->response->setJSON([
                 'success' => false,
-                'approval_type' => "Failed to delete Access"
+                'approval_type' => 'Failed to delete Access',
             ]);
         }
     }
@@ -450,12 +456,12 @@ class EventSettingsController extends BaseController
         if ($approvalType) {
             return $this->response->setJSON([
                 'success' => true,
-                'approval_type' => $approvalType
+                'approval_type' => $approvalType,
             ]);
         } else {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Approval type not found.'
+                'message' => 'Approval type not found.',
             ]);
         }
     }
@@ -467,12 +473,12 @@ class EventSettingsController extends BaseController
         if ($accessType) {
             return $this->response->setJSON([
                 'success' => true,
-                'accessType' => $accessType
+                'accessType' => $accessType,
             ]);
         } else {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Approval type not found.'
+                'message' => 'Approval type not found.',
             ]);
         }
     }
@@ -484,7 +490,7 @@ class EventSettingsController extends BaseController
         $typeName = $this->request->getPost('type_name');
         $emailSubject = $this->request->getPost('email_subject');
         $emailBody = $this->request->getPost('email_body');
-        
+
         $data = [
             'type_name' => $typeName,
             'email_subject' => $emailSubject,
@@ -493,12 +499,12 @@ class EventSettingsController extends BaseController
 
         // Handle file upload for the banner
         $banner = $this->request->getFile('event_banner');
-        if ($banner && $banner->isValid() && !$banner->hasMoved()) {
+        if ($banner && $banner->isValid() && ! $banner->hasMoved()) {
             // Validate file size and dimensions
             if ($banner->getSize() > 500000) { // 500KB limit
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'The uploaded file exceeds the maximum size of 500KB.'
+                    'message' => 'The uploaded file exceeds the maximum size of 500KB.',
                 ]);
             }
 
@@ -507,7 +513,7 @@ class EventSettingsController extends BaseController
             if ($imageSize[0] > 800) { // 800px width limit
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'The uploaded file exceeds the maximum width of 800px.'
+                    'message' => 'The uploaded file exceeds the maximum width of 800px.',
                 ]);
             }
 
@@ -524,12 +530,12 @@ class EventSettingsController extends BaseController
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Approval type updated successfully!',
-                'approval_type' => array_merge(['id' => $approvalTypeId], $data)
+                'approval_type' => array_merge(['id' => $approvalTypeId], $data),
             ]);
         } else {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Failed to update approval type.'
+                'message' => 'Failed to update approval type.',
             ]);
         }
     }

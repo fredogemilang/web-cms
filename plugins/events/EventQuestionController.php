@@ -1,38 +1,43 @@
 <?php
+
 namespace App\Controllers\Backend\Events;
 
 use App\Controllers\BaseController;
-use App\Models\EventsModel;
-use App\Models\EventAccessModel;
 use App\Models\CustomQuestionModel;
+use App\Models\EventAccessModel;
+use App\Models\EventsModel;
 use App\Models\QuestionOptionModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class EventQuestionController extends BaseController
 {
     protected $eventsModel;
+
     protected $eventAccessModel;
+
     protected $customQuestionModel;
+
     protected $questionOptionModel;
 
     public function __construct()
     {
-        $this->eventsModel = new EventsModel();
-        $this->eventAccessModel = new EventAccessModel();
-        $this->customQuestionModel = new CustomQuestionModel();
-        $this->questionOptionModel = new QuestionOptionModel();
+        $this->eventsModel = new EventsModel;
+        $this->eventAccessModel = new EventAccessModel;
+        $this->customQuestionModel = new CustomQuestionModel;
+        $this->questionOptionModel = new QuestionOptionModel;
     }
 
     public function edit_cquestions($id)
     {
         $event = $this->eventsModel->find($id);
-        
-        if (!$event) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Event not found");
+
+        if (! $event) {
+            throw new PageNotFoundException('Event not found');
         }
-        
+
         $currentUser = auth()->user();
         $canEdit = $this->eventAccessModel->hasAccess($currentUser->id, $id, 'edit');
-        if (!$canEdit) {
+        if (! $canEdit) {
             return redirect()->to('/adminpanel/all-events')->with('error', "You don't have enough credentials to edit this event!");
         }
 
@@ -41,7 +46,7 @@ class EventQuestionController extends BaseController
         // Fix: Assign options properly using array keys
         foreach ($questions as $key => $question) {
             $options = $this->questionOptionModel->getOptionsByQuestion($question['id']);
-        
+
             // Extract only `option_text` values from the options array
             $questions[$key]['options'] = array_column($options, 'option_text');
         }
@@ -62,9 +67,9 @@ class EventQuestionController extends BaseController
             $questionId = $this->request->getPost('id');
 
             $data = [
-                'type'        => $this->request->getPost('type'),
-                'question'    => $this->request->getPost('question'),
-                'question_description'    => $this->request->getPost('questionDesc'),
+                'type' => $this->request->getPost('type'),
+                'question' => $this->request->getPost('question'),
+                'question_description' => $this->request->getPost('questionDesc'),
                 'short_label' => $this->request->getPost('short_label'),
                 // 'order'       => $nextSortOrder
             ];
@@ -79,26 +84,26 @@ class EventQuestionController extends BaseController
             ];
         } else {
             $maxSortOrder = $this->customQuestionModel
-            ->where('event_id', $this->request->getPost('event_id'))
-            ->selectMax('order')
-            ->get()
-            ->getRowArray();
+                ->where('event_id', $this->request->getPost('event_id'))
+                ->selectMax('order')
+                ->get()
+                ->getRowArray();
 
             $nextSortOrder = isset($maxSortOrder['order']) ? $maxSortOrder['order'] + 1 : 1;
-            
+
             $data = [
-                'event_id'    => $this->request->getPost('event_id'),
-                'type'        => $this->request->getPost('type'),
-                'question'    => $this->request->getPost('question'),
-                'question_description'    => $this->request->getPost('questionDesc'),
+                'event_id' => $this->request->getPost('event_id'),
+                'type' => $this->request->getPost('type'),
+                'question' => $this->request->getPost('question'),
+                'question_description' => $this->request->getPost('questionDesc'),
                 'short_label' => $this->request->getPost('short_label'),
-                'order'       => $nextSortOrder
+                'order' => $nextSortOrder,
             ];
             $questionId = $this->customQuestionModel->insert($data);
 
             $response = [
-                'status'  => 'success',
-                'id'      => $questionId,
+                'status' => 'success',
+                'id' => $questionId,
                 'message' => 'Custom Question inserted successfully.',
             ];
         }
@@ -113,7 +118,7 @@ class EventQuestionController extends BaseController
                 ]);
             }
         }
-        
+
         return $this->response->setJSON($response);
     }
 
@@ -124,6 +129,7 @@ class EventQuestionController extends BaseController
         if ($this->customQuestionModel->delete($id)) {
             return $this->response->setJSON(['status' => 'success']);
         }
+
         return $this->response->setJSON(['status' => 'error'], 500);
     }
 
@@ -140,16 +146,16 @@ class EventQuestionController extends BaseController
             return $this->response->setJSON(['status' => 'success']);
         }
 
-        throw new \CodeIgniter\Exceptions\PageNotFoundException('Invalid Request');
+        throw new PageNotFoundException('Invalid Request');
     }
 
     public function getQuestionOptions($questionId)
     {
         $options = $this->questionOptionModel->getOptionsByQuestion($questionId);
-        
+
         return $this->response->setJSON([
             'questionId' => $questionId,
-            'options' => $options
+            'options' => $options,
         ]);
     }
 }

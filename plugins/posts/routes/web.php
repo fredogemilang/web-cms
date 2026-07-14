@@ -1,11 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Plugins\Posts\Models\Post;
+use Plugins\Posts\Models\Setting;
 
 $adminPath = config('admin.path', config('cms.path', 'admin'));
 
 Route::middleware(['web', 'auth', 'permission:posts.view'])->prefix("{$adminPath}/posts")->name('admin.posts.')->group(function () {
-    
+
     // Posts
     Route::get('/', function () {
         return view('posts::index');
@@ -43,37 +45,37 @@ Route::middleware(['web', 'auth', 'permission:posts.view'])->prefix("{$adminPath
 
 // Public Routes
 Route::middleware(['web'])->group(function () {
-    $archiveSlug = \Plugins\Posts\Models\Setting::get('archive_slug', 'blog');
-    
+    $archiveSlug = Setting::get('archive_slug', 'blog');
+
     // Blog Index
     Route::get("/{$archiveSlug}", function () {
-        $featuredPosts = \Plugins\Posts\Models\Post::where('status', 'published')
+        $featuredPosts = Post::where('status', 'published')
             ->where('is_featured', true)
             ->latest()
             ->take(4)
             ->get();
-            
+
         return view('iccom::posts.index', compact('featuredPosts'));
     })->name('posts.index');
 
     // Category Index
     Route::get("/{$archiveSlug}/category/{category}", function ($category) {
-        $featuredPosts = \Plugins\Posts\Models\Post::where('status', 'published')
+        $featuredPosts = Post::where('status', 'published')
             ->where('is_featured', true)
             ->latest()
             ->take(4)
             ->get();
-            
+
         return view('iccom::posts.index', compact('featuredPosts', 'category'));
     })->name('posts.category');
 
     Route::get("/{$archiveSlug}/{slug}", function ($slug) {
-        $post = \Plugins\Posts\Models\Post::findByLocalizedSlug($slug);
-        abort_if(!$post, 404);
+        $post = Post::findByLocalizedSlug($slug);
+        abort_if(! $post, 404);
 
-        $dateFormat = \Plugins\Posts\Models\Setting::get('date_format', 'M d, Y');
-        $enableComments = (bool) \Plugins\Posts\Models\Setting::get('enable_comments', true);
-        $closeCommentsDays = (int) \Plugins\Posts\Models\Setting::get('close_comments_days', 0);
+        $dateFormat = Setting::get('date_format', 'M d, Y');
+        $enableComments = (bool) Setting::get('enable_comments', true);
+        $closeCommentsDays = (int) Setting::get('close_comments_days', 0);
 
         // Theme-aware view resolution
         $viewName = 'iccom::posts.single';

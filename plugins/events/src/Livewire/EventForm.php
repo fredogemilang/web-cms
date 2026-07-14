@@ -2,14 +2,14 @@
 
 namespace Plugins\Events\Livewire;
 
+use App\Models\Media;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Plugins\Events\Models\Event;
 use Plugins\Events\Models\EventCategory;
 use Plugins\Events\Models\Speaker;
-use App\Models\Media;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class EventForm extends Component
 {
@@ -17,50 +17,74 @@ class EventForm extends Component
 
     // Event ID for editing
     public $eventId;
+
     public $event;
 
     // Basic Info
     public $title = '';
+
     public $slug = '';
+
     public $description = '';
+
     public $content = '';
+
     public $category_id = null;
+
     public $status = 'draft';
 
     // Date & Time
     public $start_date;
+
     public $start_time;
+
     public $end_date;
+
     public $end_time;
+
     public $is_all_day = false;
+
     public $timezone = 'Asia/Jakarta';
 
     // Location
     public $event_type = 'offline';
+
     public $location = '';
+
     public $location_address = '';
+
     public $location_url = '';
+
     public $latitude;
+
     public $longitude;
+
     public $online_meeting_url = '';
 
     // Registration
     public $requires_registration = false;
+
     public $registration_requires_approval = false;
+
     public $max_participants;
+
     public $registration_deadline;
 
     // Media
     public $featured_image;
+
     public $featured_image_id;
+
     public $existingFeaturedImage;
-    
+
     // Gallery
     public $gallery_images = []; // Existing image paths
 
     // SEO
     public $meta_title = '';
+
     public $meta_description = '';
+
     public $meta_keywords = '';
 
     // Relational
@@ -77,7 +101,7 @@ class EventForm extends Component
     public function mount($eventId = null)
     {
         $this->eventId = $eventId;
-        
+
         if ($eventId) {
             $this->event = Event::with(['category', 'featuredImage'])->findOrFail($eventId);
             $this->loadEventData();
@@ -141,7 +165,7 @@ class EventForm extends Component
 
     public function updatedTitle($value)
     {
-        if (!$this->eventId) {
+        if (! $this->eventId) {
             $this->slug = Str::slug($value);
         }
     }
@@ -157,15 +181,15 @@ class EventForm extends Component
         if ($field === 'gallery_images') {
             // Append to gallery images if not already there
             // We store the path relative to storage root (public/...)
-            // The MediaPicker returns full path or relative? 
+            // The MediaPicker returns full path or relative?
             // Looking at MediaPicker, it returns $media->path or $media->webp_path.
-            // Usually 'events/filename.jpg'. 
+            // Usually 'events/filename.jpg'.
             // our gallery_images expects 'events/gallery/filename.jpg' (without public/ prefix usually?)
-            
+
             // Let's check what MediaPicker sends. It sends $media->path.
             // If Media model stores 'events/foo.jpg', that's what we get.
-            
-            if (!in_array($mediaPath, $this->gallery_images)) {
+
+            if (! in_array($mediaPath, $this->gallery_images)) {
                 $this->gallery_images[] = $mediaPath;
             }
         }
@@ -182,7 +206,7 @@ class EventForm extends Component
     {
         $this->validate([
             'title' => 'required|min:3|max:255',
-            'slug' => 'required|unique:events,slug,' . ($this->eventId ?? 'NULL'),
+            'slug' => 'required|unique:events,slug,'.($this->eventId ?? 'NULL'),
             'start_date' => 'required|date',
             'start_time' => 'required',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -205,15 +229,15 @@ class EventForm extends Component
         }
 
         // Combine date and time
-        $startDateTime = Carbon::parse($this->start_date . ' ' . $this->start_time, $this->timezone);
+        $startDateTime = Carbon::parse($this->start_date.' '.$this->start_time, $this->timezone);
         $endDateTime = null;
         if ($this->end_date && $this->end_time) {
-            $endDateTime = Carbon::parse($this->end_date . ' ' . $this->end_time, $this->timezone);
+            $endDateTime = Carbon::parse($this->end_date.' '.$this->end_time, $this->timezone);
         }
         if ($this->end_date && $this->end_time) {
-            $endDateTime = Carbon::parse($this->end_date . ' ' . $this->end_time, $this->timezone);
+            $endDateTime = Carbon::parse($this->end_date.' '.$this->end_time, $this->timezone);
         }
-        
+
         // Gallery images are already in $this->gallery_images (updated via listener)
 
         // Prepare data
@@ -242,8 +266,8 @@ class EventForm extends Component
             'featured_image_id' => $this->featured_image_id,
             'meta_title' => $this->meta_title,
             'meta_description' => $this->meta_description,
-            'meta_keywords' => !empty($this->meta_keywords) ? array_map('trim', explode(',', $this->meta_keywords)) : [],
-            'meta_keywords' => !empty($this->meta_keywords) ? array_map('trim', explode(',', $this->meta_keywords)) : [],
+            'meta_keywords' => ! empty($this->meta_keywords) ? array_map('trim', explode(',', $this->meta_keywords)) : [],
+            'meta_keywords' => ! empty($this->meta_keywords) ? array_map('trim', explode(',', $this->meta_keywords)) : [],
             'gallery_images' => $this->gallery_images,
         ];
 
@@ -260,9 +284,10 @@ class EventForm extends Component
             $event->speakers()->sync($this->speakers);
             $this->eventId = $event->id;
             session()->flash('success', 'Event created successfully!');
+
             return redirect()->route('admin.events.console.overview', $event->id);
         }
-        
+
         // Reset uploads
         // $this->gallery_images is kept to show the current state
     }

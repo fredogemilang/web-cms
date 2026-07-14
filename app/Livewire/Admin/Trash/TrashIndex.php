@@ -14,11 +14,12 @@ class TrashIndex extends Component
     use WithPagination;
 
     public string $resource = 'pages';
+
     public array $selected = [];
 
     protected array $resources = [
         'pages' => ['model' => Page::class,      'title_field' => 'title', 'label' => 'Pages'],
-        'cpt'   => ['model' => CptEntry::class,  'title_field' => 'title', 'label' => 'CPT Entries'],
+        'cpt' => ['model' => CptEntry::class,  'title_field' => 'title', 'label' => 'CPT Entries'],
         'forms' => ['model' => Form::class,      'title_field' => 'name',  'label' => 'Forms'],
         'media' => ['model' => Media::class,     'title_field' => 'filename', 'label' => 'Media'],
     ];

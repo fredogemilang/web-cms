@@ -24,18 +24,20 @@ class ResponsiveImageService
         $jpegPairs = [];
         $webpPairs = [];
         foreach ($variants as $label => $v) {
-            if (empty($v['path']) || empty($v['width'])) continue;
-            $jpegPairs[] = $diskUrl($v['path']) . " {$v['width']}w";
+            if (empty($v['path']) || empty($v['width'])) {
+                continue;
+            }
+            $jpegPairs[] = $diskUrl($v['path'])." {$v['width']}w";
             if (! empty($v['webp'])) {
-                $webpPairs[] = $diskUrl($v['webp']) . " {$v['width']}w";
+                $webpPairs[] = $diskUrl($v['webp'])." {$v['width']}w";
             }
         }
 
         // Include the original at its native width as the largest candidate.
         if ($media->width) {
-            $jpegPairs[] = $diskUrl($media->path) . " {$media->width}w";
+            $jpegPairs[] = $diskUrl($media->path)." {$media->width}w";
             if ($media->webp_path) {
-                $webpPairs[] = $diskUrl($media->webp_path) . " {$media->width}w";
+                $webpPairs[] = $diskUrl($media->webp_path)." {$media->width}w";
             }
         }
 

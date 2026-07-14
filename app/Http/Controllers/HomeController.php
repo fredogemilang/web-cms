@@ -20,15 +20,15 @@ class HomeController extends Controller
     {
         return view('iccom::pages.home', [
             'testimonials' => $this->latestEntries('testimonials', 6),
-            'partners'     => $this->latestEntries('our-partners'),
-            'page'         => $this->loadHomePage(),
+            'partners' => $this->latestEntries('our-partners'),
+            'page' => $this->loadHomePage(),
         ]);
     }
 
     protected function latestEntries(string $cptSlug, ?int $limit = null)
     {
         $cpt = CustomPostType::where('slug', $cptSlug)->first();
-        if (!$cpt) {
+        if (! $cpt) {
             return collect();
         }
 
@@ -47,8 +47,8 @@ class HomeController extends Controller
     protected function loadHomePage(): ?Page
     {
         return Page::with(['blocks' => function ($q) {
-                $q->whereNull('parent_block_id')->orderBy('order');
-            }])
+            $q->whereNull('parent_block_id')->orderBy('order');
+        }])
             ->where('slug', 'home')
             ->first();
     }

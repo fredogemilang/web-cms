@@ -2,25 +2,31 @@
 
 namespace Plugins\Posts\Livewire;
 
-use Plugins\Posts\Models\Post;
-use Plugins\Posts\Models\Category;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Plugins\Posts\Models\Category;
+use Plugins\Posts\Models\Post;
+use Plugins\Posts\Models\Setting;
 
 class PostsTable extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $categoryFilter = '';
+
     public $perPage = 10;
-    
+
     // Sorting
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
-    
+
     public $selectedPosts = [];
+
     public $selectAll = false;
 
     protected $queryString = [
@@ -65,7 +71,7 @@ class PostsTable extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selectedPosts = $this->posts->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selectedPosts = $this->posts->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selectedPosts = [];
         }
@@ -77,8 +83,8 @@ class PostsTable extends Component
             ->with(['author', 'categories'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('excerpt', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('excerpt', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->statusFilter, function ($query) {
@@ -107,8 +113,8 @@ class PostsTable extends Component
         $baseQuery = Post::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('excerpt', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('excerpt', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->categoryFilter, function ($query) {
@@ -144,22 +150,22 @@ class PostsTable extends Component
     public function deletePost($postId)
     {
         $post = Post::find($postId);
-        
+
         if ($post) {
             $post->delete();
             session()->flash('success', 'Post deleted successfully.');
         }
-        
+
         $this->selectedPosts = array_diff($this->selectedPosts, [(string) $postId]);
     }
 
     public function deleteSelected()
     {
         $count = Post::whereIn('id', $this->selectedPosts)->delete();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' post(s) deleted successfully.');
+
+        session()->flash('success', $count.' post(s) deleted successfully.');
     }
 
     public function publishSelected()
@@ -169,26 +175,26 @@ class PostsTable extends Component
                 'status' => 'published',
                 'published_at' => now(),
             ]);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' post(s) published successfully.');
+
+        session()->flash('success', $count.' post(s) published successfully.');
     }
 
     public function draftSelected()
     {
         $count = Post::whereIn('id', $this->selectedPosts)
             ->update(['status' => 'draft']);
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' post(s) moved to draft.');
+
+        session()->flash('success', $count.' post(s) moved to draft.');
     }
 
     public function restore($postId)
     {
         $post = Post::onlyTrashed()->find($postId);
-        
+
         if ($post) {
             $post->restore();
             session()->flash('success', 'Post restored successfully.');
@@ -198,7 +204,7 @@ class PostsTable extends Component
     public function forceDelete($postId)
     {
         $post = Post::onlyTrashed()->find($postId);
-        
+
         if ($post) {
             $post->forceDelete();
             session()->flash('success', 'Post deleted permanently.');
@@ -208,19 +214,19 @@ class PostsTable extends Component
     public function restoreSelected()
     {
         $count = Post::onlyTrashed()->whereIn('id', $this->selectedPosts)->restore();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' post(s) restored successfully.');
+
+        session()->flash('success', $count.' post(s) restored successfully.');
     }
 
     public function forceDeleteSelected()
     {
         $count = Post::onlyTrashed()->whereIn('id', $this->selectedPosts)->forceDelete();
-        
+
         $this->clearSelection();
-        
-        session()->flash('success', $count . ' post(s) deleted permanently.');
+
+        session()->flash('success', $count.' post(s) deleted permanently.');
     }
 
     public function render()
@@ -229,7 +235,7 @@ class PostsTable extends Component
             'posts' => $this->posts,
             'categories' => $this->categories,
             'statusCounts' => $this->statusCounts,
-            'archiveSlug' => \Plugins\Posts\Models\Setting::get('archive_slug', 'blog'),
+            'archiveSlug' => Setting::get('archive_slug', 'blog'),
         ]);
     }
 }

@@ -59,6 +59,7 @@ class ApiToken extends Model
     public function hasAbility(string $ability): bool
     {
         $abilities = $this->abilities ?? ['*'];
+
         return in_array('*', $abilities, true) || in_array($ability, $abilities, true);
     }
 
