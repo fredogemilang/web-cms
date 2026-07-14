@@ -70,6 +70,10 @@ class EventConsoleDoorprize extends Component
 
     public int $prizeMaxWinners = 1;
 
+    public $prizeImageUpload;
+
+    public ?string $prizeImagePath = null;
+
     // ─── Raffle ───
     public bool $showRaffleModal = false;
 
@@ -215,6 +219,7 @@ class EventConsoleDoorprize extends Component
         $this->prizeName = $prize->name;
         $this->prizeDescription = $prize->gift_description ?? '';
         $this->prizeMaxWinners = $prize->max_winners;
+        $this->prizeImagePath = $prize->image;
         $this->showPrizeModal = true;
     }
 
@@ -223,6 +228,7 @@ class EventConsoleDoorprize extends Component
         $this->validate([
             'prizeName' => 'required|string|max:255',
             'prizeMaxWinners' => 'required|integer|min:1',
+            'prizeImageUpload' => 'nullable|image|max:2048',
         ]);
 
         $data = [
@@ -231,6 +237,17 @@ class EventConsoleDoorprize extends Component
             'gift_description' => $this->prizeDescription,
             'max_winners' => $this->prizeMaxWinners,
         ];
+
+        if ($this->prizeImageUpload) {
+            if ($this->editingPrizeId) {
+                $prize = DoorprizePrize::find($this->editingPrizeId);
+                if ($prize && $prize->image) {
+                    Storage::disk('public')->delete($prize->image);
+                }
+            }
+            $path = $this->prizeImageUpload->store('events/doorprize/prizes', 'public');
+            $data['image'] = $path;
+        }
 
         if ($this->editingPrizeId) {
             DoorprizePrize::find($this->editingPrizeId)->update($data);
@@ -245,6 +262,17 @@ class EventConsoleDoorprize extends Component
         $this->dispatch('notify', type: 'success', message: 'Prize saved');
     }
 
+    public function removePrizeImage(int $prizeId)
+    {
+        $prize = DoorprizePrize::find($prizeId);
+        if ($prize && $prize->image) {
+            Storage::disk('public')->delete($prize->image);
+            $prize->update(['image' => null]);
+            $this->prizeImagePath = null;
+            $this->dispatch('notify', type: 'success', message: 'Prize image removed');
+        }
+    }
+
     private function resetPrizeForm()
     {
         $this->editingPrizeId = null;
@@ -252,6 +280,8 @@ class EventConsoleDoorprize extends Component
         $this->prizeName = '';
         $this->prizeDescription = '';
         $this->prizeMaxWinners = 1;
+        $this->prizeImageUpload = null;
+        $this->prizeImagePath = null;
     }
 
     // ═══════════════════════════════════════════════════════
@@ -272,6 +302,9 @@ class EventConsoleDoorprize extends Component
             if ($session) {
                 // Delete all prizes and their winners
                 foreach ($session->prizes as $prize) {
+                    if ($prize->image) {
+                        Storage::disk('public')->delete($prize->image);
+                    }
                     $prize->winners()->delete();
                     $prize->delete();
                 }
@@ -281,6 +314,9 @@ class EventConsoleDoorprize extends Component
         } elseif ($this->deleteType === 'prize') {
             $prize = DoorprizePrize::find($this->deletingId);
             if ($prize) {
+                if ($prize->image) {
+                    Storage::disk('public')->delete($prize->image);
+                }
                 $prize->winners()->delete();
                 $prize->delete();
             }

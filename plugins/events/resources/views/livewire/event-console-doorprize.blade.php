@@ -83,9 +83,15 @@
                                                 {{-- Card Header --}}
                                                 <div class="flex items-start justify-between gap-3 mb-3">
                                                     <div class="flex items-center gap-3">
-                                                        <div class="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                                                            <span class="material-symbols-outlined text-amber-500">emoji_events</span>
-                                                        </div>
+                                                        @if($prize->image)
+                                                            <div class="h-10 w-10 rounded-xl overflow-hidden shrink-0 border border-dark-border bg-dark-surface-lighter">
+                                                                <img src="{{ asset('storage/' . $prize->image) }}" class="w-full h-full object-cover"/>
+                                                            </div>
+                                                        @else
+                                                            <div class="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                                                                <span class="material-symbols-outlined text-amber-500">emoji_events</span>
+                                                            </div>
+                                                        @endif
                                                         <div class="min-w-0">
                                                             <h4 class="text-sm font-bold text-text-primary truncate">{{ $prize->name }}</h4>
                                                             @if($prize->gift_description)
@@ -519,6 +525,27 @@
                         <label class="block text-sm font-bold text-text-primary mb-1.5">Prize Name *</label>
                         <input type="text" wire:model="prizeName" class="w-full h-12 rounded-xl border border-dark-border bg-console-input px-4 text-sm text-text-primary focus:ring-1 focus:ring-[#2563EB]" placeholder="e.g. iPad Air"/>
                         @error('prizeName') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-text-primary mb-1.5">Prize Image</label>
+                        @if($prizeImagePath)
+                            <div class="relative rounded-xl overflow-hidden border border-dark-border w-24 h-24 mb-2 bg-dark-surface-lighter">
+                                <img src="{{ asset('storage/' . $prizeImagePath) }}" class="w-full h-full object-cover"/>
+                                <button type="button" wire:click="removePrizeImage({{ $editingPrizeId }})" class="absolute top-1 right-1 p-1 rounded bg-red-600/90 text-white hover:bg-red-700 transition-all" title="Remove Image">
+                                    <span class="material-symbols-outlined text-xs">delete</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        <div class="flex flex-col gap-2">
+                            <input type="file" wire:model="prizeImageUpload" accept="image/*" class="text-xs text-text-secondary file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-[#2563EB]/10 file:text-[#2563EB] hover:file:bg-[#2563EB]/20 file:cursor-pointer"/>
+                            @if($prizeImageUpload)
+                                <div class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">check_circle</span> Ready to upload
+                                </div>
+                            @endif
+                        </div>
+                        @error('prizeImageUpload') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-text-primary mb-1.5">Description</label>

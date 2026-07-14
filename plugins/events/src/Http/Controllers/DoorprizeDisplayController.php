@@ -37,6 +37,7 @@ class DoorprizeDisplayController extends Controller
                     return [
                         'id' => $prize->id,
                         'name' => $prize->name,
+                        'image' => $prize->image ? asset('storage/'.$prize->image) : null,
                         'gift_description' => $prize->gift_description,
                         'max_winners' => $prize->max_winners,
                         'winners_count' => $prize->activeWinners->count(),
@@ -150,6 +151,7 @@ class DoorprizeDisplayController extends Controller
             return [
                 'id' => $p->id,
                 'name' => $p->name,
+                'image' => $p->image ? asset('storage/'.$p->image) : null,
                 'max_winners' => $p->max_winners,
                 'winners_count' => $p->activeWinners->count(),
                 'remaining' => $p->getRemainingSlots(),
@@ -177,6 +179,7 @@ class DoorprizeDisplayController extends Controller
             ],
             'prize' => [
                 'name' => $prize->name,
+                'image' => $prize->image ? asset('storage/'.$prize->image) : null,
                 'remaining' => $updatedPrize->getRemainingSlots(),
                 'winners_count' => $updatedPrize->activeWinners->count(),
             ],
@@ -291,6 +294,7 @@ class DoorprizeDisplayController extends Controller
             return [
                 'id' => $prize->id,
                 'name' => $prize->name,
+                'image' => $prize->image ? asset('storage/'.$prize->image) : null,
                 'max_winners' => $prize->max_winners,
                 'winners_count' => $prize->activeWinners->count(),
                 'remaining' => $prize->getRemainingSlots(),
@@ -352,6 +356,7 @@ class DoorprizeDisplayController extends Controller
             return [
                 'id' => $prize->id,
                 'name' => $prize->name,
+                'image' => $prize->image ? asset('storage/'.$prize->image) : null,
                 'max_winners' => $prize->max_winners,
                 'winners_count' => $prize->activeWinners->count(),
                 'remaining' => $prize->getRemainingSlots(),

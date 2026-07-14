@@ -450,7 +450,10 @@
 
         {{-- Center Stage --}}
         <div class="stage">
-            <div id="prizeInfo" class="prize-info" style="display:none">
+            <div id="prizeInfo" class="prize-info" style="display:none; text-align:center;">
+                <div id="prizeImageContainer" style="display:none; margin: 0 auto 12px; width: 140px; height: 140px; border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
+                    <img id="prizeImage" src="" style="width:100%; height:100%; object-fit:cover;"/>
+                </div>
                 <div class="prize-name" id="prizeNameDisplay"></div>
                 <div style="display:none">Remaining: <span id="prizeRemaining"></span> / <span id="prizeTotal"></span></div>
             </div>
@@ -471,6 +474,9 @@
             {{-- Winner Reveal --}}
             <div id="winnerReveal" class="winner-reveal">
                 <span class="material-symbols-outlined trophy">emoji_events</span>
+                <div id="winnerPrizeImageContainer" style="display:none; margin: 0 auto 16px; width: 120px; height: 120px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(251, 191, 36, 0.4); box-shadow: 0 8px 20px rgba(0,0,0,0.04);">
+                    <img id="winnerPrizeImage" src="" style="width:100%; height:100%; object-fit:cover;"/>
+                </div>
                 <div class="wname" id="winnerName"></div>
                 <div class="worg" id="winnerOrg"></div>
                 <div class="wprize" id="winnerPrize"></div>
@@ -759,6 +765,17 @@ function updateUI() {
         document.getElementById('prizeNameDisplay').textContent = currentPrize.name;
         document.getElementById('prizeRemaining').textContent = currentPrize.remaining;
         document.getElementById('prizeTotal').textContent = currentPrize.max_winners;
+        
+        const prizeImgContainer = document.getElementById('prizeImageContainer');
+        const prizeImg = document.getElementById('prizeImage');
+        if (currentPrize.image) {
+            prizeImg.src = currentPrize.image;
+            prizeImgContainer.style.display = 'block';
+        } else {
+            prizeImgContainer.style.display = 'none';
+            prizeImg.src = '';
+        }
+
         info.style.display = '';
 
         const activeWinners = currentPrize.winners ? currentPrize.winners.filter(w => w.status !== 'redraw') : [];
@@ -794,6 +811,17 @@ function showWinnerCardOnly(winner, prizeName) {
     document.getElementById('winnerName').textContent = winner.name;
     document.getElementById('winnerOrg').textContent = winner.organization || '';
     document.getElementById('winnerPrize').textContent = '🎁 ' + prizeName;
+    
+    const winnerPrizeImgContainer = document.getElementById('winnerPrizeImageContainer');
+    const winnerPrizeImg = document.getElementById('winnerPrizeImage');
+    if (currentPrize && currentPrize.image) {
+        winnerPrizeImg.src = currentPrize.image;
+        winnerPrizeImgContainer.style.display = 'block';
+    } else {
+        winnerPrizeImgContainer.style.display = 'none';
+        winnerPrizeImg.src = '';
+    }
+
     document.getElementById('winnerReveal').classList.add('visible');
     document.getElementById('rollerContainer').style.display = 'none';
 }
@@ -884,7 +912,12 @@ function buildMultiModeSlots() {
             `;
         }
 
+        const prizeImgHtml = p.image 
+            ? `<div style="width: 100%; height: 80px; margin-bottom: 8px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06);"><img src="${p.image}" style="width: 100%; height: 100%; object-fit: cover;" /></div>` 
+            : '';
+
         card.innerHTML = `
+            ${prizeImgHtml}
             <div class="prize-tag">🎁 ${escHtml(p.name)}</div>
             <div class="card-slots-container">
                 ${slotsHtml}
@@ -1153,6 +1186,17 @@ function showWinner(winner, prizeName) {
     document.getElementById('winnerName').textContent = winner.name;
     document.getElementById('winnerOrg').textContent = winner.organization || '';
     document.getElementById('winnerPrize').textContent = '🎁 ' + prizeName;
+
+    const winnerPrizeImgContainer = document.getElementById('winnerPrizeImageContainer');
+    const winnerPrizeImg = document.getElementById('winnerPrizeImage');
+    if (currentPrize && currentPrize.image) {
+        winnerPrizeImg.src = currentPrize.image;
+        winnerPrizeImgContainer.style.display = 'block';
+    } else {
+        winnerPrizeImgContainer.style.display = 'none';
+        winnerPrizeImg.src = '';
+    }
+
     document.getElementById('winnerReveal').classList.add('visible');
 
     const count = 200;
