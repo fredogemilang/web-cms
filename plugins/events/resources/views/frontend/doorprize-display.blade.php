@@ -451,8 +451,8 @@
         {{-- Center Stage --}}
         <div class="stage">
             <div id="prizeInfo" style="display:none; text-align:center;">
-                <div id="prizeImageContainer" style="display:none; margin: 0 auto 16px; width: 140px; height: 140px; border-radius: 24px; overflow: hidden; border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: rgba(255,255,255,0.45); backdrop-filter: blur(10px);">
-                    <img id="prizeImage" src="" style="width:100%; height:100%; object-fit:cover;"/>
+                <div id="prizeImageContainer" style="display:none; margin: 0 auto 16px; width: 140px; height: 140px; border-radius: 24px; overflow: hidden; border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: rgba(255,255,255,0.6); backdrop-filter: blur(10px);">
+                    <img id="prizeImage" src="" style="width:100%; height:100%; object-fit:contain;"/>
                 </div>
                 <div class="prize-info">
                     <div class="prize-name" id="prizeNameDisplay"></div>
@@ -476,8 +476,8 @@
             {{-- Winner Reveal --}}
             <div id="winnerReveal" class="winner-reveal">
                 <span class="material-symbols-outlined trophy">emoji_events</span>
-                <div id="winnerPrizeImageContainer" style="display:none; margin: 0 auto 16px; width: 120px; height: 120px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(251, 191, 36, 0.4); box-shadow: 0 8px 20px rgba(0,0,0,0.04);">
-                    <img id="winnerPrizeImage" src="" style="width:100%; height:100%; object-fit:cover;"/>
+                <div id="winnerPrizeImageContainer" style="display:none; margin: 0 auto 16px; width: 120px; height: 120px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(251, 191, 36, 0.4); box-shadow: 0 8px 20px rgba(0,0,0,0.04); background: rgba(255,255,255,0.6);">
+                    <img id="winnerPrizeImage" src="" style="width:100%; height:100%; object-fit:contain;"/>
                 </div>
                 <div class="wname" id="winnerName"></div>
                 <div class="worg" id="winnerOrg"></div>
@@ -915,7 +915,7 @@ function buildMultiModeSlots() {
         }
 
         const prizeImgHtml = p.image 
-            ? `<div style="width: 100%; height: 80px; margin-bottom: 8px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06);"><img src="${p.image}" style="width: 100%; height: 100%; object-fit: cover;" /></div>` 
+            ? `<div style="width: 100%; height: 80px; margin-bottom: 8px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.6);"><img src="${p.image}" style="width: 100%; height: 100%; object-fit: contain;" /></div>` 
             : '';
 
         card.innerHTML = `
