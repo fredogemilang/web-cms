@@ -26,7 +26,7 @@
 
         /* Center stage */
         .stage { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:0 40px; }
-        .prize-info { text-align:center; font-size:14px; font-weight:700; color:#475569; background: rgba(255, 255, 255, 0.65); padding: 10px 28px; border-radius: 100px; border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
+        .prize-info { display: inline-block; text-align:center; font-size:14px; font-weight:700; color:#475569; background: rgba(255, 255, 255, 0.65); padding: 10px 28px; border-radius: 100px; border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
         .prize-info .prize-name { font-size:26px; font-weight:900; color:#d97706; margin-bottom:2px; }
 
         /* Roller */
@@ -450,12 +450,14 @@
 
         {{-- Center Stage --}}
         <div class="stage">
-            <div id="prizeInfo" class="prize-info" style="display:none; text-align:center;">
-                <div id="prizeImageContainer" style="display:none; margin: 0 auto 12px; width: 140px; height: 140px; border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
+            <div id="prizeInfo" style="display:none; text-align:center;">
+                <div id="prizeImageContainer" style="display:none; margin: 0 auto 16px; width: 140px; height: 140px; border-radius: 24px; overflow: hidden; border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: rgba(255,255,255,0.45); backdrop-filter: blur(10px);">
                     <img id="prizeImage" src="" style="width:100%; height:100%; object-fit:cover;"/>
                 </div>
-                <div class="prize-name" id="prizeNameDisplay"></div>
-                <div style="display:none">Remaining: <span id="prizeRemaining"></span> / <span id="prizeTotal"></span></div>
+                <div class="prize-info">
+                    <div class="prize-name" id="prizeNameDisplay"></div>
+                    <div style="display:none">Remaining: <span id="prizeRemaining"></span> / <span id="prizeTotal"></span></div>
+                </div>
             </div>
 
             {{-- Idle --}}
