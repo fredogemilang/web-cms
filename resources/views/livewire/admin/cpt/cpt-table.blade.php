@@ -127,21 +127,21 @@
                                 <div class="flex items-center justify-end gap-1">
                                     <a 
                                         href="{{ route('admin.cpt.entries.index', $cpt->slug) }}"
-                                        class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-emerald-500 flex items-center justify-center transition-colors"
+                                        class="h-9 w-9 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 flex items-center justify-center transition-colors"
                                         data-tooltip="View Entries"
                                     >
                                         <span class="material-symbols-outlined text-[20px]">folder_open</span>
                                     </a>
                                     <a 
                                         href="{{ route('admin.cpt.edit', $cpt->id) }}"
-                                        class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
+                                        class="h-9 w-9 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 flex items-center justify-center transition-colors"
                                         data-tooltip="Edit"
                                     >
                                         <span class="material-symbols-outlined text-[20px]">edit</span>
                                     </a>
                                     <button 
                                         wire:click="confirmDelete({{ $cpt->id }})"
-                                        class="h-9 w-9 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-[#6F767E] hover:text-[#FF6A55] flex items-center justify-center transition-colors"
+                                        class="h-9 w-9 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
                                         data-tooltip="Delete"
                                     >
                                         <span class="material-symbols-outlined text-[20px]">delete</span>

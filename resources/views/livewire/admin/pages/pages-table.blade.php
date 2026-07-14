@@ -193,36 +193,36 @@
                                 <div class="flex items-center justify-end gap-1">
                                     @if($status === 'trash')
                                         <button wire:click="restore({{ $page->id }})"
-                                            class="h-9 w-9 rounded-xl hover:bg-green-50 dark:hover:bg-green-500/10 text-[#6F767E] hover:text-green-500 flex items-center justify-center transition-colors"
+                                            class="h-9 w-9 rounded-xl text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 flex items-center justify-center transition-colors"
                                             data-tooltip="Restore">
                                             <span class="material-symbols-outlined text-lg">restore_from_trash</span>
                                         </button>
                                         <button wire:click="forceDelete({{ $page->id }})"
                                             wire:confirm="Are you sure? This will permanently delete this page and cannot be undone."
-                                            class="h-9 w-9 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-[#6F767E] hover:text-[#FF6A55] flex items-center justify-center transition-colors"
+                                            class="h-9 w-9 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
                                             data-tooltip="Delete Permanently">
                                             <span class="material-symbols-outlined text-lg">delete_forever</span>
                                         </button>
                                     @else
                                     <a href="{{ route('admin.pages.edit', $page->id) }}"
-                                        class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
+                                        class="h-9 w-9 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 flex items-center justify-center transition-colors"
                                         data-tooltip="Edit">
                                         <span class="material-symbols-outlined text-lg">edit</span>
                                     </a>
                                     <button wire:click="duplicate({{ $page->id }})"
-                                        class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
+                                        class="h-9 w-9 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 flex items-center justify-center transition-colors"
                                         data-tooltip="Duplicate">
                                         <span class="material-symbols-outlined text-lg">content_copy</span>
                                     </button>
                                     @if($page->status === 'published')
                                         <a href="{{ url($page->slug) }}" target="_blank"
-                                            class="h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
+                                            class="h-9 w-9 rounded-xl text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/20 flex items-center justify-center transition-colors"
                                             data-tooltip="View">
                                             <span class="material-symbols-outlined text-lg">visibility</span>
                                         </a>
                                     @endif
                                     <button wire:click="confirmDelete({{ $page->id }})"
-                                        class="h-9 w-9 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-[#6F767E] hover:text-[#FF6A55] flex items-center justify-center transition-colors"
+                                        class="h-9 w-9 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
                                         data-tooltip="Move to Trash">
                                         <span class="material-symbols-outlined text-lg">delete</span>
                                     </button>

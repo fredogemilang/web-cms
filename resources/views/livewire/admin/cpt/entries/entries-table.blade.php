@@ -191,28 +191,28 @@
                                     @if($status === 'trash')
                                         <button 
                                             wire:click="restore({{ $entry->id }})"
-                                            class="relative group/restore w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] transition-colors"
+                                            class="w-9 h-9 p-2 rounded-xl text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 flex items-center justify-center transition-colors"
                                             data-tooltip="Restore">
                                             <span class="material-symbols-outlined text-[20px]">restore_from_trash</span>
                                         </button>
                                         <button 
                                             x-data
                                             @click="$dispatch('open-force-delete-modal', { entryId: {{ $entry->id }}, entryTitle: '{{ addslashes($entry->title) }}' })"
-                                            class="relative group/delete w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] transition-colors"
+                                            class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
                                             data-tooltip="Delete Permanently">
                                             <span class="material-symbols-outlined text-[20px]">delete_forever</span>
                                         </button>
                                     @else
                                         <a 
                                             href="{{ route('admin.cpt.entries.edit', [$postType->slug, $entry->id]) }}"
-                                            class="relative group/edit w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] transition-colors"
+                                            class="w-9 h-9 p-2 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 flex items-center justify-center transition-colors"
                                             data-tooltip="Edit">
                                             <span class="material-symbols-outlined text-[20px]">edit</span>
                                         </a>
                                         <button 
                                             x-data
                                             @click="$dispatch('open-delete-modal', { entryId: {{ $entry->id }}, entryTitle: '{{ addslashes($entry->title) }}' })"
-                                            class="relative group/delete w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] transition-colors"
+                                            class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
                                             data-tooltip="Move to Trash">
                                             <span class="material-symbols-outlined text-[20px]">delete</span>
                                         </button>

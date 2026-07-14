@@ -181,7 +181,7 @@
                             <div class="flex gap-2 items-center justify-end">
                                 @can('users.view')
                                 <a href="{{ route('admin.users.show', $user) }}" wire:navigate
-                                    class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
+                                    class="w-9 h-9 p-2 rounded-xl text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/20 flex items-center justify-center transition-colors"
                                     data-tooltip="View User">
                                     <span class="material-symbols-outlined text-[20px]">visibility</span>
                                 </a>
@@ -189,7 +189,7 @@
                                 
                                 @can('users.edit')
                                 <a href="{{ route('admin.users.edit', $user) }}" wire:navigate
-                                    class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#2563EB] flex items-center justify-center transition-colors"
+                                    class="w-9 h-9 p-2 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 flex items-center justify-center transition-colors"
                                     data-tooltip="Edit User">
                                     <span class="material-symbols-outlined text-[20px]">edit</span>
                                 </a>
@@ -200,7 +200,7 @@
                                 <button 
                                     x-data
                                     @click="$dispatch('open-delete-modal', { userId: {{ $user->id }}, userName: '{{ addslashes($user->name) }}' })"
-                                    class="w-9 h-9 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#272B30] text-[#6F767E] hover:text-[#FF6A55] flex items-center justify-center transition-colors"
+                                    class="w-9 h-9 p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center justify-center transition-colors"
                                     data-tooltip="Delete User">
                                     <span class="material-symbols-outlined text-[20px]">delete</span>
                                 </button>
